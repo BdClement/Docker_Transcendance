@@ -83,7 +83,17 @@ class Tournament(models.Model):
 
 
 
-#Gestion d'une partie annulee = partie a rejouer car marque comme is_finished=False
+#Gestion d'une partie annulee = partie a rejouer car marque comme is_finished=False ??
+
+#Score d'un tournoi :
+#	-Retranscription du score de toute les parties par tour
+#	-Retranscription plus simple uniquement la finale
+#	-Retranscription intermediaire : tous les participants, et le score de la finale
+#	-Retranscrire uniquement le parcours du vainqueur
+
+
+
+
 
 
 
