@@ -22,7 +22,7 @@ RUN python manage.py collectstatic --noinput
 
 #Ajout des fichiers de migrations dans le container a la construction de l'image
 #(Si on decide ne pas partager les fichier de migrations pour la version final du projet)
-# RUN python manage.py makemigrations
+RUN python manage.py makemigrations
 
 # Exposer le port sur lequel Daphne va écouter (8000 par défaut)
 EXPOSE 8000
@@ -30,12 +30,3 @@ EXPOSE 8000
 # Executez les migrations et Démarrer Daphne pour servir l'application
 CMD ["bash", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 Transcendance.asgi:application"]
 
-
-
-
-
-#Pour creer et lancer individuellement le container
-#docker build -t my-django-app .
-#docker run --name mydjango --link redis-server:redis-server my-django-app
-
-#-p 8000:8000 Ne plus mapper le port 8000 de ma machine au port 8000 de mon application pour ne passer que par le reverse-proxy NGINX

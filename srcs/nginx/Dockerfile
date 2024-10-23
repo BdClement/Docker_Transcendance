@@ -19,10 +19,3 @@ EXPOSE 443
 
 
 
-
-
-#Pour creer et lancer individuellement le container
-#docker build -t my-nginx .
-#docker run -d --name mynginx --link mydjango:mydjango --link redis-server:redis-server -v ~/certs/certificate.crt:/etc/nginx/ssl/certificate.crt:ro -v ~/certs/private.key:/etc/nginx/ssl/private.key:ro -p 8080:80 -p 8443:443 my-nginx
-
-

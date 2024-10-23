@@ -34,6 +34,9 @@ clean: down
 		@echo "$(RED)Cleaning $(NAME) docker$(RESET)"
 		@docker system prune -af
 
+clean-db:
+	docker volume rm srcs_db_data || true
+
 fclean: clean
 
 re: fclean all
@@ -46,6 +49,7 @@ help:
 	@echo "  make view            Global view of containers/images"
 	@echo "  make down            Stop the application"
 	@echo "  make clean           Clean resources"
+	@echo "  make clean-db        Clean db-volume"
 	@echo "  make fclean          Force clean up"
 	@echo "  make re              Rebuild and launch the application"
 

@@ -7,6 +7,5 @@ from .consumers import PlayConsumer
 #re_path pour les path avec regex (expressions regulieres)
 
 websocket_urlpatterns = [
-	path('wss/game/<int:game_id>/',  PlayConsumer.as_asgi()),# A modifier
-	# path('ws/play/<int:play_id>/',  PlayConsumer.as_asgi()),
+	path('wss/game/<int:game_id>/',  PlayConsumer.as_asgi()),
 ]

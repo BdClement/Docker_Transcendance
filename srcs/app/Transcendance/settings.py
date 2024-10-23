@@ -12,12 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-# from dotenv import load_dotenv
-
-# load_dotenv()#Charge les variables d'environnement
-
-# SSL_CERT_PATH = os.getenv('SSL_CERT_PATH')
-# SSL_KEY_PATH = os.getenv('SSL_KEY_PATH')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'rest_framework',
 	'channels',
+	'authentication',
 	'game',
 ]
 
@@ -60,6 +55,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',# Pour consigurer daphne pour trouver les fichier static
 	#python manage.py collectstatic pour trouver les fichier static (Django le fait seul)
+]
+
+#Ajoute pour autoriser l'origne HTTPS (Schema / Nom D'Hote / Port) puisque utilisation d'un proxy
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:8443',
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'
@@ -90,13 +90,15 @@ ASGI_APPLICATION = 'Transcendance.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db/db.sqlite3',#Changement effectue ici pour que la base de donnee soit dans un volume Docker
+        'NAME': BASE_DIR / 'db/db.sqlite3',
     }
 }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = 'authentication.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -165,4 +167,24 @@ CHANNEL_LAYERS = {
             'expiry': 120,     # Messages expirent après 1 minute
         },
     },
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+
+#Ajoute pour la pagnination de DRF
+REST_FRAMEWORK = {
+	'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',#LimitOffsetPagination (plus avances)
+	'PAGE_SIZE': 5,
 }

@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 from game.models import Play, Tournament
 from game.serializer import PlayCreateSerializer, PlayDetailSerializer
@@ -20,7 +22,6 @@ def index(request):
 #La ValidationError raise implique que DRF repond automatiquement une 400 Bad Request (Utile pour des erreurs de validation simple)
 class PlayCreateAPIView(APIView):
 	def post(self, request):
-		# print("Request data:", request.data)
 		#Pre validation pour eviter des operations plus couteuses si les fields requis ne sont pas present
 		if 'remote' not in request.data or 'nb_players' not in request.data:
 			raise ValidationError('remote and nb_players are required')
@@ -30,7 +31,11 @@ class PlayCreateAPIView(APIView):
 		#Recuperer les donnees depuis la requete directement grace au serializer pour simplifier la vue
 		serializer = PlayCreateSerializer(data=request.data)
 		if serializer.is_valid(raise_exception=True):
-			serializer.save()
+			# A RETIRER PUISQUE API POUR INSCRIRE UN JOUEUR A UNE PARTIE
+			if request.user.is_authenticated:
+				serializer.save(player1=request.user)
+			else :
+				serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		#Reponse BAD_REQUEST generee automatiquement dans la validation du serializer
 
@@ -46,9 +51,28 @@ class PlayDetailAPIView(APIView):
 			return Response({'error': 'url required play_id'}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 		serializer = PlayDetailSerializer(play)
 		return Response(serializer.data, status=status.HTTP_200_OK)
+
+#Cet API permet de relier un User dans l'objet Partie. Il doit etre utilise en ce sens
+#Sauf lorsque un User connecte cree une partie, il est directement connecte en tant que player1 dans la partie
+class PlaySubscribeAPIView(APIView):
+	def put(self, request, *args, **kwargs):
+		try:
+			play_id = kwargs.get('play_id')
+			play = Play.objects.get(pk=play_id)
+		except Play.DoesNotExist:
+			return Response({'error': 'Play object not found'}, status=status.HTTP_404_NOT_FOUND)
+		except (ValueError, TypeError):
+			return Response({'error': 'url required play_id'}, status=status.HTTP_400_BAD_REQUEST)
+		except Exception as e:
+			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+		if request.user.is_authenticated:
+			if not play.add_player(request.user):
+				return Response({'error': 'app player to play failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		return Response({'message': 'Player added successfully'},status=status.HTTP_200_OK)
+
 
 #Pour la creation et la lecture des donnees d'une partie, j'ai opte pour une separation des taches avec un serializer et une vue pour chaque tache
 #Ce choix est viable si peu d'actions sont exposees, et permet de garder un controle total en limitant l'exposition d'actions non desirees
@@ -57,9 +81,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 	queryset = Tournament.objects.all()
 	serializer_class = TournamentSerializer
-
-	def list(self, request, *args, **kwargs):
-		raise MethodNotAllowed('GET')
 
 	def update(self, request, *args, **kwargs):
 		raise MethodNotAllowed('PUT')
@@ -70,39 +91,38 @@ class TournamentViewSet(viewsets.ModelViewSet):
 	def destroy(self, request, *args, **kwargs):
 		raise MethodNotAllowed('DELETE')
 
-	#Surcharge pour personnalisees les comportement sinon gerees par defaut par le viewset
-	# def retrieve(self, request, *args, **kwargs):
-	# 	return super().retrieve(request, *args, **kwargs)
+	#Decorateur permettant une action personnalisee dans un ViewSet
+	#detail = S'applique a un objet en particulier
+	#url_path le path a utiliser pour acceder a l'API
+	#url_name specifier dans les urls via la methode reverse()
+	@action(detail=True, methods=['get'], url_path='next-play', url_name='next_play')
+	def next_play(self, request, pk=None):
+		try:
+			tournament = self.get_object()#methode de ViewSet qui recupere l'objet
+		except Tournament.DoesNotExist:
+			return Response({'error': 'Tournament Not Found'}, status=status.HTTP_404_NOT_FOUND)
+		if tournament.is_finished:
+			return Response({'message': 'Tournament is finished'}, status=status.HTTP_410_GONE)
+		#Recupere toute les parties associees au tournoi
+		plays = Play.objects.filter(tournament=tournament, tournament_round=tournament.current_round, is_finished=False)
+		next_play = plays.first()
+		if next_play:#Si il y a des parties a jouer
+			return Response({'play_id':next_play.id,
+					'players': [next_play.player1.alias, next_play.player2.alias]
+					}, status=status.HTTP_200_OK)
+		else :#Si les parties du current_round ont toutes ete jouees
+			#create next round (Ajouter une logique se si la finale a ete jouer stocker le score et mettre is_finished a True)
+			tournament.create_next_round()
+			if not tournament.is_finished:
+				plays = Play.objects.filter(tournament=tournament, tournament_round=tournament.current_round, is_finished=False)
+				next_play = plays.first()
+				return Response({'play_id':next_play.id,
+					'players': [next_play.player1.alias, next_play.player2.alias]
+					}, status=status.HTTP_200_OK)
+			else:
+				return Response({'message': 'Tournament is finished'}, status=status.HTTP_410_GONE)
 
-	#Surcharge de create car j'utilise alias_names dans la logique metier et que ce field ne fait pas partie du model Tournament
-	# def create(self, request, *args, **kwargs):
-	# 	return super().create(request, *args, **kwargs)
-
-	# Ajout de methodes personnalises si necessaire avec le decorateurs @action
-	#methode pour recuperer la prochaine partie d'un tournoi
-		#Checker si le tournoi existe
-		#Aller chercher les partie liee a ce tournoi marquee comme is_finished=False pour le tour indique par Tournoi
-		#renvoyer la partie en question avec les nom des joueurs
-		#Si aucune partie liee a ce tournoi marquee comme is_finished=False pour le tour indique par Tournoi
-		#Appel de tournament.create_next_round()
-		#Check de reussite ou non en regardant si des parties sont  marquee comme is_finished=False pour le tour indique par Tournoi
-		# ou si tournoi is_finished => renvoyer le nom du vainqueur avec un message de fin de tournoi
-		# sinon renvoyer la partie disponible
 
 
-
-
-# A conserver car peut-etre pour Remote_player je devrais cree un endpoint API permettant de start une partie ?
-# class PlayStartAPIView(APIView):
-# 	def post(self, request, id):
-# 		try :
-# 			play = Play.objects.get(id=id)
-# 			#Recuperation de la socket cree par le Js
-# 			#Lancement de la boucle Python du jeu
-# 			# Thread / Celery / asyncio ?
-# 			#(avec les mouvements communiquees via la websocket)
-# 			return Response({"status": "Game started successfully"}, status=status.HTTP_200_OK)
-# 		except Play.DoesNotExist:
-# 			return Response({"error": "Play not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
