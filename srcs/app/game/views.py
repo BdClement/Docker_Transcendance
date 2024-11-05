@@ -22,6 +22,7 @@ def index(request):
 #La ValidationError raise implique que DRF repond automatiquement une 400 Bad Request (Utile pour des erreurs de validation simple)
 class PlayCreateAPIView(APIView):
 	def post(self, request):
+		print("\n\nTEST PlayCreate API\n\n")
 		#Pre validation pour eviter des operations plus couteuses si les fields requis ne sont pas present
 		if 'remote' not in request.data or 'nb_players' not in request.data:
 			raise ValidationError('remote and nb_players are required')
@@ -97,6 +98,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
 	#url_name specifier dans les urls via la methode reverse()
 	@action(detail=True, methods=['get'], url_path='next-play', url_name='next_play')
 	def next_play(self, request, pk=None):
+		print("\n\n\n TESTT NEXT PLAY API\n\n\n", flush=True)
 		try:
 			tournament = self.get_object()#methode de ViewSet qui recupere l'objet
 		except Tournament.DoesNotExist:
