@@ -13,7 +13,6 @@ from .models import Play
 
 class PlayConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		print('Appel a connect dans Consumer')
 		#Checker si la partie existe bien et n'est pas deja finie
 		self.game_id = self.scope['url_route']['kwargs']['game_id']#Attribu l'id de la partie au consumer
 		# A modifier avec play_id

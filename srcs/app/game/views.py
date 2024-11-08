@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.response import Response
@@ -12,8 +13,14 @@ from game.serializer import PlayCreateSerializer, PlayDetailSerializer
 from game.serializer import TournamentSerializer
 # Create your views here.
 
+
 def index(request):
-	return render(request, 'game/index.html')
+	context = {
+		"contract_adress": settings.CONTRACT_ADDRESS,
+		"alchemy_rpc": settings.ALCHEMY_RPC,
+	}
+
+	return render(request, 'game/index.html', context)
 
 #APIView pour des actions specifiques
 #ModelViewset pour les operations CRUD directement liee a un model
@@ -22,7 +29,6 @@ def index(request):
 #La ValidationError raise implique que DRF repond automatiquement une 400 Bad Request (Utile pour des erreurs de validation simple)
 class PlayCreateAPIView(APIView):
 	def post(self, request):
-		print("\n\nTEST PlayCreate API\n\n")
 		#Pre validation pour eviter des operations plus couteuses si les fields requis ne sont pas present
 		if 'remote' not in request.data or 'nb_players' not in request.data:
 			raise ValidationError('remote and nb_players are required')
@@ -98,7 +104,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
 	#url_name specifier dans les urls via la methode reverse()
 	@action(detail=True, methods=['get'], url_path='next-play', url_name='next_play')
 	def next_play(self, request, pk=None):
-		print("\n\n\n TESTT NEXT PLAY API\n\n\n", flush=True)
+		# print("\n\n\n TESTT NEXT PLAY API\n\n\n", flush=True)
 		try:
 			tournament = self.get_object()#methode de ViewSet qui recupere l'objet
 		except Tournament.DoesNotExist:

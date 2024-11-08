@@ -90,7 +90,7 @@ class Tournament(models.Model):
 	current_round = models.IntegerField(default=0)
 
 	def create_next_round(self):
-		print("\n\n\n TESTT CREATE NEXT ROUND\n\n\n", flush=True)
+		# print("\n\n\n TESTT CREATE NEXT ROUND\n\n\n", flush=True)
 
 		if self.current_round == 0: #Cas du premier round
 			players = self.players.all()
@@ -108,7 +108,7 @@ class Tournament(models.Model):
 				}
 				self.is_finished = True
 				#Stockage Blockchain
-				print("\nTEST Avant Thread\n", flush=True)
+				# print("\nTEST Avant Thread\n", flush=True)
 				threading.Thread(target=async_to_sync(self.store_score_on_blockchain)).start()
 			else :#Creation de toutes les parties du prochain round
 				winners = []
@@ -157,13 +157,13 @@ class Tournament(models.Model):
 
 	async def store_score_on_blockchain(self):
 		try :
-			print("\nDEBUT DE FONCTION Store Blockchain\n", flush=True)
+			# print("\nDEBUT DE FONCTION Store Blockchain\n", flush=True)
 			#Isolattion des arguments a passe au contrat a la foncton storeScore
 			players = self.results.get('players', [])
 			winner = self.results.get('winner', [])
 			score = self.results.get('final_score', '')
 
-			print("\n\nTEST avant Provider\n\n")
+			# print("\n\nTEST avant Provider\n\n")
 
 			#Connexion au noeud blockchain
 			w3 = AsyncWeb3(AsyncHTTPProvider(settings.ALCHEMY_RPC))
@@ -185,16 +185,16 @@ class Tournament(models.Model):
 			with open('TournamentStoreABI.json', 'r') as file:
 				contract_data = json.load(file)
 			contract_ABI = contract_data.get("abi")
-			print(f'\n\n{contract_ABI}\n\n', flush=True)
+			# print(f'\n\n{contract_ABI}\n\n', flush=True)
 
 			#Accession au contrat sur le reseau blockchain
-			print('\nTEST avant deployed_contract', flush=True)
+			# print('\nTEST avant deployed_contract', flush=True)
 			deployed_contract = w3.eth.contract(address=settings.CONTRACT_ADDRESS,abi=contract_ABI)
 			#set nonce (Entier unique pour chaque transaction envoyee depuis une address Ethereum pour garantir l'ordre des transactions)
-			print('\nTEST avant nonce', flush=True)
+			# print('\nTEST avant nonce', flush=True)
 			nonce = await w3.eth.get_transaction_count(settings.PUBLIC_KEY)
 			#estimation de gas en fonction du reseau
-			print('\nTEST avant gas', flush=True)
+			# print('\nTEST avant gas', flush=True)
 			gas = await w3.eth.estimate_gas({
 				"from": settings.PUBLIC_KEY,
 				"to": settings.CONTRACT_ADDRESS,
@@ -204,10 +204,10 @@ class Tournament(models.Model):
 				),
 			})
 			#estimation du gas_price
-			print('\nTEST avant gas_price', flush=True)
+			# print('\nTEST avant gas_price', flush=True)
 			gas_price = await w3.eth.gas_price
 			#Build transaction
-			print('\nTEST avant tx', flush=True)
+			# print('\nTEST avant tx', flush=True)
 			tx = await deployed_contract.functions.storeScore(self.id, players, winner, score).build_transaction({
 				#to : l'adresse du contrat (deja set via deployed_contract)
 				"from": settings.PUBLIC_KEY,
@@ -220,17 +220,17 @@ class Tournament(models.Model):
 				#data: donnee envoye (ici les arguments deja envoyes par la fonciton a partir de laquelle j'appelle build_transaction)
 			})
 
-			print('\nTEST avant signed_tx', flush=True)
-			print(f'\nTX == {tx}', flush=True)
+			# print('\nTEST avant signed_tx', flush=True)
+			# print(f'\nTX == {tx}', flush=True)
 			signed_tx = w3.eth.account.sign_transaction(tx, private_key=settings.PRIVATE_KEY)
-			print('\nTEST avant tx_hash')
+			# print('\nTEST avant tx_hash', flush=True)
 			tx_hash = await w3.eth.send_raw_transaction(signed_tx.raw_transaction)
 			#Utilise pour attendre la confirmation de la transaciton sur la blockchain [Synchrone a voir dans contexte ASYNCHRONE !]
-			tx_receipt = await w3.eth.wait_for_transaction_receipt(tx_hash)
+			tx_receipt = await w3.eth.wait_for_transaction_receipt(tx_hash, timeout=300, poll_latency=4) #Attente max de 5 min + Test toute les 4 sec pour soulager le serveur
 
 		except exceptions.Web3ValueError as e:
 			print(f'Mauvaise donnees transmises au smart contract : {e}', flush=True)
-		except exceptions.ContractLogicError:
+		except exceptions.ContractLogicError as e:
 			print(f'L interraction ne respecte pas les regles imposees par le smart contract : {e}', flush=True)
 		except exceptions.BadFunctionCallOutput as e:
 			print(f'Erreur de retour du smart contract : {e}', flush=True)
