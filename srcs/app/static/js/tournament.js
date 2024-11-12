@@ -113,6 +113,10 @@ async function startTournament(tournamentId) {
                 await waitForGameCompletion(data.play_id);
             } else if (response.status === 410) {
                 tournamentFinished = true;
+                //Appel de fonctions issues de blockchain.js ajoute par Clement
+                showNotification(`Tentative de stockage du score du tournoi ${tournamentId}. Cela peut prendre quelques instant...\n
+                    Vous pouvez acceder aux donnees on chain a l'adresse du contrat via etherscan : \n<a href="${etherscanLink}" target="_blank">${contractAddress}</a>`, true);
+                startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
             } else {
                 throw new Error('Erreur inattendue');
