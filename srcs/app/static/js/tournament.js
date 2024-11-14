@@ -3,6 +3,7 @@ const tournamentForm = document.getElementById('tournamentForm');
 const playerCountSelect = document.getElementById('playerCount');
 const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
+const nextGameForm = document.getElementById('nextGameForm');
 
 function openTournamentModal() {
     const modal = new bootstrap.Modal(tournamentModal);
@@ -101,15 +102,19 @@ async function startTournament(tournamentId) {
         try {
             const response = await fetch(`/api/tournaments/${tournamentId}/next-play/`);
             const data = await response.json();
+            const test = await fetch(`/api/play/detail/${data.play_id}`);
+            const data2 = await test.json();
 
             if (response.status === 200) {
+                console.log(data2);
                 console.log('Lancer la partie:', data.play_id);
                 console.log('Joueurs:', data.players);
+                await showNextGameModal(data2);
                 const newUrl = `/game/${data.play_id}`;
                 const newTitle = `Pong Game ${data.play_id}`;
                 const newContent = `Playing Pong Game ${data.play_id}`;
                 PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
-                PongGame.initializeGame(data.play_id, 2);
+                PongGame.initializeGame(data.play_id, 2, true);
                 await waitForGameCompletion(data.play_id);
             } else if (response.status === 410) {
                 tournamentFinished = true;
@@ -123,6 +128,34 @@ async function startTournament(tournamentId) {
             tournamentFinished = true;
         }
     }
+}
+
+function showNextGameModal(data) {
+    return new Promise((resolve) => {
+        const nextGameModal = document.getElementById('nextGameModal');
+        const startNextGameButton = document.getElementById('startNextGameButton');
+        const nextGameInfoForm = document.createElement('form');
+
+        nextGameInfoForm.innerHTML = `
+                <p>${data.player_name[0]} VS ${data.player_name[1]}</p>
+            `;
+            nextGameForm.innerHTML = '';
+            nextGameForm.appendChild(nextGameInfoForm);
+
+        const modal = new bootstrap.Modal(nextGameModal, {
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        const handleNextGame = () => {
+            startNextGameButton.removeEventListener('click', handleNextGame);
+            modal.hide();
+            resolve();
+        };
+
+        startNextGameButton.addEventListener('click', handleNextGame);
+        modal.show();
+    });
 }
 
 function waitForGameCompletion(playId) {

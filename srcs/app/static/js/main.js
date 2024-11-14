@@ -3,18 +3,26 @@ const PongGame = (function() {
     let currentGameId = null;
     let socket = null;
     let gameLoopInterval = null;
-    let isLocalGame = false;
+    let isLocalGame = true;
     let gameModal = null;
     let gameState = {};
+    let isPlayer1 = false;
     let keyState = { w: false, s: false, ArrowUp: false, ArrowDown: false, t: false, g: false, i: false, k: false };
 
-    function initializeGame(gameId, nbPlayers) {
+    function initializeGame(gameId, nbPlayers,isCreator = false) {
+        console.log(`[initializeGame] Initializing game with ID: ${gameId}, Number of Players: ${nbPlayers}`);
+        isPlayer1 = isCreator;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         socket = new WebSocket(`wss://${window.location.host}/wss/game/${gameId}/`);
 
+        socket.onopen = function(e) {
+            console.log(`[WebSocket] Connection established for game ${gameId}`);
+        };
+
         socket.onmessage = function(e) {
+            // console.log(`[WebSocket] Received message:`, e.data);
             const data = JSON.parse(e.data);
             if (data.message === 'end_game') {
                 fetchGameDetails(currentGameId);
@@ -25,28 +33,36 @@ const PongGame = (function() {
         };
 
         socket.onclose = function(e) {
-            console.error('WebSocket closed unexpectedly');
+            console.error(`[WebSocket] Connection closed for game ${gameId}. Code: ${e.code}, Reason: ${e.reason}`);
             terminateGame();
+        };
+
+        socket.onerror = function(error) {
+            console.error(`[WebSocket] Error in game ${gameId}:`, error);
         };
 
         gameLoopInterval = setInterval(updatePaddlePositions, 1000 / 60);
     }
 
     function navigateTo(title, url, content, gameId = null) {
+        console.log(`[navigateTo] Navigating to: ${title}, URL: ${url}, Game ID: ${gameId}`);
         const state = { title, content, gameId };
         history.pushState(state, title, url);
         updateUI(state);
     }
 
     function updateUI(state) {
+        console.log(`[updateUI] Updating UI with state:`, state);
         const mainContent = document.querySelector('.main-content');
         const playForm = document.getElementById('playForm');
 
         if (state.gameId) {
+            console.log(`[updateUI] Setting up game UI for game ID: ${state.gameId}`);
             playForm.classList.add('d-none');
             gameModal.show();
             currentGameId = state.gameId;
         } else {
+            console.log(`[updateUI] Resetting to home UI`);
             gameModal.hide();
             playForm.classList.remove('d-none');
             terminateGame();
@@ -59,11 +75,11 @@ const PongGame = (function() {
         document.title = state.title;
     }
 
-
-
     function terminateGame() {
+        console.log(`[terminateGame] Terminating current game`);
         if (socket) {
             if (socket.readyState === WebSocket.OPEN) {
+                console.log(`[terminateGame] Sending disconnect message`);
                 socket.send(JSON.stringify({ 'action': 'disconnect', 'player': 'all' }));
             }
             socket.close();
@@ -74,7 +90,7 @@ const PongGame = (function() {
             gameLoopInterval = null;
         }
         currentGameId = null;
-        isLocalGame = false;
+        isLocalGame = true;
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -107,19 +123,30 @@ const PongGame = (function() {
     }
 
     function updatePaddlePositions() {
-        if (keyState.w) sendPaddleMovement(1, 'up');
-        if (keyState.s) sendPaddleMovement(1, 'down');
-        if (keyState.t) sendPaddleMovement(3, 'up');
-        if (keyState.g) sendPaddleMovement(3, 'down');
-        if (keyState.i) sendPaddleMovement(4, 'up');
-        if (keyState.k) sendPaddleMovement(4, 'down');
-        if (keyState.ArrowUp) sendPaddleMovement(2, 'up');
-        if (keyState.ArrowDown) sendPaddleMovement(2, 'down');
+        if (!isLocalGame) {
+            if (isPlayer1) {
+                if (keyState.w) sendPaddleMovement(1, 'up');
+                if (keyState.s) sendPaddleMovement(1, 'down');
+            } else {
+                if (keyState.ArrowUp) sendPaddleMovement(2, 'up');
+                if (keyState.ArrowDown) sendPaddleMovement(2, 'down');
+            }        
+        } else {
+            if (keyState.w) sendPaddleMovement(1, 'up');
+            if (keyState.s) sendPaddleMovement(1, 'down');
+            if (keyState.t) sendPaddleMovement(3, 'up');
+            if (keyState.g) sendPaddleMovement(3, 'down');
+            if (keyState.i) sendPaddleMovement(4, 'up');
+            if (keyState.k) sendPaddleMovement(4, 'down');
+            if (keyState.ArrowUp) sendPaddleMovement(2, 'up');
+            if (keyState.ArrowDown) sendPaddleMovement(2, 'down');
+        }
     }
 
     function sendPaddleMovement(player, direction) {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ 'player': player, 'move': direction }));
+            console.log("Player:", player, "direction:", direction);
         }
     }
 
@@ -135,85 +162,68 @@ const PongGame = (function() {
                 console.log('Affichage du retour API', data);
                 endGame(data);
             })
-            .catch(error => {
-                endGame({
-                    is_finished: true,
-                    nb_players: gameState.player_2 ? 2 : 4,
-                    results: null
-                });
-            });
     }
 
     function endGame(gameDetails) {
         let message;
-        const language = localStorage.getItem('language') || 'fr';
 
         if (gameDetails && gameDetails.is_finished) {
-            if (gameDetails.nb_players === 2) {
-                let player1Score = gameDetails.results ? gameDetails.results.score.player1 : gameState.score_team_1;
-                let player2Score = gameDetails.results ? gameDetails.results.score.player2 : gameState.score_team_2;
-                message = player1Score > player2Score
-                    ? translations[language].player1Wins
-                    : translations[language].player2Wins;
-            } else if (gameDetails.nb_players === 4) {
-                let team1Score = gameDetails.results
-                    ? (gameDetails.results.score.player1 || 0) + (gameDetails.results.score.player3 || 0)
-                    : gameState.score_team_1;
-                let team2Score = gameDetails.results
-                    ? (gameDetails.results.score.player2 || 0) + (gameDetails.results.score.player4 || 0)
-                    : gameState.score_team_2;
-                message = team1Score > team2Score
-                    ? translations[language].team1Wins
-                    : translations[language].team2Wins;
+            const { nb_players, results } = gameDetails;
+        
+            if (nb_players === 2) {
+                message = `${gameDetails.results.winners} has won !`;
+            } else if (nb_players === 4) {
+                message = `Team ${gameDetails.results.winners} has won !`;
             }
         } else {
-            message = translations[language].gameEndedUnexpectedly || 'Game ended unexpectedly';
+            message = 'Game ended unexpectedly';
         }
-
+    
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-
+    
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    
         ctx.fillStyle = 'white';
         ctx.font = '36px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-
+    
         clearInterval(gameLoopInterval);
-
+    
         setTimeout(() => {
             gameModal.hide();
             const playForm = document.getElementById('playForm');
             playForm.classList.remove('d-none');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            navigateTo('Home', '/', 'The game has been terminated.');
+            navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
         }, 2000);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        console.log(`[DOMContentLoaded] Initializing PongGame`);
         gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
 
         document.getElementById('gameModal').addEventListener('hidden.bs.modal', function () {
+            console.log(`[gameModal] Modal hidden`);
             terminateGame();
-            navigateTo('Home', '/', 'The game has been terminated.');
+            navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
         });
 
         document.getElementById('playForm').addEventListener('submit', function(event) {
             event.preventDefault();
+            console.log(`[playForm] Form submitted`);
 
             const gameMode = document.querySelector('input[name="game_mode"]:checked').value;
+            console.log(`[playForm] Selected game mode: ${gameMode}`);
+
             let remote, nbPlayers;
 
             switch (gameMode) {
                 case 'remote_1v1':
                     remote = true;
                     nbPlayers = 2;
-                    break;
-                case 'remote_2v2':
-                    remote = true;
-                    nbPlayers = 4;
                     break;
                 case 'local_1v1':
                     remote = false;
@@ -226,9 +236,10 @@ const PongGame = (function() {
             }
 
             isLocalGame = !remote;
+            console.log(`[playForm] Game settings - Remote: ${remote}, Players: ${nbPlayers}`);
 
             if (remote && nbPlayers === 2) {
-                fetchAvailableGames();
+                fetchAvailableGames(remote, nbPlayers);
             } else {
                 createNewGame(remote, nbPlayers);
             }
@@ -248,18 +259,21 @@ const PongGame = (function() {
 
         initializeLanguageSelector();
 
-        function fetchAvailableGames() {
+        function fetchAvailableGames(remote, nbPlayers) {
+            console.log(`[fetchAvailableGames] Fetching available games. Remote: ${remote}, Players: ${nbPlayers}`);
             fetch('/api/play/list')
                 .then(response => response.json())
                 .then(games => {
+                    console.log(`[fetchAvailableGames] Received ${games.length} available games`);
                     if (games.length > 0) {
                         displayAvailableGames(games);
                     } else {
+                        console.log(`[fetchAvailableGames] No games available, creating new game`);
                         createNewGame(true, 2);
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('[fetchAvailableGames] Error:', error);
                     createNewGame(true, 2);
                 });
         }
@@ -305,18 +319,22 @@ const PongGame = (function() {
         }
 
         function joinGame(gameId) {
+            console.log(`[joinGame] Attempting to join game: ${gameId}`);
             const newUrl = `/game/${gameId}`;
             const newTitle = `Pong Game ${gameId}`;
             const newContent = `Playing Pong Game ${gameId}`;
             navigateTo(newTitle, newUrl, newContent, gameId);
-            initializeGame(gameId, 2);
+            initializeGame(gameId, 2, false);
         }
 
         function createNewGame(remote, nbPlayers) {
+            console.log(`[createNewGame] Creating new game. Remote: ${remote}, Players: ${nbPlayers}`);
             const data = {
                 remote: remote,
                 nb_players: nbPlayers
             };
+
+            console.log(`[createNewGame] Sending game creation request with data:`, data);
 
             return fetchWithCsrf(`api/play/create`, {
                 method: 'POST',
@@ -329,16 +347,16 @@ const PongGame = (function() {
             })
             .then(response => response.json())
             .then(result => {
-                console.log(result);
+                console.log(`[createNewGame] Game creation response:`, result);
                 const gameId = result.id;
                 const newUrl = `/game/${gameId}`;
                 const newTitle = `Pong Game ${gameId}`;
                 const newContent = `Playing Pong Game ${gameId}`;
                 navigateTo(newTitle, newUrl, newContent, gameId);
-                initializeGame(gameId, nbPlayers);
+                initializeGame(gameId, nbPlayers, true);
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('[createNewGame] Error:', error);
                 alert(error.message);
             });
         }
@@ -361,19 +379,19 @@ const PongGame = (function() {
             if (isLocalGame) {
                 e.preventDefault();
                 terminateGame();
-                navigateTo('Home', '/', 'The local game has been terminated.');
+                navigateTo('Jeu de Pong', '/', 'The local game has been terminated.');
                 return;
             }
 
             if (e.state) {
                 updateUI(e.state);
             } else {
-                updateUI({ title: 'Home', content: 'Welcome to the home page' });
+                updateUI({ title: 'Jeu de Pong', content: 'Welcome to the home page' });
             }
         });
 
-        history.replaceState({ title: 'Home', content: 'Welcome to the home page' }, 'Home', '/');
-        updateUI({ title: 'Home', content: 'Welcome to the home page' });
+        history.replaceState({ title: 'Jeu de Pong', content: 'Welcome to the home page' }, 'Jeu de Pong', '/');
+        updateUI({ title: 'Jeu de Pong', content: 'Welcome to the home page' });
     });
 
     return {
