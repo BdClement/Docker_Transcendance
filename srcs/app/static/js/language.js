@@ -81,7 +81,7 @@ function applyTranslations(language) {
     document.querySelector('label[for="local_1v1"] .gradient-text').textContent = translations[language].local_1v1;
     document.querySelector('label[for="local_2v2"] .gradient-text').textContent = translations[language].local_2v2;
     document.querySelector('label[for="remote_1v1"] .gradient-text').textContent = translations[language].remote_1v1;
-    
+
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.textContent = translations[language].logout;

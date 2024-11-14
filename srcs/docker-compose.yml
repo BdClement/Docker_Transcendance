@@ -29,6 +29,8 @@ services:
       - "8000" # Expose le port 8000 du container sans le mapper sur la machine car on souhaite que NGINX soit le seul point d'entree
     depends_on:
       - redis-server
+    env_file: .env
+      # -.env
     restart: on-failure
     networks:
       - transcendance-main-network
