@@ -22,10 +22,11 @@ class PlayCreateSerializer(serializers.ModelSerializer):
 class PlayDetailSerializer(serializers.ModelSerializer):
 
 	results = serializers.SerializerMethodField()#Personnalisation de la sortie de result
+	player_name = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Play
-		fields = ['nb_players', 'is_finished', 'date', 'results']
+		fields = ['nb_players', 'is_finished', 'date', 'results', 'player_name']
 
 	# Methode responsable de transformer les id stocker dans la base de donnee en username pour les clients
 	def get_results(self, obj):
@@ -50,6 +51,18 @@ class PlayDetailSerializer(serializers.ModelSerializer):
 			else:
 				transformed_results[key] = value
 		return transformed_results
+	
+	def get_player_name(self, obj):
+		player_names = []
+		if obj.player1:
+			player_names.append(obj.player1.username)
+		else:
+			player_names.append("Unknown Player")
+		if obj.player2:
+			player_names.append(obj.player2.username)
+		else:
+			player_names.append("Unknown Player")
+		return player_names
 
 
 #La methode create d'un serializer est differente de la methode create d'un ViewSet
@@ -123,3 +136,8 @@ class TournamentSerializer(serializers.ModelSerializer):
 				transformed_results[key] = value
 		return transformed_results
 
+class PlayListSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Play
+		fields = ['id', 'nb_players', 'player_connected']
