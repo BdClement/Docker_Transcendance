@@ -21,7 +21,8 @@ from game import views
 from game.views import PlayCreateAPIView, PlayDetailAPIView, PlaySubscribeAPIView
 from game.views import TournamentViewSet
 from authentication.views import LoginAPI, SignupAPI, Logout, UserInfoAPI, UserProfileView, UserProfileUpdateView, UserDeleteView
-from authentication.views import AddFriendView, SuppFriendView, FollowingListView, FollowersListView, UserDetailView, MatchHistoryView
+from authentication.views import AddFriendView, SuppFriendView, FollowingListView, FollowersListView, UserDetailView, MatchHistoryView, BloquerUtilisateurView, DebloquerUtilisateurView
+from liveChat.views import MessageHistory, listeConversation, listeUtilisateurs
 from authentication.views import get_csrf_token
 
 router = routers.DefaultRouter()#Similaire a SimpleRouter mais offre api-root qui expose les endpoints disponibles
@@ -48,6 +49,11 @@ urlpatterns = [
     path('api/following/', FollowingListView.as_view()),
     path('api/followers/', FollowersListView.as_view()),
 	path('api/get-csrf-token/', get_csrf_token, name='get_csrf_token'),
+    path('api/messageHistory/<int:id>/', MessageHistory.as_view()),
+    path('api/listeconversation/', listeConversation.as_view()),
+    path('api/utilisateurs/', listeUtilisateurs.as_view(), name='utilisateurs-list'),
+    path('bloquer-utilisateur/<int:id>/', BloquerUtilisateurView.as_view(), name='bloquer_utilisateur'),
+    path('debloquer-utilisateur/<int:id>/', DebloquerUtilisateurView.as_view(), name='debloquer_utilisateur'),
 	re_path(r'^.*$', views.index, name='index'),
 ]
 

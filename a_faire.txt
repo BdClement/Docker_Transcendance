@@ -1,0 +1,29 @@
+- mettre a jour automatiquement quand une personne nous a bloqué/débloqué
+- lorsqu'une peronne est bloqué par une autre mais hors dde la conversation ca lui ouvre la conversation
+
+
+ordre invitation au jeu :
+
+- appuie sur le bouton
+- cherche si l'autre personne existe
+- cherche ou crée la conversation
+- j'envoie un message aux deux personne qui leur indique qu'une invitation a été lancé
+- creer le message dans la base de données
+- je passe la variable invitationAJouer de la conversation a True
+- attend 60 secondes
+- verifier si la variable a été passée a False (si l personne a accepté ou refusé ou que la demande a été annulé)
+    - si la personne a accepté (false)
+        - lancer la partie (a voir avec Julien)
+        - mettre a jour le message dans la basse de données
+        - renvoyer l'info aux deux personnes
+    - si la personne a refusée (false)
+        - mettre a jour le message dans la basse de données
+        - renvoyer l'info aux deux personnes
+    - si la demnde a été annulée (false)
+        - mettre a jour le message dans la basse de données
+        - renvoyer l'info aux deux personnes
+        - modifier l'affichage du message des deux cotés
+    - si elle est toujours a True
+        - repasser la variable a False
+        - mettre a jour le message dans la basse de donnée
+        - envoyer un msg aux deux personnes pour dire que le temps s'est écoulé

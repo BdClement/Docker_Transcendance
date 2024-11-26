@@ -35,7 +35,7 @@ clean: down
 		@docker system prune -af
 
 clean-db:
-	docker volume rm srcs_db_data || true
+		docker volume rm srcs_db_data || exit 0
 
 fclean: clean
 

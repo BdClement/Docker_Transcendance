@@ -13,6 +13,10 @@ class User(AbstractUser):
 	ALIAS_FIELDS = 'alias'
 	REQUIRED_FIELDS = ['email']
 	USERNAME_FIELD = 'username'
+
+	onlineStatus = models.BooleanField(default=False)
+	blockedUser = models.ManyToManyField('self', related_name='blocked_by', symmetrical=False)
+
 	def __str__(self):
 		return self.username
 	# pass

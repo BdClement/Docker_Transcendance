@@ -498,3 +498,33 @@ input[type="radio"]:focus + label {
 .left-navbar li:hover .icon-friend img {
     filter: brightness(0) invert(1);
 }
+
+#message-container {
+    color: white;
+}
+
+#nom-contact-live-chat {
+    color: white;
+}
+
+.message-expediteur {
+    margin-left: 10%;
+    background-color: #256579;
+    margin-bottom: 0.5cm;
+}
+
+.message-destinataire {
+    margin-right: 10%;
+    background-color: rgb(255, 103, 222);
+    margin-bottom: 0.5cm;
+}
+
+#choix-conversation {
+    background-color: white;
+    color: black;
+}
+
+.message-invitation-jeu {
+    background-color: black;
+    color: white;
+}

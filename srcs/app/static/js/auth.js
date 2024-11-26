@@ -190,12 +190,17 @@ function updateUserInfo(username, photoProfile) {
         profilePictureElement.parentNode.insertBefore(usernameDisplay, profilePictureElement.nextSibling);
 
         document.getElementById('logoutButton').style.display = 'block';
+        document.getElementById('live-chat-li').style.display = 'block';
         document.querySelector('.auth-button').style.display = 'none';
+
         if (photoProfile) {
             profilePictureElement.style.backgroundImage = `url(/static/images/${username}.jpg)`;
         } else {
             profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
         }
+
+        // ilona -- peut etre a changer de place
+        initWebSocket();
     } else {
         const usernameDisplay = document.getElementById('usernameDisplay');
         if (usernameDisplay) {
@@ -203,6 +208,7 @@ function updateUserInfo(username, photoProfile) {
         }
 
         document.getElementById('logoutButton').style.display = 'none';
+        document.getElementById('live-chat-li').style.display = 'none';
         document.querySelector('.auth-button').style.display = 'block';
         profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
     }
@@ -267,6 +273,13 @@ function signup(formData) {
 }
 
 function logout() {
+    // ilona
+    // Ferme la connexion WebSocket si elle est ouverte
+    if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        console.log("Fermeture de la WebSocket à la déconnexion.");
+        chatSocket.close();
+    }
+
     return fetchWithCsrf('/api/logout/', {
         method: 'GET',
         headers: {

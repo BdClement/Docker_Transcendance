@@ -100,3 +100,4 @@ class PlayConsumer(AsyncWebsocketConsumer):
 		else:
 			self.play.player_connected -= self.play.nb_players
 		await database_sync_to_async(self.play.save)()
+

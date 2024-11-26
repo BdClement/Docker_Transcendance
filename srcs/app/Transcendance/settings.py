@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 	'channels',
 	'authentication',
 	'game',
+    'liveChat',
 ]
 
 MIDDLEWARE = [
@@ -87,10 +88,18 @@ ASGI_APPLICATION = 'Transcendance.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db/db.sqlite3',
+#     }
+# }
+
+#ilona
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db/db.sqlite3',
+        'NAME': os.environ.get("DJANGO_DB_PATH", BASE_DIR / "db/db.sqlite3"),
     }
 }
 

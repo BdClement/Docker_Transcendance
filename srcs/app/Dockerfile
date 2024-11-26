@@ -23,10 +23,13 @@ RUN python manage.py collectstatic --noinput
 #Ajout des fichiers de migrations dans le container a la construction de l'image
 #(Si on decide ne pas partager les fichier de migrations pour la version final du projet)
 RUN python manage.py makemigrations
+#ilona
+# RUN python manage.py migrate
 
 # Exposer le port sur lequel Daphne va écouter (8000 par défaut)
 EXPOSE 8000
 
 # Executez les migrations et Démarrer Daphne pour servir l'application
 CMD ["bash", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 Transcendance.asgi:application"]
+# CMD ["bash", "-c", "daphne -b 0.0.0.0 -p 8000 Transcendance.asgi:application"]
 

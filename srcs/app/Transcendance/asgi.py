@@ -16,20 +16,33 @@ from channels.auth import AuthMiddlewareStack #(authentification de qui utilise 
 from django.urls import path
 # from game.consumers import GameConsumer
 # from game import routing.websocket_urlpatterns
-from game.routing import websocket_urlpatterns
+from game.routing import websocket_urlpatterns as game_websocket_patterns
+from liveChat.routing import websocket_urlpatterns as chat_websocket_patterns
+
 
 # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Transcendance.settings')
 # django.setup()
 
-# application = get_asgi_application()
+# # application = get_asgi_application()
+# application = ProtocolTypeRouter({
+#     "http": get_asgi_application(),  # Traite les requêtes HTTP
+#     "websocket": URLRouter(
+# 			websocket_urlpatterns
+#         ),
+#     # "websocket": URLRouter([
+#     #         path('ws/game/<int:game_id>/', GameConsumer.as_asgi()),
+#     #     ]),
+# })
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Transcendance.settings')  # Remplacez par le nom de votre projet
+
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),  # Traite les requêtes HTTP
-    "websocket": URLRouter(
-			websocket_urlpatterns
-        ),
-    # "websocket": URLRouter([
-    #         path('ws/game/<int:game_id>/', GameConsumer.as_asgi()),
-    #     ]),
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(  # Ajoutez AuthMiddlewareStack ici
+        URLRouter(
+            game_websocket_patterns + chat_websocket_patterns
+        )
+    ),
 })
 
 # application = ProtocolTypeRouter({

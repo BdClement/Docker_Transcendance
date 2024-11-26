@@ -32,6 +32,9 @@ services:
     restart: on-failure
     networks:
       - transcendance-main-network
+    #ilona
+    environment:
+    - DJANGO_SETTINGS_MODULE=Transcendance.settings
 
   redis-server:
     container_name: redis
