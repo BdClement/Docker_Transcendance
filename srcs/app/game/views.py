@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.response import Response
@@ -9,18 +8,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from game.models import Play, Tournament
-from game.serializer import PlayCreateSerializer, PlayDetailSerializer
+from game.serializer import PlayCreateSerializer, PlayDetailSerializer, PlayListSerializer
 from game.serializer import TournamentSerializer
 # Create your views here.
 
-
 def index(request):
-	context = {
-		"contract_adress": settings.CONTRACT_ADDRESS,
-		"alchemy_rpc": settings.ALCHEMY_RPC,
-	}
-
-	return render(request, 'game/index.html', context)
+	return render(request, 'game/index.html')
 
 #APIView pour des actions specifiques
 #ModelViewset pour les operations CRUD directement liee a un model
@@ -64,6 +57,7 @@ class PlayDetailAPIView(APIView):
 #Cet API permet de relier un User dans l'objet Partie. Il doit etre utilise en ce sens
 #Sauf lorsque un User connecte cree une partie, il est directement connecte en tant que player1 dans la partie
 class PlaySubscribeAPIView(APIView):
+	print("JE JOIN", flush=True)
 	def put(self, request, *args, **kwargs):
 		try:
 			play_id = kwargs.get('play_id')
@@ -76,8 +70,11 @@ class PlaySubscribeAPIView(APIView):
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 		if request.user.is_authenticated:
+			print("JE JOIN 2", flush=True)
 			if not play.add_player(request.user):
+				print("JE JOIN 3", flush=True)
 				return Response({'error': 'app player to play failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		print(f'test = {play.player2}', flush=True)
 		return Response({'message': 'Player added successfully'},status=status.HTTP_200_OK)
 
 
@@ -104,7 +101,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
 	#url_name specifier dans les urls via la methode reverse()
 	@action(detail=True, methods=['get'], url_path='next-play', url_name='next_play')
 	def next_play(self, request, pk=None):
-		# print("\n\n\n TESTT NEXT PLAY API\n\n\n", flush=True)
 		try:
 			tournament = self.get_object()#methode de ViewSet qui recupere l'objet
 		except Tournament.DoesNotExist:
@@ -130,7 +126,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
 			else:
 				return Response({'message': 'Tournament is finished'}, status=status.HTTP_410_GONE)
 
-
-
-
-
+class PlayListAPIView(APIView):
+	def get(self, request):
+		plays = Play.objects.filter(remote=True, is_finished=False, player_connected__lt=2)
+		serializer = PlayListSerializer(plays, many=True)
+		return Response(serializer.data)

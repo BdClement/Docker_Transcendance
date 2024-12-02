@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="Jeu de Pong">Jeu de Pong</title>
-	<!-- Balise Script ajoutee par Clement pour donne les variables d'environnement au front-end (module Blockchain) -->
-	<script type="text/javascript">
+    <script type="text/javascript">
         window.env = {
             CONTRACT_ADDRESS: "{{ contract_adress }}",
             ALCHEMY_RPC: "{{ alchemy_rpc }}"
@@ -24,6 +23,11 @@
         <ul class="left-navbar">
             <div class="_">
                 <li>
+                    <a href="/user" class="icon-user" id="userLink">
+                        <img src="/static/images/user.png" alt="Icone User">
+                    </a>
+                </li>
+                <li>
                     <a href="#" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal">
                         <img src="/static/images/Friend.png" alt="Icone Friend">
                     </a>
@@ -34,7 +38,12 @@
                     </a>
                 </li>
                 <li>
-                    <a href= "/settings" class="icon-parametre">
+                    <a href="/historique" class="icon-historique" id="historiqueLink">
+                        <img src="/static/images/historique.png" alt="Icone Historique">
+                    </a>
+                </li>
+                <li>
+                    <a href= "/settings" class="icon-parametre" id="settingsLink">
                         <img src="/static/images/parametre.png" alt="Icone Option">
                     </a>
                 </li>
@@ -138,7 +147,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <p for="profilePhoto" class="form-label" data-i18n="profilePhoto">Photo de profil</p>
-                                    <input type="file" class="form-control" id="profilePhoto" name="photoProfile">
+                                    <input type="file" class="form-control" id="profilePhoto" name="photoProfile" accept="image/*" data-i18n="chooseFile" title="Choisir un fichier">
                                 </div>
                                 <button type="submit" class="btn btn-success" data-i18n="signupButton">S'inscrire</button>
                             </form>
@@ -229,31 +238,114 @@
             </div>
         </div>
     </div>
-    <!-- Modal Ajoute par Clement (module Blockchain) -->
-	<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="notificationModalLabel">Notification</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body" id="notificationModalMessage">
-					Votre message de notification ici.
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal fade" id="historiqueModal" tabindex="-1" aria-labelledby="historiqueModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="historiqueModalLabel" data-i18n="historiqueModalTitle">Historique des parties</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="historiqueForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="settingsModalTitle">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsUsername">Username</p>
+                            <input type="text" class="form-control" id="settingsUsername" name="username">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsEmail">Email</p>
+                            <input type="email" class="form-control" id="settingsEmail" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsAlias">Alias</p>
+                            <input type="text" class="form-control" id="settingsAlias" name="alias">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsProfilePhoto">Profile Photo</p>
+                            <input type="file" 
+                                   class="form-control" 
+                                   id="settingsPhoto" 
+                                   name="photoProfile" 
+                                   accept="image/*"
+                                   data-i18n="chooseFile"
+                                   title="Choisir un fichier">
+                            <img id="photoPreview" class="mt-2" style="max-width: 200px; display: none;">
+                        </div>
+                        <button type="submit" class="btn btn-primary" data-i18n="settingsSaveChanges">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel" data-i18n="userModalTitle">Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="nextGameModal" tabindex="-1" aria-labelledby="nextGameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nextGameModalLabel" data-i18n="nextGameModalTitle">Prochaine partie</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <button type="button" class="btn btn-primary" id="startNextGameButton" data-i18n="startNextGame">Jouer</button>
+                </div>
+                <div class="modal-body">
+                    <form id="nextGameForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel" data-i18n="notificationModalTitle">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="notificationModalMessage" 
+                     data-i18n="tournamentScoreStorageAttempt" 
+                     data-i18n-params='{"tournamentId": "", "etherscanLink": "", "contractAddress": ""}'>
+                    Tentative de stockage du score du tournoi. Cela peut prendre quelques instants...
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Ligne ajoutee par Clement pour ajoute la bibliotheque ethers.js (module Blockchain) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script> -->
-	<script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
     <script src="/static/js/csrf_utils.js"></script>
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/friends.js"></script>
     <script src="/static/js/main.js"></script>
-    <!-- Fichier js ajoute par Clement (module Blockchain) -->
-    <script src="/static/js/blockchain.js"></script>
     <script src="/static/js/language.js"></script>
+    <script src="/static/js/blockchain.js"></script>
     <script src="/static/js/tournament.js"></script>
+    <script src="/static/js/historique.js"></script>
+    <script src="/static/js/settings.js"></script>
+    <script src="/static/js/user.js"></script>
 </body>
 </html>

@@ -4,9 +4,9 @@ import django
 import os
 
 # from django.db import transaction#Test
-from django.utils import timezone
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
+from django.utils import timezone
 # from asgiref.sync import async_to_sync, sync_to_async
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Transcendance.settings')
@@ -14,9 +14,16 @@ django.setup()
 
 from .models import Play
 
-
-
 class PongGame:
+    _instances = {}
+
+    @classmethod
+    def get_instance(cls, play_id, game_group_name):
+        """Méthode pour obtenir une instance unique par play_id"""
+        if play_id not in cls._instances:
+            cls._instances[play_id] = cls(play_id, game_group_name)
+        return cls._instances[play_id]
+
     def __init__(self, play_id, game_group_name):
         self.width = 800
         self.height = 600
@@ -53,7 +60,7 @@ class PongGame:
         self.ball_x, self.ball_y = self.width // 2, self.height // 2
         self.ball_speed_x, self.ball_speed_y = 5 * random.choice((1, -1)), 5 * random.choice((1, -1))
 
-        # Cas Remote a ajouter
+        self._lock = asyncio.Lock()
 
 
 
@@ -123,12 +130,19 @@ class PongGame:
             return self.play.player4.id if self.play.player4 is not None else "player4"
         return "Unknown_player"
 
-    async def update_player_position(self, player_number, y):
-        if player_number in self.players_y:
-            if y == 'up' and self.players_y[player_number] != 0:
-                self.players_y[player_number] -= 10
-            elif y == 'down' and self.players_y[player_number] != self.height - self.paddle_height:
-                self.players_y[player_number] += 10
+    async def update_player_position(self, player_number, move_direction):
+        async with self._lock:  # Utilisation du lock pour éviter les conflits
+            print(f"Updating player {player_number} position, direction: {move_direction}")
+            if player_number in self.players_y:
+                step = 10
+                current_y = self.players_y[player_number]
+                
+                if move_direction == 'up' and current_y > 0:
+                    self.players_y[player_number] = max(0, current_y - step)
+                elif move_direction == 'down' and current_y < self.height - self.paddle_height:
+                    self.players_y[player_number] = min(self.height - self.paddle_height, current_y + step)
+                
+                print(f"New position for player {player_number}: {self.players_y[player_number]}")
 
     async def update_game_state(self):
         # Update ball position
@@ -195,6 +209,7 @@ class PongGame:
     async def game_loop(self):
         while self.is_running:
             game_state = await self.update_game_state()
+            await database_sync_to_async(self.play.refresh_from_db)()
             await self.channel_layer.group_send(
                 self.game_group_name,
                 {

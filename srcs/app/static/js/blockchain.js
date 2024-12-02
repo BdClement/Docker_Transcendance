@@ -139,37 +139,49 @@ function startLiseningToTournament(tournamentId) {
 	console.log('Start listening to Tournament', tournamentId);
 
 	tournamentScoreListener = (eventId) => {
-    const eventIdNb = eventId.toNumber();
-    console.log("eventId : ", eventId);
-    console.log("eventIdNb : ", eventIdNb);
-    console.log("tournamentIdCurrentlyWatched : ", tournamentIdCurrentlyWatched);
-    if (eventIdNb === tournamentIdCurrentlyWatched) {
-      console.log(`Evenement capte: Le tournoi ${eventIdNb} a ete stocke sur le contrat ${contractAddress}`);
-      showNotification(`Le score du tournoi ${eventIdNb} a bien ete stocke sur le contrat a l'adresse : <a href="${etherscanLink}" target="_blank">${contractAddress}</a>`, true);
-      stopListeningToTournament(eventIdNb);
-    }
+		const eventIdNb = eventId.toNumber();
+		console.log("eventId : ", eventId);
+		console.log("eventIdNb : ", eventIdNb);
+		console.log("tournamentIdCurrentlyWatched : ", tournamentIdCurrentlyWatched);
+		if (eventIdNb === tournamentIdCurrentlyWatched) {
+			const notificationMessage = t('tournamentScoreStored', { 
+        tournamentId: eventIdNb, 
+        contractAddress: contractAddress, 
+        etherscanLink: etherscanLink 
+    });
+			showNotification(notificationMessage, true);
+			stopListeningToTournament(eventIdNb);
+		}
 	}
 	contract.on("TournamentScoreStored", tournamentScoreListener)
 }
 
 function showNotification(message, isHTML = false) {
   const modalElement = document.getElementById('notificationModal');
-	const messageElement = document.getElementById('notificationModalMessage')
-  const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+  const messageElement = document.getElementById('notificationModalMessage')
+
+  const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement, {
+      backdrop: false,
+      keyboard: false
+  });
+
+  modalElement.setAttribute('data-bs-backdrop', 'static');
+  modalElement.setAttribute('data-bs-keyboard', 'false');
 
   if (modalInstance._isShown) {
-    modalInstance.hide();
-}
-//Timeout pour etre sur que le modal soit bien cache pour afficher lautre
-setTimeout(() => {
-  if (isHTML) {
-    messageElement.innerHTML = message;
-  } else {
-    messageElement.textContent = message;
+      modalInstance.hide();
   }
-  modalInstance.show();
-}, 200);
 
+  // Timeout to ensure the modal is hidden before showing the new one
+  setTimeout(() => {
+      if (isHTML) {
+          messageElement.innerHTML = message;
+      } else {
+          messageElement.textContent = message;
+      }
+      applyTranslations();
+      modalInstance.show();
+  }, 200);
 }
 
 function stopListeningToTournament(tournamentId) {
