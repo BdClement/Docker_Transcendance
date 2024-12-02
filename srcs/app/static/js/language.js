@@ -78,7 +78,7 @@ const translations = {
         noFileChosen: "No file chosen",
         loginToSeeFriends: "Please log in to see your friends!",
         tournamentUnexpectedError: "An unexpected error occurred during the tournament flow.",
-        tournamentScoreStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        tournamentStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
         errorFetchingUser: "An error occurred while fetching user information"
     },
     fr: {
@@ -160,7 +160,7 @@ const translations = {
         noFileChosen: "Aucun fichier sélectionné",
         loginToSeeFriends: "Connectez-vous pour voir vos amis !",
         tournamentUnexpectedError: "Une erreur est survenue lors du déroulement du tournoi.",
-        tournamentScoreStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        tournamentStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
         errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur"
     },
     viet: {
@@ -242,7 +242,7 @@ const translations = {
         noFileChosen: "Chưa chọn tệp",
         loginToSeeFriends: "Vui lòng đăng nhập để xem bạn bè của bạn!",
         tournamentUnexpectedError: "Đã xảy ra lỗi bất ngờ trong quá trình diễn ra giải đấu.",
-        tournamentScoreStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        tournamentStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
         errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng"
     }
 };

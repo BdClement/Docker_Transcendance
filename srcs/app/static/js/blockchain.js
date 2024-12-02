@@ -1,3 +1,4 @@
+// blockchain.js
 // Variable global pour ne pas surveiller tout les stockage de tournoi mais uniquement ceux lies au client
 let tournamentIdCurrentlyWatched = null;
 let tournamentScoreListener = null;
@@ -127,33 +128,32 @@ const etherscanLink = `https://sepolia.etherscan.io/address/${contractAddress}`;
 const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
 function startLiseningToTournament(tournamentId) {
-	if (tournamentIdCurrentlyWatched == tournamentId) return;
+  if (tournamentIdCurrentlyWatched == tournamentId) return;
 
+  if (tournamentIdCurrentlyWatched !== null) {
+      stopListeningToTournament(tournamentIdCurrentlyWatched);
+  }
 
-	if (tournamentIdCurrentlyWatched !== null) {
-	stopListeningToTournament(tournamentIdCurrentlyWatched);
-	}
+  tournamentIdCurrentlyWatched = tournamentId;
 
-	tournamentIdCurrentlyWatched = tournamentId;
+  console.log('Start listening to Tournament', tournamentId);
 
-	console.log('Start listening to Tournament', tournamentId);
-
-	tournamentScoreListener = (eventId) => {
-		const eventIdNb = eventId.toNumber();
-		console.log("eventId : ", eventId);
-		console.log("eventIdNb : ", eventIdNb);
-		console.log("tournamentIdCurrentlyWatched : ", tournamentIdCurrentlyWatched);
-		if (eventIdNb === tournamentIdCurrentlyWatched) {
-			const notificationMessage = t('tournamentScoreStored', { 
-        tournamentId: eventIdNb, 
-        contractAddress: contractAddress, 
-        etherscanLink: etherscanLink 
-    });
-			showNotification(notificationMessage, true);
-			stopListeningToTournament(eventIdNb);
-		}
-	}
-	contract.on("TournamentScoreStored", tournamentScoreListener)
+  tournamentScoreListener = (eventId) => {
+      const eventIdNb = eventId.toNumber();
+      console.log("eventId : ", eventId);
+      console.log("eventIdNb : ", eventIdNb);
+      console.log("tournamentIdCurrentlyWatched : ", tournamentIdCurrentlyWatched);
+      if (eventIdNb === tournamentIdCurrentlyWatched) {
+          const notificationMessage = t('tournamentStored', { 
+              tournamentId: eventIdNb, 
+              contractAddress: contractAddress, 
+              etherscanLink: etherscanLink 
+          });
+          showNotification(notificationMessage, true);
+          stopListeningToTournament(eventIdNb);
+      }
+  }
+  contract.on("TournamentScoreStored", tournamentScoreListener)
 }
 
 function showNotification(message, isHTML = false) {
@@ -175,6 +175,9 @@ function showNotification(message, isHTML = false) {
   // Timeout to ensure the modal is hidden before showing the new one
   setTimeout(() => {
       if (isHTML) {
+          // Remove existing data-i18n attributes to prevent translation override
+          messageElement.removeAttribute('data-i18n');
+          messageElement.removeAttribute('data-i18n-params');
           messageElement.innerHTML = message;
       } else {
           messageElement.textContent = message;
