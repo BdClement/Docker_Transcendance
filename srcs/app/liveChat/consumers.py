@@ -128,7 +128,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		# Etape 3: créer le message dans la base de données et passer la variable invitationAJouer a True
 		message_obj = await sync_to_async(Message.objects.create)(
 			style=style, expediteur=self.user, destinataire=destinataire,
-			message="invitation a jouer", conversation=conversation
+			message="invitation à jouer", conversation=conversation
 		)
 
 		await sync_to_async(setattr)(conversation, 'invitationAJouer', True)
@@ -158,6 +158,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'type': "pong_invitation",
 				'message': message_data
 			}))
+		
 		# Etape 5: Attendre 60 secondes pour la réponse
 		asyncio.create_task(self.handle_invitation_timeout(conversation.id, message_obj, destinataire))
 

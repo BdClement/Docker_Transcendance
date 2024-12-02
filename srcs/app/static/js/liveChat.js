@@ -38,7 +38,7 @@ function handleIncomingMessage(e) {
 		}
 	}
 	else if (data.type === 'pong_invitation') {
-		console.log("invitation a jouer recu");
+		console.log("invitation à jouer recu");
 		affichageInvitationJeu(data);
 	}	else if (data.type === 'pong_invitation_annulée') {
 		console.log("invitation annulée");
@@ -62,17 +62,20 @@ function affichageInvitationJeu(data) {
 		if (message.expediteur_id === destinataireId) {
 			document.getElementById(charIdInvitation).innerHTML = `
 				${message.expediteur_username} vous invite a jouer une partie
-				<button onclick="console.log('demande accepté')">accepter</button><button onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+				<button class="bouton-liveChat" onclick="console.log('demande accepté')">accepter</button><button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
 			`;
 		}
 		else {
 			document.getElementById(charIdInvitation).innerHTML = `
 				vous avez invité ${message.destinataire_username} à jouer une partie
-				<button onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
+				<button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
 			`;
 		}
 	} else if (message.message === "temps écoulé") {
 		console.log("temps écoulé");
+		document.getElementById(charIdInvitation).innerHTML = `
+			L'invitation est obsolète
+	`;
 	} else if (message.message === "invitation annulée") {
 		console.log("invitation annulée");
 		if (message.expediteur_id === destinataireId) {
@@ -277,7 +280,7 @@ function affichageConversation(id, destinataireUsername, data) {
 	if (data["1bloque2"] === true) {
 		enTeteConv.innerHTML = `
 			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
-			<button id="bouton-bloquer" onclick="debloquerUtilisateur(${id}, '${destinataireUsername}')">Débloquer</button>
+			<button class="bouton-liveChat" id="bouton-bloquer" onclick="debloquerUtilisateur(${id}, '${destinataireUsername}')">Débloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
 			<p>Vous avez bloqué ${destinataireUsername}, vous ne pouvez plus lui envoyer de messages.</p>
@@ -285,7 +288,7 @@ function affichageConversation(id, destinataireUsername, data) {
 	} else if (data["2bloque1"] === true) {
 		enTeteConv.innerHTML = `
 			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
-			<button id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
+			<button class="bouton-liveChat" id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
 			<p>${destinataireUsername} vous a bloqué, vous ne pouvez plus lui envoyer de messages.</p>
@@ -293,12 +296,12 @@ function affichageConversation(id, destinataireUsername, data) {
 	} else {
 		enTeteConv.innerHTML = `
 			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
-			<button id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
+			<button class="bouton-liveChat" id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
 			<input type="text" id="messageInput" placeholder="Entrez votre message">
-			<button id="boutonEnvoieMessage">Envoyer</button>
-			<button id="inviterPartiePong" onclick="inviterPartiePong(${id})">Partie</button>
+			<button class="bouton-liveChat" id="boutonEnvoieMessage">Envoyer</button>
+			<button class="bouton-liveChat" id="inviterPartiePong" onclick="inviterPartiePong(${id})">Partie</button>
 		`;
 
 		const boutonEnvoieMessage = document.getElementById('boutonEnvoieMessage');
@@ -337,22 +340,22 @@ function afficherHistoriqueInvitationJeu(message) {
     if (message.message === "invitation à jouer") {
         if (message.expediteur_id === destinataireId) {
             messageElement.innerHTML = `
-                ${message.expediteur_username} vous invite à jouer une partie
-                <button onclick="console.log('demande accepté')">accepter</button>
-                <button onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+                ${message.expediteur} vous invite à jouer une partie
+                <button class="bouton-liveChat" onclick="console.log('demande accepté')">accepter</button>
+                <button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
             `;
         } else {
             messageElement.innerHTML = `
-                vous avez invité ${message.destinataire_username} à jouer une partie
-                <button onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
+                vous avez invité ${message.destinataire} à jouer une partie
+                <button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
             `;
         }
     } else if (message.message === "temps écoulé") {
-        messageElement.innerHTML = `l'invitation est obsolète`;
+        messageElement.innerHTML = `L'invitation est obsolète`;
     } else if (message.message === "invitation annulée") {
         if (message.expediteur_id === destinataireId) {
             messageElement.innerHTML = `
-                ${message.expediteur_username} a annulé une invitation
+                ${message.expediteur} a annulé une invitation
             `;
         } else {
             messageElement.innerHTML = `
@@ -362,7 +365,7 @@ function afficherHistoriqueInvitationJeu(message) {
     } else if (message.message === "invitation refusée") {
         if (message.expediteur_id === destinataireId) {
             messageElement.innerHTML = `
-                ${message.expediteur_username} a refusé votre invitation
+                ${message.expediteur} a refusé votre invitation
             `;
         } else {
             messageElement.innerHTML = `
@@ -370,7 +373,7 @@ function afficherHistoriqueInvitationJeu(message) {
             `;
         }
     } else {
-        console.log("Une erreur est survenue");
+        console.log("Une erreur est survenue, message.mesage = '", message.message, "'");
     }
 }
 
@@ -396,8 +399,11 @@ function afficherHistoriqueMessages(messages) {
 				messageElement.textContent = `${message.expediteur}: ${message.message}`;
 				messageContainer.appendChild(messageElement);	
 		}
-		else {
+		else if (message.style === "jeu") {
 			afficherHistoriqueInvitationJeu(message);
+		}
+		else {
+			console.error("erreur lors de l'affichage de l'historique");
 		}
 	});
 }

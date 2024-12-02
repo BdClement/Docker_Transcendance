@@ -510,15 +510,29 @@ input[type="radio"]:focus + label {
 }
 
 .message-expediteur {
-    margin-left: 10%;
+    margin-left: auto; /* Aligne à droite */
+    margin-right: 10px; /* Ajoute un espace avec le bord droit */
     background-color: #256579;
     margin-bottom: 0.5cm;
+    padding: 10px 15px; /* Ajoute de l'espace à l'intérieur */
+    border-radius: 10px; /* Coins arrondis */
+    color: white;
+    word-wrap: break-word; /* Coupe les mots trop longs */
+    max-width: 60%; /* Largeur maximale */
+    text-align: left; /* Texte aligné à gauche à l'intérieur */
 }
 
 .message-destinataire {
-    margin-right: 10%;
+    margin-right: auto; /* Aligne à gauche */
+    margin-left: 10px; /* Ajoute un espace avec le bord gauche */
     background-color: rgb(255, 103, 222);
     margin-bottom: 0.5cm;
+    padding: 10px 15px; /* Ajoute de l'espace à l'intérieur */
+    border-radius: 10px; /* Coins arrondis */
+    color: white;
+    word-wrap: break-word; /* Coupe les mots trop longs */
+    max-width: 60%; /* Largeur maximale */
+    text-align: left; /* Texte aligné à gauche à l'intérieur */
 }
 
 #choix-conversation {
@@ -529,4 +543,18 @@ input[type="radio"]:focus + label {
 .message-invitation-jeu {
     background-color: black;
     color: white;
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-bottom: 0.5cm;
+    text-align: center; /* Centrer le texte */
+}
+
+.bouton-liveChat {
+    width: auto; /* Largeur adaptée au contenu */
+    height: auto; /* Hauteur adaptée au contenu */
+    padding: 5px 10px; /* Espacement interne pour ajuster l'intérieur */
+    font-size: 16px; /* Taille du texte */
+    text-align: center; /* Centrer le texte */
+    display: inline-block; /* Pour que la taille s'ajuste au contenu */
+    white-space: nowrap; /* Empêche le texte de se casser */
 }
