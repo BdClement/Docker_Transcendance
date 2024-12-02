@@ -126,7 +126,7 @@ async function startTournament(tournamentId) {
                     }), 
                     true
                 );
-                startLiseningToTournament(tournamentId);
+                // startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
             } else {
                 throw new Error('Erreur inattendue');

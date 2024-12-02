@@ -13,6 +13,7 @@ from game.serializer import PlayCreateSerializer, PlayDetailSerializer, PlayList
 from game.serializer import TournamentSerializer
 # Create your views here.
 
+
 def index(request):
 	context = {
 		"contract_adress": settings.CONTRACT_ADDRESS,
@@ -63,7 +64,6 @@ class PlayDetailAPIView(APIView):
 #Cet API permet de relier un User dans l'objet Partie. Il doit etre utilise en ce sens
 #Sauf lorsque un User connecte cree une partie, il est directement connecte en tant que player1 dans la partie
 class PlaySubscribeAPIView(APIView):
-	print("JE JOIN", flush=True)
 	def put(self, request, *args, **kwargs):
 		try:
 			play_id = kwargs.get('play_id')
@@ -76,11 +76,8 @@ class PlaySubscribeAPIView(APIView):
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 		if request.user.is_authenticated:
-			print("JE JOIN 2", flush=True)
 			if not play.add_player(request.user):
-				print("JE JOIN 3", flush=True)
 				return Response({'error': 'app player to play failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		print(f'test = {play.player2}', flush=True)
 		return Response({'message': 'Player added successfully'},status=status.HTTP_200_OK)
 
 

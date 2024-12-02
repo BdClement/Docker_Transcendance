@@ -268,7 +268,6 @@ function applyTranslations() {
             if (element.type === 'submit') {
                 element.value = t(key, params);
             } else if (element.type === 'file') {
-                // Mettre à jour le titre/attribut du bouton de fichier
                 element.setAttribute('title', t(key, params));
             }
         } else {
