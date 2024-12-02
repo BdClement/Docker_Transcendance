@@ -31,8 +31,11 @@ function handleIncomingMessage(e) {
 		afficherMessage(data);
 	}
 	else if (data.type === 'block_user') {
-		console.log("changement d'etat de blocage");
-		HistoriqueMessages(data.blocker_id, data.blocker_username);
+		if (destinataireId == data.blocker_id)
+		{
+			console.log("changement d'etat de blocage");
+			HistoriqueMessages(data.blocker_id, data.blocker_username);
+		}
 	}
 	else if (data.type === 'pong_invitation') {
 		console.log("invitation a jouer recu");
@@ -97,6 +100,7 @@ function affichageInvitationJeu(data) {
 	} else {
 		console.log("une erreur est survenue");
 	}
+	messageContainer.scrollTop = messageContainer.scrollHeight;
 }
 
 function invitationAnnule(destinataire_id, message_id) {
@@ -132,9 +136,7 @@ function afficherMessage(data) {
 	else
 		messageElement.classList.add('message-expediteur');
 
-	const date = new Date(message.date);
-	const formattedDate = date.toLocaleTimeString();
-	messageElement.textContent = `${message.expediteur}: ${message.message} (${formattedDate})`;
+	messageElement.textContent = `${message.expediteur}: ${message.message}`;
 	messageContainer.appendChild(messageElement);
 	messageContainer.scrollTop = messageContainer.scrollHeight;
 }
@@ -155,6 +157,7 @@ function listeAmisLiveChat() {
 	document.getElementById('searchInput').value = '';
 	document.getElementById('userListContainer').innerHTML = '';
 	document.getElementById('searchInput').addEventListener('input', handleSearchInput);
+	destinataireId = null;
 	
 	fetch('/api/listeconversation/')
 		.then(response => response.json())
@@ -253,8 +256,7 @@ function HistoriqueMessages(id, destinataireUsername) {
 			destinataireId = id;
 			afficherHistoriqueMessages(data.messages);
 			affichageConversation(id, destinataireUsername, data);
-
-			// document.getElementById('nom-contact-live-chat').textContent = destinataireUsername;
+			scrollToBottom();
 		} else if (data.noConversation) {
 			destinataireId = id;
 			affichageConversation(id, destinataireUsername, data);
@@ -316,6 +318,62 @@ function affichageConversation(id, destinataireUsername, data) {
 	}
 }
 
+function afficherHistoriqueInvitationJeu(message) {
+    const messageContainer = document.getElementById('message-container');
+    if (!messageContainer) {
+        console.error("messageContainer introuvable !");
+        return;
+    }
+
+    // Étape 1 : créer la div
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message-invitation-jeu');
+    charIdInvitation = "Invitation_" + message.id;
+    messageElement.id = charIdInvitation;
+
+    // Ajoute l'élément au DOM avant de le manipuler
+    messageContainer.appendChild(messageElement);
+
+    if (message.message === "invitation à jouer") {
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} vous invite à jouer une partie
+                <button onclick="console.log('demande accepté')">accepter</button>
+                <button onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+            `;
+        } else {
+            messageElement.innerHTML = `
+                vous avez invité ${message.destinataire_username} à jouer une partie
+                <button onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
+            `;
+        }
+    } else if (message.message === "temps écoulé") {
+        messageElement.innerHTML = `l'invitation est obsolète`;
+    } else if (message.message === "invitation annulée") {
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} a annulé une invitation
+            `;
+        } else {
+            messageElement.innerHTML = `
+                Vous avez annulé l'invitation
+            `;
+        }
+    } else if (message.message === "invitation refusée") {
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} a refusé votre invitation
+            `;
+        } else {
+            messageElement.innerHTML = `
+                Vous avez refusé l'invitation
+            `;
+        }
+    } else {
+        console.log("Une erreur est survenue");
+    }
+}
+
 function afficherHistoriqueMessages(messages) {
 	const messageContainer = document.getElementById('message-container');
 	if (!messageContainer) {
@@ -327,29 +385,19 @@ function afficherHistoriqueMessages(messages) {
 	messageContainer.innerHTML = '';
 
 	messages.forEach(message => {
-		console.log("message.expediteur_id : ", message.destinataire_id, ", destinataireId : ", destinataireId);
-		if (message.expediteur_id === destinataireId) {
-			const messageElement = document.createElement('div');
-			messageElement.classList.add('message-destinataire');
-
-			const date = new Date(message.timestamp);
-			const formattedDate = date.toLocaleTimeString();
-			messageElement.textContent = `${message.expediteur}: ${message.message} (${formattedDate})`;
-			messageContainer.appendChild(messageElement);
+		if (message.style === "message") {
+				const messageElement = document.createElement('div');
+				if (message.expediteur_id === destinataireId) {
+					messageElement.classList.add('message-destinataire');
+				}
+				else {
+					messageElement.classList.add('message-expediteur');
+				}
+				messageElement.textContent = `${message.expediteur}: ${message.message}`;
+				messageContainer.appendChild(messageElement);	
 		}
 		else {
-			const messageElement = document.createElement('div');
-			messageElement.classList.add('message-expediteur');
-
-			// Conversion de la date en objet Date et formatage pour l'affichage
-			const date = new Date(message.timestamp); // Assurez-vous que message.timestamp est bien une chaîne ISO valide
-			const formattedDate = date.toLocaleTimeString(); // Formatage de la date pour afficher l'heure
-
-			// Utilisation de template literals pour créer le texte du message
-			messageElement.textContent = `${message.expediteur}: ${message.message} (${formattedDate})`;
-
-			// Ajout de l'élément de message au conteneur
-			messageContainer.appendChild(messageElement);
+			afficherHistoriqueInvitationJeu(message);
 		}
 	});
 }
@@ -416,4 +464,16 @@ function inviterPartiePong(IdDestinataire) {
         'type': "pong_invitation",
         'destinataire_id': IdDestinataire
     }));
+}
+
+// Fonction pour défiler en bas
+function scrollToBottom() {
+    const messageContainer = document.getElementById("message-container");
+
+    // Vérifier si l'élément existe
+    if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    } else {
+        console.error("L'élément #messageContainer est introuvable !");
+    }
 }

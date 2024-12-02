@@ -501,6 +501,8 @@ input[type="radio"]:focus + label {
 
 #message-container {
     color: white;
+    max-height: 40vh;
+    overflow-y: auto;
 }
 
 #nom-contact-live-chat {

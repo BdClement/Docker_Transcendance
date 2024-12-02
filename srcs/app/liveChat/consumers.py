@@ -294,7 +294,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"destinataire_username": destinataire.username,
 			"message_id": message.id,
 			"message": "invitation refusée",
-			"date": message.date.isoformat()  # Utilisation de isoformat() pour la date
+			"date": message.date.isoformat() # Utilisation de isoformat() pour la date
 		}
 
 		await self.send(text_data=json.dumps({

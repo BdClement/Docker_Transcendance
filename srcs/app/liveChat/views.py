@@ -42,13 +42,15 @@ class MessageHistory(APIView):
 				messages = Message.objects.filter(conversation=conversation).order_by('date')
 				messages_data = [
 					{
+						"style": message.style,
 						"expediteur": message.expediteur.username,
 						"destinataire": message.destinataire.username,
 						"expediteur_id": message.expediteur.id,
 						"destinataire_id": message.destinataire.id,
 						"message": message.message,
 						"date": message.date,
-						"lu": message.lu
+						"lu": message.lu,
+						"message_id": message.id
 					}
 					for message in messages
 				]

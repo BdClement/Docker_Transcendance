@@ -8,6 +8,7 @@ class Conversation(models.Model):
     user_2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations_destinataire')
 
     invitationAJouer = models.BooleanField(default=False)
+    # nouveauxMessages = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Conversation entre {self.user_1} et {self.user_2}'
