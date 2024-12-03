@@ -126,6 +126,7 @@ async function startTournament(tournamentId) {
                     }), 
                     true
                 );
+                // Fonction pour le stockage de du tournoi dans la Blockchain
                 // startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
             } else {
