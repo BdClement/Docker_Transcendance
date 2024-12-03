@@ -5,105 +5,206 @@ document.addEventListener('DOMContentLoaded', () => {
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
     const unfollowButton = document.getElementById('unfollowButton');
 
-    // Charger la liste des amis
-    function loadFriendLists() {
-        fetch('/api/following/')
-            .then(response => response.json())
-            .then(data => {
-                followingList.innerHTML = data.map(user => `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        ${user.username}
-                        <button class="btn btn-sm btn-info view-profile" data-user-id="${user.id}">Voir profil</button>
-                    </li>
-                `).join('');
-            });
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+        .custom-list-group-item {
+            list-style-type: none;
+        }
+        #followingList, #followersList {
+            padding-left: 0;
+        }
+    `;
+    document.head.appendChild(styleSheet);
 
-        fetch('/api/followers/')
-            .then(response => response.json())
-            .then(data => {
-                followersList.innerHTML = data.map(user => `
-                    <li class="list-group-item">
-                        ${user.username}
-                    </li>
-                `).join('');
-            });
+    window.addEventListener('userLoggedIn', () => {
+        console.log('User logged in event detected, loading friend lists...');
+        loadFriendLists();
+    });
+
+    function getProfilePictureUrl(username) {
+        return `/static/images/${username}.jpg`;
     }
 
-    // Ajouter un ami
-    addFriendForm.addEventListener('submit', (e) => {
+    function loadFriendLists() {
+
+        fetch('/api/following/', {
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur lors du chargement des amis');
+            return response.json();
+        })
+        .then(data => {
+            followingList.innerHTML = data.map(user => `
+                <li class="custom-list-group-item p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-picture-small me-3" 
+                                 style="width: 40px; height: 40px;
+                                        border-radius: 50%;
+                                        background-size: cover;
+                                        background-position: center;
+                                        background-image: url('${getProfilePictureUrl(user.username)}');">
+                            </div>
+                            <div>
+                                <div class="fw-bold">${user.username}</div>
+                                <small class="text-muted">${user.alias}</small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm custom-btn view-profile" 
+                                    style="background-color: #194452; color: #ad996d;" 
+                                    data-user-id="${user.id}">
+                                Voir profil
+                            </button>
+                            <button class="btn btn-sm custom-btn delete-friend" 
+                                    style="background-color: #194452; color: #ad996d;"
+                                    data-user-id="${user.id}">
+                                Ne plus suivre
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+            attachEventListeners();
+        })
+        .catch(error => {
+            followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+        });
+
+        fetch('/api/followers/', {
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur lors du chargement des followers');
+            return response.json();
+        })
+        .then(data => {
+            if (data.length === 0) {
+                followersList.innerHTML = `<li class="custom-list-group-item text-muted">${t('noFollowers')}</li>` ;
+                return;
+            }
+
+            followersList.innerHTML = data.map(user => `
+                <li class="custom-list-group-item p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-picture-small me-3" 
+                                 style="width: 40px; height: 40px; 
+                                        border-radius: 50%;
+                                        background-size: cover;
+                                        background-position: center;
+                                        background-image: url('${getProfilePictureUrl(user.username)}');">
+                            </div>
+                            <div>
+                                <div class="fw-bold">${user.username}</div>
+                                <small class="text-muted">${user.alias}</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm custom-btn view-profile" 
+                                style="background-color: #194452; color: #ad996d;"
+                                data-user-id="${user.id}">
+                            Voir profil
+                        </button>
+                    </div>
+                </li>
+            `).join('');
+            attachEventListeners();
+        })
+        .catch(error => {
+            followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+        });
+    }
+
+    // Le reste du code reste identique...
+    function attachEventListeners() {
+        const deleteButtons = document.querySelectorAll('.delete-friend');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', handleDeleteFriend);
+        });
+
+        const profileButtons = document.querySelectorAll('.view-profile');
+        profileButtons.forEach(button => {
+            button.addEventListener('click', handleViewProfile);
+        });
+    }
+
+    function handleDeleteFriend(e) {
         e.preventDefault();
-        const friendUsername = document.getElementById('friendUsername').value;
-        fetch(`/api/users/${friendUsername}/`)
+        const userId = e.target.getAttribute('data-user-id');
+        
+        if (!userId) return;
+
+        if (confirm('Êtes-vous sûr de ne plus vouloir suivre cet utilisateur ?')) {
+            fetch(`/api/suppfriend/${userId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Utilisateur non trouvé');
-                }
+                if (!response.ok) throw new Error('Erreur lors de la suppression');
                 return response.json();
             })
             .then(data => {
-                if (!data.id) {
-                    throw new Error('ID de l\'utilisateur non trouvé');
-                }
-                return fetch(`/api/addfriend/${data.id}/`, { 
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                });
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur lors de l\'ajout de l\'ami');
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.detail || 'Ami ajouté avec succès');
+                alert(data.detail);
                 loadFriendLists();
             })
             .catch(error => {
-                alert(error.message);
+                console.error('Erreur:', error);
+                alert("Une erreur est survenue lors de la suppression");
             });
-    });
+        }
+    }
 
-    // Voir le profil d'un ami
-    followingList.addEventListener('click', (e) => {
-        if (e.target.classList.contains('view-profile')) {
-            const userId = e.target.dataset.userId;
-            fetch(`/api/user_profile/${userId}/`)
+    function handleViewProfile(e) {
+        e.preventDefault();
+        const userId = e.target.getAttribute('data-user-id');
+        console.log(userId);
+        if (userId) {
+            fetch(`/api/userprofile/${userId}/`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('friendProfileContent').innerHTML = `
-                        <p><strong>Nom d'utilisateur:</strong> ${data.username}</p>
-                        <p><strong>Alias:</strong> ${data.alias}</p>
-                        <p><strong>Parties jouées:</strong> ${data.nbPartiesJouees}</p>
-                        <p><strong>Victoires:</strong> ${data.nbVictoires}</p>
-                        <p><strong>Défaites:</strong> ${data.nbDefaites}</p>
+                        <div class="text-center mb-3">
+                            <div class="profile-picture-large mx-auto mb-2" 
+                                 style="width: 100px; height: 100px; 
+                                        border-radius: 50%;
+                                        background-size: cover;
+                                        background-position: center;
+                                        background-image: url('${getProfilePictureUrl(data.username)}');">
+                            </div>
+                            <h4>${data.username}</h4>
+                            <p class="text-muted">${data.alias}</p>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5>${data.nbVictoires + data.nbDefaites}</h5>
+                                <small class="text-muted">Parties</small>
+                            </div>
+                            <div class="col-4">
+                                <h5>${data.nbVictoires}</h5>
+                                <small class="text-muted">Victoires</small>
+                            </div>
+                            <div class="col-4">
+                                <h5>${data.nbDefaites}</h5>
+                                <small class="text-muted">Défaites</small>
+                            </div>
+                        </div>
                     `;
                     unfollowButton.dataset.userId = userId;
                     friendProfileModal.show();
                 });
         }
-    });
-
-    // Se désabonner d'un ami
-    unfollowButton.addEventListener('click', () => {
-        const userId = unfollowButton.dataset.userId;
-        fetch(`/api/unfollow/${userId}/`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.detail);
-                friendProfileModal.hide();
-                loadFriendLists();
-            })
-            .catch(error => {
-                alert("Erreur lors du désabonnement");
-            });
-    });
-
-    // Charger la liste des amis au chargement de la page
-    loadFriendLists();
+    }
 
     function getCookie(name) {
         let cookieValue = null;
@@ -119,4 +220,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return cookieValue;
     }
+
+    addFriendForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const friendUsername = document.getElementById('friendUsername').value.trim();
+        
+        if (!friendUsername) {
+            alert("Veuillez entrer un nom d'utilisateur");
+            return;
+        }
+
+        fetch(`/api/users/${friendUsername}/`, {
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Utilisateur non trouvé');
+            return response.json();
+        })
+        .then(data => {
+            if (!data.id) throw new Error('ID de l\'utilisateur non trouvé');
+            
+            return fetch(`/api/addfriend/${data.id}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                credentials: 'same-origin'
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Erreur lors de l\'ajout');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.detail);
+            document.getElementById('friendUsername').value = '';
+            loadFriendLists();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert(error.message);
+        });
+    });
+
+    unfollowButton.addEventListener('click', () => {
+        const userId = unfollowButton.dataset.userId;
+        fetch(`/api/suppfriend/${userId}/`, { 
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.detail);
+            friendProfileModal.hide();
+            loadFriendLists();
+        })
+        .catch(error => {
+            alert("Erreur lors du désabonnement");
+        });
+    });
+
+    loadFriendLists();
 });
