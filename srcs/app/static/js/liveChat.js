@@ -22,12 +22,10 @@ function initWebSocket() {
 
 // gere les messages recus
 function handleIncomingMessage(e) {
-	console.log("Message reçu : ", e.data);
 	const data = JSON.parse(e.data);
 	const message = data.message;
 
 	if (data.type === 'message') {
-		console.log("Affichage du message");
 		afficherMessage(data);
 	}
 	else if (data.type === 'block_user') {
@@ -124,7 +122,6 @@ function invitationRefuse(expediteur_id, message_id) {
 
 // affiche les messages recus
 function afficherMessage(data) {
-	console.log("iciiiii");
 	message = data.message;
 	const messageContainer = document.getElementById('message-container');
 	if (!messageContainer) {
@@ -134,10 +131,16 @@ function afficherMessage(data) {
 
 	// Création de l'élément pour chaque message
 	const messageElement = document.createElement('div');
+	console.log("destinataireId = ", destinataireId, ", message.expediteur_id = ", message.expediteur_id);
 	if (message.expediteur_id === destinataireId)
+	{
 		messageElement.classList.add('message-destinataire');
-	else
+	}
+	else if (message.destinataire_id === destinataireId)
 		messageElement.classList.add('message-expediteur');
+	else {
+		console.log("message recu de ", message.expediteur_id);
+	}
 
 	messageElement.textContent = `${message.expediteur}: ${message.message}`;
 	messageContainer.appendChild(messageElement);
@@ -276,26 +279,35 @@ function HistoriqueMessages(id, destinataireUsername) {
 	});
 }
 
+function affichageProfileUtilisateur(id) {
+	document.getElementById("liveChatModal").style.display = "none";
+	document.getElementById("friendProfileModal").style.display = "block";
+}
+
 function affichageConversation(id, destinataireUsername, data) {
+	enTeteConv.innerHTML = `
+		<h6 id="nom-contact-live-chat" onclick="affichageProfileUtilisateur(${id})">${destinataireUsername}</h6>
+		<button class="btn btn-sm custom-btn view-profile" 
+			style="background-color: #194452; color: #ad996d;"
+			data-user-id="${id}">Voir profil
+		</button>
+	`;
 	if (data["1bloque2"] === true) {
-		enTeteConv.innerHTML = `
-			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
+		enTeteConv.innerHTML += `
 			<button class="bouton-liveChat" id="bouton-bloquer" onclick="debloquerUtilisateur(${id}, '${destinataireUsername}')">Débloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
 			<p>Vous avez bloqué ${destinataireUsername}, vous ne pouvez plus lui envoyer de messages.</p>
 		`;
 	} else if (data["2bloque1"] === true) {
-		enTeteConv.innerHTML = `
-			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
+		enTeteConv.innerHTML += `
 			<button class="bouton-liveChat" id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
 			<p>${destinataireUsername} vous a bloqué, vous ne pouvez plus lui envoyer de messages.</p>
 		`;
 	} else {
-		enTeteConv.innerHTML = `
-			<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
+		enTeteConv.innerHTML += `
 			<button class="bouton-liveChat" id="bouton-bloquer" onclick="bloquerUtilisateur(${id}, '${destinataireUsername}')">Bloquer</button>
 		`;
 		envoieOuBloque.innerHTML = `
@@ -482,4 +494,8 @@ function scrollToBottom() {
     } else {
         console.error("L'élément #messageContainer est introuvable !");
     }
+}
+
+function boutonClose() {
+	destinataireId = null;
 }

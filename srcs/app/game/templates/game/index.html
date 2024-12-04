@@ -43,7 +43,7 @@
                     </a>
                 </li>
                 <li id="live-chat-li">
-					<a href= "/live-chat" id="live-chat-button" class="some-button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="listeAmisLiveChat()">
+					<a href= "/live-chat" id="live-chat-button" class="some-button" data-bs-toggle="modal" data-bs-target="#liveChatModal" onclick="listeAmisLiveChat()">
 						LC
 					</a>
 				</li>
@@ -340,12 +340,12 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="liveChatModal" tabindex="-1" aria-labelledby="liveChatModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Live-Chat</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h5 class="modal-title" id="liveChatModalLabel">Live-Chat</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="boutonClose()"></button>
 				</div>
 				<div class="modal-body">
 					<div id="liste-amis-live-chat">
