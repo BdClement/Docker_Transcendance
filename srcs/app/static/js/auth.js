@@ -22,25 +22,28 @@ function fetchWithCsrf(url, options = {}) {
 }
 
 function updateUserInfo(username, photoProfile) {
-    const userInfoElement = document.getElementById('userInfo');
-    const profilePictureElement = document.getElementById('profilePicture');
+    let profilePictureElement = document.getElementById('profilePicture');
+    
     if (username) {
         window.dispatchEvent(new Event('userLoggedIn'));
-        const usernameDisplay = document.createElement('div');
-        usernameDisplay.id = 'usernameDisplay';
+        
+        let usernameDisplay = document.getElementById('usernameDisplay');
+        if (!usernameDisplay) {
+            usernameDisplay = document.createElement('div');
+            usernameDisplay.id = 'usernameDisplay';
+            profilePictureElement.parentNode.insertBefore(usernameDisplay, profilePictureElement.nextSibling);
+        }
         usernameDisplay.textContent = username;
-
-        profilePictureElement.parentNode.insertBefore(usernameDisplay, profilePictureElement.nextSibling);
 
         document.getElementById('logoutButton').style.display = 'block';
         document.querySelector('.auth-button').style.display = 'none';
+
         if (photoProfile) {
-            profilePictureElement.style.backgroundImage = `url(/static/images/${username}.jpg)`;
+            profilePictureElement.style.backgroundImage = `url(/static/images/${username}.jpg?timestamp=${Date.now()})`;
         } else {
             profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
         }
     } else {
-        window.dispatchEvent(new Event('userLoggedIn'));
         const usernameDisplay = document.getElementById('usernameDisplay');
         if (usernameDisplay) {
             usernameDisplay.remove();
@@ -50,8 +53,6 @@ function updateUserInfo(username, photoProfile) {
         document.querySelector('.auth-button').style.display = 'block';
         profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
     }
-
-    userInfoElement.style.display = 'none';
 }
 
 function checkLoginStatus() {

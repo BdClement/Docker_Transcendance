@@ -127,8 +127,8 @@ const PongGame = (function() {
                 if (keyState.w) sendPaddleMovement(1, 'up');
                 if (keyState.s) sendPaddleMovement(1, 'down');
             } else {
-                if (keyState.ArrowUp) sendPaddleMovement(2, 'up');
-                if (keyState.ArrowDown) sendPaddleMovement(2, 'down');
+                if (keyState.w) sendPaddleMovement(2, 'up');
+                if (keyState.s) sendPaddleMovement(2, 'down');
             }        
         } else {
             if (keyState.w) sendPaddleMovement(1, 'up');
