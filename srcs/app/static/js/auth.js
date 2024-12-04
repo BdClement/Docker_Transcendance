@@ -1,162 +1,4 @@
-// function updateUserInfo(username, photoProfile) {
-//     const userInfoElement = document.getElementById('userInfo');
-//     const profilePictureElement = document.getElementById('profilePicture');
-//     if (username) {
-//         const usernameDisplay = document.createElement('div');
-//         usernameDisplay.id = 'usernameDisplay';
-//         usernameDisplay.textContent = username;
-
-//         // Insérer cet élément après la photo de profil
-//         profilePictureElement.parentNode.insertBefore(usernameDisplay, profilePictureElement.nextSibling);
-
-//         document.getElementById('logoutButton').style.display = 'block';
-//         document.querySelector('.auth-button').style.display = 'none';
-//         if (photoProfile) {
-//             profilePictureElement.style.backgroundImage = `url(/static/images/${username}.jpg)`;
-//         } else {
-//             profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
-//         }
-//     } else {
-//         const usernameDisplay = document.getElementById('usernameDisplay');
-//         if (usernameDisplay) {
-//             usernameDisplay.remove();
-//         }
-
-//         document.getElementById('logoutButton').style.display = 'none';
-//         document.querySelector('.auth-button').style.display = 'block';
-//         profilePictureElement.style.backgroundImage = 'url(/static/images/base_pfp.png)';
-//     }
-
-//     // Masquer l'ancien élément userInfo dans la navbar
-//     userInfoElement.style.display = 'none';
-// }
-
-// function checkLoginStatus() {
-//     fetch('/api/user/', {
-//         method: 'GET',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         credentials: 'include'
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.username) {
-//             updateUserInfo(data.username, data.photoProfile, data.alias);
-//         } else {
-//             updateUserInfo(null);
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//         updateUserInfo(null);
-//     });
-// }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     checkLoginStatus();
-//     const loginForm = document.getElementById('loginForm');
-//     const signupForm = document.getElementById('signupForm');
-
-//     loginForm.addEventListener('submit', function(e) {
-//         e.preventDefault();
-//         const alias = document.getElementById('loginAlias').value;
-//         const username = document.getElementById('loginUsername').value;
-//         const password = document.getElementById('loginPassword').value;
-
-//         fetch('/api/login/', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({ username, alias, password }),
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.message === "Connexion réussie") {
-//                 // alert('Connexion réussie');
-//                 const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
-//                 authModal.hide();
-//                 updateUserInfo(data.user.username, data.user.photoProfile, data.user.alias);
-//                 // window.location.reload();
-//             } else {
-//                 alert('Erreur de connexion: ' + data.message);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             alert('Erreur de connexion');
-//         });
-//     });
-
-//     signupForm.addEventListener('submit', function(e) {
-//         e.preventDefault();
-//         const username = document.getElementById('signupUsername').value;
-//         const alias = document.getElementById('signupAlias').value;
-//         const email = document.getElementById('signupEmail').value;
-//         const password = document.getElementById('signupPassword').value;
-//         const photoProfile = document.getElementById('profilePhoto').files[0];
-
-//         const formData = new FormData();
-//         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-//         formData.append('csrfmiddlewaretoken', csrftoken);
-//         formData.append('username', username);
-//         formData.append('alias', alias);
-//         formData.append('email', email);
-//         formData.append('password', password);
-//         if (photoProfile) {
-//             formData.append('photoProfile', photoProfile);
-//         }
-
-//         fetch('/api/signup/', {
-//             method: 'POST',
-//             body: formData,
-//             headers: {
-//                 'X-CSRFToken': getCsrfToken(),
-//             }
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.message === "Inscription réussie") {
-//                 alert('Inscription réussie');
-//                 const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
-//                 authModal.hide();
-//                 updateUserInfo(data.user.username, data.user.photoProfile, data.user.alias);
-//             } else {
-//                 alert('Erreur d\'inscription: ' + data.message);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             alert('Erreur d\'inscription');
-//         });
-//     });
-
-//     logoutButton.addEventListener('click', function() {
-//         fetch('/api/logout/', {
-//             method: 'GET',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.message === "Déconnexion réussie") {
-//                 // alert('Déconnexion réussie');
-//                 updateUserInfo(null);
-//                 // window.location.reload();
-//             } else {
-//                 alert('Erreur de déconnexion: ' + data.message);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             alert('Erreur de déconnexion');
-//         });
-//     });
-// });
-
-
+// auth.js
 function updateCsrfToken() {
     return fetch('/api/get-csrf-token/', {
         method: 'GET',
@@ -183,6 +25,7 @@ function updateUserInfo(username, photoProfile) {
     const userInfoElement = document.getElementById('userInfo');
     const profilePictureElement = document.getElementById('profilePicture');
     if (username) {
+        window.dispatchEvent(new Event('userLoggedIn'));
         const usernameDisplay = document.createElement('div');
         usernameDisplay.id = 'usernameDisplay';
         usernameDisplay.textContent = username;
@@ -202,6 +45,7 @@ function updateUserInfo(username, photoProfile) {
         // ilona -- peut etre a changer de place
         initWebSocket();
     } else {
+        window.dispatchEvent(new Event('userLoggedIn'));
         const usernameDisplay = document.getElementById('usernameDisplay');
         if (usernameDisplay) {
             usernameDisplay.remove();
@@ -290,6 +134,7 @@ function logout() {
     .then(data => {
         if (data.message === "Déconnexion réussie") {
             updateUserInfo(null);
+            window.dispatchEvent(new Event('userLoggedOut'));
         } else {
             throw new Error(data.message);
         }
@@ -301,6 +146,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const logoutButton = document.getElementById('logoutButton');
+    const authModal = document.getElementById('authModal');
+
+    document.querySelector('.auth-button').addEventListener('click', function() {
+        history.pushState({}, '', '/connexion');
+    });
+
+    authModal.addEventListener('hidden.bs.modal', function() {
+        history.pushState({}, '', '/');
+    });
+
+    window.addEventListener('popstate', function() {
+        const modal = bootstrap.Modal.getInstance(authModal);
+        if (modal) {
+            modal.hide();
+        }
+    });
 
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -337,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
     logoutButton.addEventListener('click', function() {
         logout()
             .then(() => {
-                // Pas besoin d'alerte ici, updateUserInfo gère déjà l'UI
             })
             .catch(error => {
                 console.error('Error:', error);

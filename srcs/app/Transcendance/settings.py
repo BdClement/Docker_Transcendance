@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+PUBLIC_KEY = os.getenv("PUBLIC_KEY")
+PRIVATE_KEY = os.getenv("PRIVATE_KEY")
+CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")
+ALCHEMY_RPC = os.getenv("ALCHEMY_RPC")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +31,7 @@ SECRET_KEY = 'django-insecure-zz5ovspc-uqvzrt1hc513=_p8ey=+j^ary0+54m=hs@3k=p77a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -61,6 +65,7 @@ MIDDLEWARE = [
 #Ajoute pour autoriser l'origne HTTPS (Schema / Nom D'Hote / Port) puisque utilisation d'un proxy
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8443',
+    'https://127.0.0.1:8443'
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'

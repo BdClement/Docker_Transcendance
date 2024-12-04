@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.response import Response
@@ -8,12 +9,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from game.models import Play, Tournament
-from game.serializer import PlayCreateSerializer, PlayDetailSerializer
+from game.serializer import PlayCreateSerializer, PlayDetailSerializer, PlayListSerializer
 from game.serializer import TournamentSerializer
 # Create your views here.
 
+
 def index(request):
-	return render(request, 'game/index.html')
+	context = {
+		"contract_adress": settings.CONTRACT_ADDRESS,
+		"alchemy_rpc": settings.ALCHEMY_RPC,
+	}
+
+	return render(request, 'game/index.html', context)
 
 #APIView pour des actions specifiques
 #ModelViewset pour les operations CRUD directement liee a un model
@@ -122,7 +129,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
 			else:
 				return Response({'message': 'Tournament is finished'}, status=status.HTTP_410_GONE)
 
-
-
-
-
+class PlayListAPIView(APIView):
+	def get(self, request):
+		plays = Play.objects.filter(remote=True, is_finished=False, player_connected__lt=2)
+		serializer = PlayListSerializer(plays, many=True)
+		return Response(serializer.data)

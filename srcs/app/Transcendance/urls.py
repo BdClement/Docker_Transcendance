@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from rest_framework import routers
 from game import views
-from game.views import PlayCreateAPIView, PlayDetailAPIView, PlaySubscribeAPIView
+from game.views import PlayCreateAPIView, PlayDetailAPIView, PlaySubscribeAPIView, PlayListAPIView
 from game.views import TournamentViewSet
 from authentication.views import LoginAPI, SignupAPI, Logout, UserInfoAPI, UserProfileView, UserProfileUpdateView, UserDeleteView
 from authentication.views import AddFriendView, SuppFriendView, FollowingListView, FollowersListView, UserDetailView, MatchHistoryView, BloquerUtilisateurView, DebloquerUtilisateurView
@@ -54,6 +54,7 @@ urlpatterns = [
     path('api/utilisateurs/', listeUtilisateurs.as_view(), name='utilisateurs-list'),
     path('bloquer-utilisateur/<int:id>/', BloquerUtilisateurView.as_view(), name='bloquer_utilisateur'),
     path('debloquer-utilisateur/<int:id>/', DebloquerUtilisateurView.as_view(), name='debloquer_utilisateur'),
+    path('api/play/list', PlayListAPIView.as_view(), name='play-list'),
 	re_path(r'^.*$', views.index, name='index'),
 ]
 

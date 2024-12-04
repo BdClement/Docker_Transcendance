@@ -13,7 +13,6 @@ from .models import Play
 
 class PlayConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		print('Appel a connect dans Consumer')
 		#Checker si la partie existe bien et n'est pas deja finie
 		self.game_id = self.scope['url_route']['kwargs']['game_id']#Attribu l'id de la partie au consumer
 		# A modifier avec play_id
@@ -37,22 +36,25 @@ class PlayConsumer(AsyncWebsocketConsumer):
 		)
 
 		await self.accept()
+
+		self.pong = await sync_to_async(PongGame.get_instance)(self.game_id, self.game_group_name)
+
 		await self.add_players_to_play()
-		# GESTION DE DECONNEXIONS CLIENTS
-		# Probleme pour remote : Si l'instance de PongGame est creee dans le Consumer, si ce Consumer se deconnecte pour n'importe quelle raison
-		# Le jeu serait detruit avec le consumer et affecterait alors les autres players. Solutions :
-			#- Creer un objet global intermediaire qui stockerait les objets PongGameet qu'on manipulerait depuis cet objet ??
-			#- Creer l'objet PongGame a l'interieur de l'objet Play ?
+
 		if await self.play_ready_to_start():
-			self.pong = await sync_to_async(PongGame, thread_sensitive=True)(self.game_id, self.game_group_name)
 			await self.pong.start_game()
 
 	async def disconnect(self, close_code):
 		await database_sync_to_async(self.play.refresh_from_db)()
 		if hasattr(self, 'game_group_name'):
-			await self.channel_layer.group_discard(
+			await self.channel_layer.group_send(
 				self.game_group_name,
-				self.channel_name
+				{
+					'type': 'update_game',
+					'status': 'waiting',
+					'players_connected': self.play.player_connected,
+					'players_needed': self.play.nb_players
+				}
 			)
 		if hasattr(self, 'play'):
 			await self.rm_players_from_play()
@@ -67,8 +69,8 @@ class PlayConsumer(AsyncWebsocketConsumer):
 		text_data_json = json.loads(text_data)
 		player = text_data_json.get('player')
 		move = text_data_json.get('move')
-		if move is not None:
-			if 1 <= player <=4:
+		if move is not None and hasattr(self, 'pong'):
+			if player in [1, 2, 3, 4]:
 				await self.pong.update_player_position(player, text_data_json['move'])
 
 	# Methode que chaque consumer connecte appelera individuellement via le channel_layer dans PongGame
