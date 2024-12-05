@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const followingList = document.getElementById('followingList');
-    const followersList = document.getElementById('followersList');
+    // const followingList = document.getElementById('followingList');
+    // const followersList = document.getElementById('followersList');
     const addFriendForm = document.getElementById('addFriendForm');
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
     const unfollowButton = document.getElementById('unfollowButton');
+
+    // Ajoute par Clement
+    const modalBody = document.getElementById('friendModalBody');
 
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
@@ -24,9 +27,48 @@ document.addEventListener('DOMContentLoaded', () => {
     function getProfilePictureUrl(username) {
         return `/static/images/${username}.jpg`;
     }
+    //Tentative de depalcement du body du modal dans le JS pour pouvoir garder une trace et le placer lrosque jen ai beosin
+    // Ajoute par Clement
+    function updateFriendModalBody() {
+        modalBody.innerHTML = `
+                    <div class="custom-tabs-container">
+                        <ul class="nav nav-pills nav-fill" id="friendTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active custom-tab-button" id="friend-list-tab" data-bs-toggle="pill" data-bs-target="#friend-list" type="button" role="tab" aria-controls="friend-list" aria-selected="true" data-i18n="friendListTab">Liste d'amis</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link custom-tab-button" id="add-friend-tab" data-bs-toggle="pill" data-bs-target="#add-friend" type="button" role="tab" aria-controls="add-friend" aria-selected="false" data-i18n="addFriendTab">Ajouter un ami</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content custom-tab-content" id="friendTabsContent">
+                        <div class="tab-pane fade show active" id="friend-list" role="tabpanel" aria-labelledby="friend-list-tab">
+                            <h6 class="friend-list-title" data-i18n="yourFollowing">Vos abonnements</h6>
+                            <ul id="followingList" class="list-group custom-list-group">
+                            </ul>
+                            <h6 class="friend-list-title" data-i18n="yourFollowers">Vos abonnés</h6>
+                            <ul id="followersList" class="list-group custom-list-group">
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade" id="add-friend" role="tabpanel" aria-labelledby="add-friend-tab">
+                            <form id="addFriendForm" class="mt-3">
+                                <div class="mb-3">
+                                    <p for="friendUsername" class="form-label" data-i18n="addFriendUsername">Nom d'utilisateur de l'ami</p>
+                                    <input type="text" class="form-control custom-input" id="friendUsername" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary custom-btn" data-i18n="addFriendButton">Ajouter</button>
+                            </form>
+                        </div>
+                    </div>
+        `
+    }
 
     function loadFriendLists() {
 
+        //Ajoute par Clement Car en haut ce ne fonctionne plus puisque jai modifier index.html
+        const followingList = document.getElementById('followingList');
+        const followersList = document.getElementById('followersList');
+        updateFriendModalBody();
         fetch('/api/following/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -38,11 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
+
             followingList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <div class="profile-picture-small me-3" 
+                            <div class="profile-picture-small me-3"
                                  style="width: 40px; height: 40px;
                                         border-radius: 50%;
                                         background-size: cover;
@@ -55,12 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm custom-btn view-profile" 
-                                    style="background-color: #194452; color: #ad996d;" 
+                            <button class="btn btn-sm custom-btn view-profile"
+                                    style="background-color: #194452; color: #ad996d;"
                                     data-user-id="${user.id}">
                                 Voir profil
                             </button>
-                            <button class="btn btn-sm custom-btn delete-friend" 
+                            <button class="btn btn-sm custom-btn delete-friend"
                                     style="background-color: #194452; color: #ad996d;"
                                     data-user-id="${user.id}">
                                 Ne plus suivre
@@ -72,7 +115,16 @@ document.addEventListener('DOMContentLoaded', () => {
             attachEventListeners();
         })
         .catch(error => {
-            followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+            // followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+            // followingList.innerHTML = '';
+            // followersList.innerHTML = '';
+
+            const modalBody = document.getElementById('friendModalBody');
+            modalBody.innerHTML = `
+                <div class="auth-message">
+                    <i class="fas fa-lock"></i>
+                    <p data-i18n="loginToSeeFriends">Aucune information utilisateur disponible</p>
+                </div>`;
         });
 
         fetch('/api/followers/', {
@@ -95,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <div class="profile-picture-small me-3" 
-                                 style="width: 40px; height: 40px; 
+                            <div class="profile-picture-small me-3"
+                                 style="width: 40px; height: 40px;
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
@@ -107,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <small class="text-muted">${user.alias}</small>
                             </div>
                         </div>
-                        <button class="btn btn-sm custom-btn view-profile" 
+                        <button class="btn btn-sm custom-btn view-profile"
                                 style="background-color: #194452; color: #ad996d;"
                                 data-user-id="${user.id}">
                             Voir profil
@@ -138,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleDeleteFriend(e) {
         e.preventDefault();
         const userId = e.target.getAttribute('data-user-id');
-        
+
         if (!userId) return;
 
         if (confirm('Êtes-vous sûr de ne plus vouloir suivre cet utilisateur ?')) {
@@ -175,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     document.getElementById('friendProfileContent').innerHTML = `
                         <div class="text-center mb-3">
-                            <div class="profile-picture-large mx-auto mb-2" 
-                                 style="width: 100px; height: 100px; 
+                            <div class="profile-picture-large mx-auto mb-2"
+                                 style="width: 100px; height: 100px;
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
@@ -224,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addFriendForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const friendUsername = document.getElementById('friendUsername').value.trim();
-        
+
         if (!friendUsername) {
             alert("Veuillez entrer un nom d'utilisateur");
             return;
@@ -242,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             if (!data.id) throw new Error('ID de l\'utilisateur non trouvé');
-            
+
             return fetch(`/api/addfriend/${data.id}/`, {
                 method: 'POST',
                 headers: {
@@ -273,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     unfollowButton.addEventListener('click', () => {
         const userId = unfollowButton.dataset.userId;
-        fetch(`/api/suppfriend/${userId}/`, { 
+        fetch(`/api/suppfriend/${userId}/`, {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')

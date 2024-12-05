@@ -22,27 +22,27 @@
     <div class="page-sidebar left">
         <ul class="left-navbar">
             <div class="_">
-                <li>
+                <li data-i18n="userModalTitle">
                     <a href="/user" class="icon-user" id="userLink">
                         <img src="/static/images/user.png" alt="Icone User">
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal">
+                <li data-i18n="friendModalTitle">
+                    <a href="friend" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal">
                         <img src="/static/images/Friend.png" alt="Icone Friend">
                     </a>
                 </li>
-                <li>
+                <li data-i18n="tournamentModalTitle">
                     <a href="/tournament" class="icon-tournoi" id="tournamentLink">
                         <img src="/static/images/podium.png" alt="Icone Tournoi">
                     </a>
                 </li>
-                <li>
+                <li data-i18n="historiqueModalTitle">
                     <a href="/historique" class="icon-historique" id="historiqueLink">
                         <img src="/static/images/historique.png" alt="Icone Historique">
                     </a>
                 </li>
-                <li>
+                <li data-i18n="settingsModalTitle">
                     <a href= "/settings" class="icon-parametre" id="settingsLink">
                         <img src="/static/images/parametre.png" alt="Icone Option">
                     </a>
@@ -164,8 +164,8 @@
                     <h5 class="modal-title" id="friendModalLabel" data-i18n="friendModalTitle">Gestion des amis</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="custom-tabs-container">
+                <div class="modal-body" id="friendModalBody">
+                    <!-- <div class="custom-tabs-container">
                         <ul class="nav nav-pills nav-fill" id="friendTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active custom-tab-button" id="friend-list-tab" data-bs-toggle="pill" data-bs-target="#friend-list" type="button" role="tab" aria-controls="friend-list" aria-selected="true" data-i18n="friendListTab">Liste d'amis</button>
@@ -193,7 +193,7 @@
                                 <button type="submit" class="btn btn-primary custom-btn" data-i18n="addFriendButton">Ajouter</button>
                             </form>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -226,8 +226,8 @@
                         <div class="mb-3">
                             <p for="playerCount" class="form-label" data-i18n="playerCount">Nombre de joueurs</p>
                             <select class="form-select" id="playerCount" required>
-                                <option value="4">4 joueurs</option>
-                                <option value="8">8 joueurs</option>
+                                <option value="4">4</option>
+                                <option value="8">8</option>
                             </select>
                         </div>
                         <div id="aliasInputs">
@@ -275,10 +275,10 @@
                         </div>
                         <div class="mb-3">
                             <p class="form-label" data-i18n="settingsProfilePhoto">Profile Photo</p>
-                            <input type="file" 
-                                   class="form-control" 
-                                   id="settingsPhoto" 
-                                   name="photoProfile" 
+                            <input type="file"
+                                   class="form-control"
+                                   id="settingsPhoto"
+                                   name="photoProfile"
                                    accept="image/*"
                                    data-i18n="chooseFile"
                                    title="Choisir un fichier">
@@ -327,8 +327,8 @@
                     <h5 class="modal-title" id="notificationModalLabel" data-i18n="notificationModalTitle">Notification</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="notificationModalMessage" 
-                     data-i18n="tournamentScoreStorageAttempt" 
+                <div class="modal-body" id="notificationModalMessage"
+                     data-i18n="tournamentScoreStorageAttempt"
                      data-i18n-params='{"tournamentId": "", "etherscanLink": "", "contractAddress": ""}'>
                     Tentative de stockage du score du tournoi. Cela peut prendre quelques instants...
                 </div>

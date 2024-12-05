@@ -64,7 +64,8 @@ MIDDLEWARE = [
 #Ajoute pour autoriser l'origne HTTPS (Schema / Nom D'Hote / Port) puisque utilisation d'un proxy
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8443',
-    'https://127.0.0.1:8443'
+    'https://127.0.0.1:8443',
+	'https://10.25.102.1:8443'
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'

@@ -55,7 +55,7 @@ const translations = {
         username: "Username",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "No user information available",
+        noUserInfo: "Unavailable. You must be connected to see your profile",
         userNotFound: "User not found",
         userIdNotFound: "User ID not found",
         notificationModalTitle: "Notification",
@@ -66,7 +66,7 @@ const translations = {
         startNextGame: "Play",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "No followers",
-        settingsModalTitle: "Settings",
+        settingsModalTitle: "Update profile",
         settingsUsername: "Username",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -109,7 +109,7 @@ const translations = {
         addFriendTab: "Ajouter un ami",
         yourFollowing: "Vos abonnements :",
         yourFollowers: "Vos abonnés :",
-        addFriendUsername: "Nom d'utilisateur de l'ami",
+        addFriendUsername: "Nom de l'ami",
         addFriendButton: "Ajouter",
         friendProfileTitle: "Profil de l'ami",
         unfollowButton: "Se désabonner",
@@ -137,7 +137,7 @@ const translations = {
         username: "Nom d'utilisateur",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "Aucune information utilisateur disponible",
+        noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
         userNotFound: "Utilisateur non trouvé",
         userIdNotFound: "ID de l'utilisateur non trouvé",
         notificationModalTitle: "Notification",
@@ -148,7 +148,7 @@ const translations = {
         startNextGame: "Jouer",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Aucun abonné",
-        settingsModalTitle: "Paramètres",
+        settingsModalTitle: "Mettre a jour le profil",
         settingsUsername: "Nom d'utilisateur",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -250,11 +250,11 @@ const translations = {
 const t = (key, params = {}) => {
     const lang = localStorage.getItem('language') || 'fr';
     let translation = translations[lang][key] || key;
-    
+
     Object.keys(params).forEach(param => {
         translation = translation.replace(`{${param}}`, params[param]);
     });
-    
+
     return translation;
 };
 
@@ -263,15 +263,21 @@ function applyTranslations() {
         const key = element.getAttribute('data-i18n');
         const paramsAttr = element.getAttribute('data-i18n-params');
         const params = paramsAttr ? JSON.parse(paramsAttr) : {};
-        
-        if (element.tagName === 'INPUT') {
-            if (element.type === 'submit') {
-                element.value = t(key, params);
-            } else if (element.type === 'file') {
-                element.setAttribute('title', t(key, params));
-            }
+
+        //Ajout pour les pseudo-elements
+        const translation = t(key, params);
+        if (element.tagName === 'LI') {
+            element.style.setProperty('--pseudo-content', `"${translation}"`);
         } else {
-            element.textContent = t(key, params);
+            if (element.tagName === 'INPUT') {
+                if (element.type === 'submit') {
+                    element.value = t(key, params);
+                } else if (element.type === 'file') {
+                    element.setAttribute('title', t(key, params));
+                }
+            } else {
+                element.textContent = t(key, params);
+            }
         }
     });
 }

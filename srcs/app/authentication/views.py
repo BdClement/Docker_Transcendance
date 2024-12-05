@@ -152,7 +152,6 @@ class MatchHistoryView(generics.ListAPIView):
 			Q(player4=user)
 		).order_by('date')
 
-
 class UserProfileUpdateView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
@@ -180,14 +179,14 @@ class AddFriendView(APIView):
     def post(self, request, user_id):
         user_to_follow = get_object_or_404(User, id=user_id)
         if request.user == user_to_follow:
-            return Response({"detail": "Vous ne pouvez pas vous suivre vous-même."}, 
+            return Response({"detail": "Vous ne pouvez pas vous suivre vous-même."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Vérifier si l'utilisateur est déjà dans la liste des following
         if user_to_follow in request.user.following.all():
-            return Response({"detail": "Vous suivez déjà cet utilisateur."}, 
+            return Response({"detail": "Vous suivez déjà cet utilisateur."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         request.user.following.add(user_to_follow)
         return Response({
             "detail": f"Vous suivez maintenant {user_to_follow.username}.",
@@ -201,12 +200,12 @@ class SuppFriendView(APIView):
     permission_classes = [IsAuthenticated]
     def delete(self, request, user_id):
         user_to_unfollow = get_object_or_404(User, id=user_id)
-        
+
         # Vérifier si l'utilisateur est bien dans la liste des following
         if user_to_unfollow not in request.user.following.all():
-            return Response({"detail": "Vous ne suivez pas cet utilisateur."}, 
+            return Response({"detail": "Vous ne suivez pas cet utilisateur."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         request.user.following.remove(user_to_unfollow)
         return Response({
             "detail": f"Vous ne suivez plus {user_to_unfollow.username}.",

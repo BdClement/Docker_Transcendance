@@ -576,7 +576,7 @@ input[type="radio"]:focus + label {
     margin: 0;
 }
 
-.left-navbar li {
+.left-navbar li, .pseudo-content{
     width: 80px;
     height: 80px;
     display: flex;
@@ -587,10 +587,36 @@ input[type="radio"]:focus + label {
     background-color: transparent;
     border-bottom: 2px solid #785E2C;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;/*Ajoute pour UX*/
 }
 
 .left-navbar li:hover {
     background-color: #0d2132;
+}
+
+/* pseudo-element ajoute pour UX */
+.left-navbar li::after {
+    content: var(--pseudo-content, '');
+    position: absolute;
+    top:0;
+    left:-80px;
+    width: 160px;
+    height: 80px;
+    background-color: #0d2132;
+    border-bottom: 2px solid #785E2C;
+    opacity:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #785E2C;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.25s ease-in-out, transform 0.3s ease;
+}
+
+.left-navbar li:hover::after {
+    opacity:1;
+    transform: translateX(160px);
 }
 
 .icon-tournoi, .icon-parametre, .icon-friend, .icon-historique, .icon-user {
@@ -614,9 +640,12 @@ input[type="radio"]:focus + label {
 .left-navbar li:hover .icon-parametre img,
 .left-navbar li:hover .icon-friend img,
 .left-navbar li:hover .icon-user img
- {
+{
     filter: brightness(0) invert(1);
 }
+
+/* === Style pour la modal User profile === */
+
 
 /* === Style pour la modal d'historique === */
 .modal-dialog {

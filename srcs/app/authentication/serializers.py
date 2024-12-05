@@ -116,6 +116,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 		return value
 
 	def update(self, instance, validated_data):
+		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		password = validated_data.pop('password', None)
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
@@ -126,3 +127,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 		if password:
 			login(self.context['request'], instance)
 		return instance
+
