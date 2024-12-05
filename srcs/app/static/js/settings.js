@@ -1,10 +1,23 @@
-// settings.js
 const settingsModal = document.getElementById('settingsModal');
 const settingsForm = document.getElementById('settingsForm');
 const settingsLink = document.getElementById('settingsLink');
 
 async function updateUserProfile(formData) {
     try {
+
+        console.log("Contenu initial de formData :", Object.fromEntries(formData));
+
+        for (let [key, value] of formData.entries()) {
+            if (value === '') {
+                formData.delete(key);
+            }
+        }
+
+        if (formData.keys().next().done) {
+            throw new Error(t('noUpdateFieldsProvided'));
+        }
+
+        console.log("Contenu de formData après suppression des champs vides :", Object.fromEntries(formData));
         const response = await fetchWithCsrf('/api/userprofileupdate/', {
             method: 'PUT',
             headers: {
@@ -13,6 +26,9 @@ async function updateUserProfile(formData) {
             body: formData,
             credentials: 'include',
         });
+        console.log("Réponse du serveur :", response);
+        const responseBody = await response.clone().json(); // Clone pour pouvoir lire le corps
+        console.log("Corps de la réponse :", responseBody);
 
         if (response.ok) {
             const alertDiv = document.createElement('div');
@@ -42,6 +58,18 @@ function opensettingsModal() {
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(settingsForm);
+    console.log("Contenu détaillé de formData :");
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: `, value);
+        // Pour les fichiers, afficher plus de détails
+        if (value instanceof File) {
+            console.log(`Détails du fichier ${key}:`, {
+                name: value.name,
+                type: value.type,
+                size: value.size
+            });
+        }
+    }
     await updateUserProfile(formData);
 });
 

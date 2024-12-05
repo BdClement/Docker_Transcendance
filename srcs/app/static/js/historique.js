@@ -50,7 +50,8 @@ function displayMatchHistory(data) {
     table.appendChild(thead);
     
     const tbody = document.createElement('tbody');
-    data.results.forEach(match => {
+    // Inverser l'ordre des matchs (du plus récent au plus ancien)
+    data.results.slice().reverse().forEach(match => {
         const row = document.createElement('tr');
         
         const date = new Date(match.date).toLocaleDateString();
@@ -77,7 +78,8 @@ function displayMatchHistory(data) {
 
     applyTranslations();
     
-    if (data.count > 10) {
+    // Afficher la pagination dès 7 matchs
+    if (data.count > 5) {
         const pagination = createPagination(data);
         historiqueForm.appendChild(pagination);
     }
@@ -87,7 +89,7 @@ function createPagination(data) {
     const paginationDiv = document.createElement('div');
     paginationDiv.className = 'pagination-container d-flex justify-content-center mt-3';
     
-    const totalPages = Math.ceil(data.count / 10);
+    const totalPages = data.count > 5 ? 2 : 1;
     const currentPage = Math.floor(data.results.length / 10) + 1;
     
     const pagination = document.createElement('nav');

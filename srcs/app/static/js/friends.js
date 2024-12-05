@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                     `;
-                    unfollowButton.dataset.userId = userId;
                     friendProfileModal.show();
                 });
         }

@@ -64,6 +64,7 @@ function checkLoginStatus() {
     })
     .then(response => response.json())
     .then(data => {
+        console.log("DATA :", data);
         if (data.username) {
             updateUserInfo(data.username, data.photoProfile, data.alias);
         } else {
