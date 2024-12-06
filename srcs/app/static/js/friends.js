@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFriendLists();
     });
 
-    function getProfilePictureUrl(username) {
-        return `/static/images/${username}.jpg`;
-    }
+    // function getProfilePictureUrl(username) {
+    //     return `/static/images/${username}.jpg`;
+    // }
 
     function loadFriendLists() {
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
-                                        background-image: url('${getProfilePictureUrl(user.username)}');">
+                                        background-image: url('${profileView.getProfilePictureUrl(user.username)}');">
                             </div>
                             <div>
                                 <div class="fw-bold">${user.username}</div>
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
-                                        background-image: url('${getProfilePictureUrl(user.username)}');">
+                                        background-image: url('${profileView.getProfilePictureUrl(user.username)}');">
                             </div>
                             <div>
                                 <div class="fw-bold">${user.username}</div>
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const profileButtons = document.querySelectorAll('.view-profile');
         profileButtons.forEach(button => {
-            button.addEventListener('click', handleViewProfile);
+            button.addEventListener('click', profileView.handleViewProfile);
         });
     }
 
@@ -165,46 +165,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleViewProfile(e) {
-        e.preventDefault();
-        const userId = e.target.getAttribute('data-user-id');
-        console.log(userId);
-        if (userId) {
-            fetch(`/api/userprofile/${userId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('friendProfileContent').innerHTML = `
-                        <div class="text-center mb-3">
-                            <div class="profile-picture-large mx-auto mb-2" 
-                                 style="width: 100px; height: 100px; 
-                                        border-radius: 50%;
-                                        background-size: cover;
-                                        background-position: center;
-                                        background-image: url('${getProfilePictureUrl(data.username)}');">
-                            </div>
-                            <h4>${data.username}</h4>
-                            <p class="text-muted">${data.alias}</p>
-                        </div>
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <h5>${data.nbVictoires + data.nbDefaites}</h5>
-                                <small class="text-muted">Parties</small>
-                            </div>
-                            <div class="col-4">
-                                <h5>${data.nbVictoires}</h5>
-                                <small class="text-muted">Victoires</small>
-                            </div>
-                            <div class="col-4">
-                                <h5>${data.nbDefaites}</h5>
-                                <small class="text-muted">Défaites</small>
-                            </div>
-                        </div>
-                    `;
-                    unfollowButton.dataset.userId = userId;
-                    friendProfileModal.show();
-                });
-        }
-    }
+    // function handleViewProfile(e) {
+    //     e.preventDefault();
+    //     const userId = e.target.getAttribute('data-user-id');
+    //     console.log(userId);
+    //     if (userId) {
+    //         fetch(`/api/userprofile/${userId}/`)
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 document.getElementById('friendProfileContent').innerHTML = `
+    //                     <div class="text-center mb-3">
+    //                         <div class="profile-picture-large mx-auto mb-2" 
+    //                              style="width: 100px; height: 100px; 
+    //                                     border-radius: 50%;
+    //                                     background-size: cover;
+    //                                     background-position: center;
+    //                                     background-image: url('${getProfilePictureUrl(data.username)}');">
+    //                         </div>
+    //                         <h4>${data.username}</h4>
+    //                         <p class="text-muted">${data.alias}</p>
+    //                     </div>
+    //                     <div class="row text-center">
+    //                         <div class="col-4">
+    //                             <h5>${data.nbVictoires + data.nbDefaites}</h5>
+    //                             <small class="text-muted">Parties</small>
+    //                         </div>
+    //                         <div class="col-4">
+    //                             <h5>${data.nbVictoires}</h5>
+    //                             <small class="text-muted">Victoires</small>
+    //                         </div>
+    //                         <div class="col-4">
+    //                             <h5>${data.nbDefaites}</h5>
+    //                             <small class="text-muted">Défaites</small>
+    //                         </div>
+    //                     </div>
+    //                 `;
+    //                 unfollowButton.dataset.userId = userId;
+    //                 friendProfileModal.show();
+    //             });
+    //     }
+    // }
 
     function getCookie(name) {
         let cookieValue = null;
@@ -292,3 +292,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadFriendLists();
 });
+
+const profileView = (function() {
+
+    const unfollowButton = document.getElementById('unfollowButton');
+    const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
+
+    function getProfilePictureUrl(username) {
+        return `/static/images/${username}.jpg`;
+    }
+
+    function handleViewProfile(e) {
+        e.preventDefault();
+        const userId = e.target.getAttribute('data-user-id');
+        console.log(userId);
+        if (userId) {
+            fetch(`/api/userprofile/${userId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('friendProfileContent').innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="profile-picture-large mx-auto mb-2" 
+                                 style="width: 100px; height: 100px; 
+                                        border-radius: 50%;
+                                        background-size: cover;
+                                        background-position: center;
+                                        background-image: url('${getProfilePictureUrl(data.username)}');">
+                            </div>
+                            <h4>${data.username}</h4>
+                            <p class="text-muted">${data.alias}</p>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5>${data.nbVictoires + data.nbDefaites}</h5>
+                                <small class="text-muted">Parties</small>
+                            </div>
+                            <div class="col-4">
+                                <h5>${data.nbVictoires}</h5>
+                                <small class="text-muted">Victoires</small>
+                            </div>
+                            <div class="col-4">
+                                <h5>${data.nbDefaites}</h5>
+                                <small class="text-muted">Défaites</small>
+                            </div>
+                        </div>
+                    `;
+                    unfollowButton.dataset.userId = userId;
+                    friendProfileModal.show();
+                });
+        }
+    }
+
+    return {
+        handleViewProfile,
+        getProfilePictureUrl
+    };
+})();

@@ -156,7 +156,6 @@ function handleWebSocketClose() {
 	// Si tu souhaites ajouter une reconnexion automatique, tu peux l'implémenter ici
 }
 
-
 function listeAmisLiveChat() {
 	document.getElementById('liste-amis-live-chat').style.display = 'block';
 	document.getElementById('conversation-live-chat').style.display = 'none';
@@ -287,11 +286,14 @@ function affichageProfileUtilisateur(id) {
 function affichageConversation(id, destinataireUsername, data) {
 	enTeteConv.innerHTML = `
 		<h6 id="nom-contact-live-chat" onclick="affichageProfileUtilisateur(${id})">${destinataireUsername}</h6>
-		<button class="btn btn-sm custom-btn view-profile" 
+		<button id="view-profile-btn-from-liveChat" class="btn btn-sm custom-btn view-profile" 
 			style="background-color: #194452; color: #ad996d;"
 			data-user-id="${id}">Voir profil
 		</button>
 	`;
+	const viewProfileButtonFromLiveChat = enTeteConv.querySelector('#view-profile-btn-from-liveChat');
+    viewProfileButtonFromLiveChat.addEventListener('click', profileView.handleViewProfile);
+
 	if (data["1bloque2"] === true) {
 		enTeteConv.innerHTML += `
 			<button class="bouton-liveChat" id="bouton-bloquer" onclick="debloquerUtilisateur(${id}, '${destinataireUsername}')">Débloquer</button>
