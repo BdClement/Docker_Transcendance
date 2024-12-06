@@ -91,7 +91,7 @@ class SignupSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Ce nom d'utilisateur est deja utilisé.")
 		if user.objects.filter(alias=alias).exists():
 			raise serializers.ValidationError("Cet alias est deja utilisé.")
-		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[@#$%^&+=!]", password):
+		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[.@,#$%^&+=!_\-]", password):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		return data
 
@@ -117,7 +117,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         }
 
 	def validate_password(self, value):
-		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[@#$%^&+=!]", value)):
+		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[.@,#$%^&+=!_\-]", value)):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		return value
 

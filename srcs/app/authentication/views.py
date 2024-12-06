@@ -150,7 +150,7 @@ class MatchHistoryView(generics.ListAPIView):
 			Q(player2=user) |
 			Q(player3=user) |
 			Q(player4=user)
-		).order_by('date')
+		).order_by('-date')
 
 
 class UserProfileUpdateView(APIView):

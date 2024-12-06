@@ -1,11 +1,29 @@
 const settingsModal = document.getElementById('settingsModal');
 const settingsForm = document.getElementById('settingsForm');
 const settingsLink = document.getElementById('settingsLink');
+const settingsNewPassword = document.getElementById('settingsNewPassword');
+const settingsConfirmPassword = document.getElementById('settingsConfirmPassword');
+
+function validatePassword(password) {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.@,#$%^&+=!_\-])[A-Za-z\d.@,#$%^&+=!_\-]{8,}$/;
+    return passwordRegex.test(password);
+}
 
 async function updateUserProfile(formData) {
     try {
 
-        console.log("Contenu initial de formData :", Object.fromEntries(formData));
+        const newPassword = formData.get('password');
+        const confirmPassword = settingsConfirmPassword.value;
+
+        if (newPassword) {
+            if (!validatePassword(newPassword)) {
+                throw new Error(t('invalidPasswordFormat'));
+            }
+            
+            if (newPassword !== confirmPassword) {
+                throw new Error(t('passwordsDoNotMatch'));
+            }
+        }
 
         for (let [key, value] of formData.entries()) {
             if (value === '') {
@@ -17,7 +35,6 @@ async function updateUserProfile(formData) {
             throw new Error(t('noUpdateFieldsProvided'));
         }
 
-        console.log("Contenu de formData après suppression des champs vides :", Object.fromEntries(formData));
         const response = await fetchWithCsrf('/api/userprofileupdate/', {
             method: 'PUT',
             headers: {
@@ -27,7 +44,7 @@ async function updateUserProfile(formData) {
             credentials: 'include',
         });
         console.log("Réponse du serveur :", response);
-        const responseBody = await response.clone().json(); // Clone pour pouvoir lire le corps
+        const responseBody = await response.clone().json();
         console.log("Corps de la réponse :", responseBody);
 
         if (response.ok) {
@@ -36,6 +53,8 @@ async function updateUserProfile(formData) {
             alertDiv.textContent = t('profileUpdateSuccess');
             settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
             setTimeout(() => alertDiv.remove(), 3000);
+            settingsNewPassword.value = '';
+            settingsConfirmPassword.value = '';
             checkLoginStatus();
         } else {
             const error = await response.json();
@@ -60,8 +79,6 @@ settingsForm.addEventListener('submit', async (e) => {
     const formData = new FormData(settingsForm);
     console.log("Contenu détaillé de formData :");
     for (let [key, value] of formData.entries()) {
-        console.log(`${key}: `, value);
-        // Pour les fichiers, afficher plus de détails
         if (value instanceof File) {
             console.log(`Détails du fichier ${key}:`, {
                 name: value.name,
