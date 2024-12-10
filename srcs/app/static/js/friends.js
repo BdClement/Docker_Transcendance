@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const friendModal = document.getElementById('friendModal');
+    const friendTabs = document.getElementById('friendTabs');
+    const friendModalTrigger = document.querySelector('[data-bs-target="#friendModal"]');
+
+    function updateUrlForFriendModal() {
+        history.pushState({ page: 'friends' }, '', '/friend');
+    }
+
+    function resetUrlAfterFriendModal() {
+        history.pushState({ page: 'home' }, '', '/');
+    }
+
+    function handlePopState(event) {
+        if (event.state) {
+            if (event.state.page === 'friends') {
+                const friendModalInstance = bootstrap.Modal.getInstance(friendModal) || new bootstrap.Modal(friendModal);
+                friendModalInstance.show();
+            } else if (event.state.page === 'home') {
+                const friendModalInstance = bootstrap.Modal.getInstance(friendModal);
+                if (friendModalInstance) {
+                    friendModalInstance.hide();
+                }
+            }
+        }
+    }
+
+    if (friendModalTrigger) {
+        friendModalTrigger.addEventListener('click', updateUrlForFriendModal);
+    }
+
+    friendModal.addEventListener('hidden.bs.modal', resetUrlAfterFriendModal);
+    window.addEventListener('popstate', handlePopState);
     const followingList = document.getElementById('followingList');
     const followersList = document.getElementById('followersList');
     const addFriendForm = document.getElementById('addFriendForm');
