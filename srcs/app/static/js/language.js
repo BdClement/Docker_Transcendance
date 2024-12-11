@@ -83,6 +83,7 @@ const translations = {
         passwordsDoNotMatch: "Passwords do not match",
         settingsNewPassword: "New Password",
         settingsConfirmPassword: "Password confirmation",
+        seeProfile: "See profile",
         invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
@@ -116,7 +117,7 @@ const translations = {
         addFriendUsername: "Nom d'utilisateur de l'ami",
         addFriendButton: "Ajouter",
         friendProfileTitle: "Profil de l'ami",
-        unfollowButton: "Se désabonner",
+        unfollowButton: "Ne plus suivre",
         closeButton: "Fermer",
         tournamentModalTitle: "Créer un tournoi",
         playerCount: "Nombre de joueurs",
@@ -169,6 +170,7 @@ const translations = {
         passwordsDoNotMatch: "Les mots de passe ne correspondent pas",
         settingsNewPassword: "Nouveau mot de passe",
         settingsConfirmPassword: "Confirmation mot de passe",
+        seeProfile: "Voir profil",
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
@@ -254,6 +256,7 @@ const translations = {
         errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng",
         settingsNewPassword: "Mật khẩu mới",
         settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
         invalidPasswordFormat: "Mật khẩu của bạn phải chứa 8 ký tự bao gồm ít nhất 1 chữ hoa và chữ thường, 1 số và 1 ký tự [.@,#$%^&+=!_\-]",
         passwordsDoNotMatch: "Mật khẩu không khớp"
     }

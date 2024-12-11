@@ -88,12 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-sm custom-btn view-profile" 
-                                    style="background-color: #194452; color: #ad996d;" 
+                                    style="background-color: #194452; color: #ad996d;"
+                                    data-i18n="seeProfile"
                                     data-user-id="${user.id}">
                                 Voir profil
                             </button>
                             <button class="btn btn-sm custom-btn delete-friend" 
                                     style="background-color: #194452; color: #ad996d;"
+                                    data-i18n="unfollowButton"
                                     data-user-id="${user.id}">
                                 Ne plus suivre
                             </button>
@@ -119,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             if (data.length === 0) {
-                followersList.innerHTML = `<li class="custom-list-group-item text-muted">${t('noFollowers')}</li>` ;
+                followersList.innerHTML = `<li class="custom-list-group-item text-muted" data-i18n="noFollowers">Aucun abonné</li>` ;
                 return;
             }
 
@@ -220,15 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="row text-center">
                             <div class="col-4">
                                 <h5>${data.nbVictoires + data.nbDefaites}</h5>
-                                <small class="text-muted">Parties</small>
+                                <small class="text-muted" data-i18n="games">Parties</small>
                             </div>
                             <div class="col-4">
                                 <h5>${data.nbVictoires}</h5>
-                                <small class="text-muted">Victoires</small>
+                                <small class="text-muted" data-i18n="victories">Victoires</small>
                             </div>
                             <div class="col-4">
                                 <h5>${data.nbDefaites}</h5>
-                                <small class="text-muted">Défaites</small>
+                                <small class="text-muted" data-i18n="defeats">Défaites</small>
                             </div>
                         </div>
                     `;

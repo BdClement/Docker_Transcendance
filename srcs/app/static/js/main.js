@@ -397,7 +397,7 @@ const PongGame = (function() {
                 languageSelector.addEventListener('change', function() {
                     const selectedLanguage = this.value;
                     localStorage.setItem('language', selectedLanguage);
-                    location.reload();
+                    // location.reload();
                 });
 
                 const currentLanguage = localStorage.getItem('language') || 'fr';
