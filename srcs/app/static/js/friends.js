@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     // const followingList = document.getElementById('followingList');
     // const followersList = document.getElementById('followersList');
-    const addFriendForm = document.getElementById('addFriendForm');
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
     const unfollowButton = document.getElementById('unfollowButton');
 
     // Ajoute par Clement
     const modalBody = document.getElementById('friendModalBody');
+    updateFriendModalBody();
+    const addFriendForm = document.getElementById('addFriendForm');
 
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
@@ -66,9 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadFriendLists() {
 
         //Ajoute par Clement Car en haut ce ne fonctionne plus puisque jai modifier index.html
+        updateFriendModalBody();
         const followingList = document.getElementById('followingList');
         const followersList = document.getElementById('followersList');
-        updateFriendModalBody();
         fetch('/api/following/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -119,12 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // followingList.innerHTML = '';
             // followersList.innerHTML = '';
 
-            const modalBody = document.getElementById('friendModalBody');
+            // const modalBody = document.getElementById('friendModalBody');
             modalBody.innerHTML = `
                 <div class="auth-message">
                     <i class="fas fa-lock"></i>
                     <p data-i18n="loginToSeeFriends">Aucune information utilisateur disponible</p>
                 </div>`;
+            return; //Pas d'appel a la deuxieme API
         });
 
         fetch('/api/followers/', {
@@ -170,7 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
             attachEventListeners();
         })
         .catch(error => {
-            followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+            // followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
+            modalBody.innerHTML = `
+            <div class="auth-message">
+                <i class="fas fa-lock"></i>
+                <p data-i18n="loginToSeeFriends">Aucune information utilisateur disponible</p>
+            </div>`;
         });
     }
 

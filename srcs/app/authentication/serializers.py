@@ -9,7 +9,7 @@ from authentication.models import User
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile']
+		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'languageFav']
 
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -69,10 +69,12 @@ class SignupSerializer(serializers.ModelSerializer):
 	email = serializers.EmailField(required=True)
 	password = serializers.CharField(write_only=True, required=True)
 	photoProfile = serializers.ImageField(required=False)
+	# languageFav = serializers.IntegerField(required=False)
+	languageFav = serializers.IntegerField(required=False)
 
 	class Meta:
 		model = get_user_model()
-		fields = ['username', 'alias', 'email', 'password', 'photoProfile']
+		fields = ['username', 'alias', 'email', 'password', 'photoProfile', 'languageFav']
 
 	def validate_password(self, value):
 		validate_password(value)
@@ -83,6 +85,7 @@ class SignupSerializer(serializers.ModelSerializer):
 		alias = data.get('alias')
 		email = data.get('email')
 		password = data.get('password')
+		language_fav = data.get('languageFav')
 		user = get_user_model()
 		print(f"Username: {username}, Email: {email}, Password: {password}")
 		if user.objects.filter(email=email).exists():
@@ -93,10 +96,24 @@ class SignupSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Cet alias est deja utilisé.")
 		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[@#$%^&+=!]", password):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
+		# Ajoute par Clement
+		valid_choices = [1, 2, 3]
+		# language_map = {
+		# 	"English": 1,
+		# 	"Français": 2,
+		# 	"Tiếng Việt": 3,
+		# }
+		# if language_fav not in [None, ""] and language_fav not in language_map:
+		if language_fav not in [None, ""] and language_fav not in valid_choices:
+			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
+
 		return data
 
 	def create(self, validated_data):
 		password = validated_data.pop('password')
+		# Ajoute par Clement
+		if validated_data.get('languageFav') in [None, ""]:
+			validated_data.pop('languageFav', None)
 		user = get_user_model().objects.create(**validated_data)
 		user.set_password(password)
 		user.save()
@@ -104,16 +121,32 @@ class SignupSerializer(serializers.ModelSerializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
+	languageFav = serializers.CharField(required=False)
 
 	class Meta:
 		model = User
-		fields = ['username', 'alias', 'email', 'photoProfile', 'password']
+		fields = ['username', 'alias', 'email', 'photoProfile', 'password', 'languageFav']
 		extra_kwargs = {'password' : {'write_only': True, 'required': False},}
 
 	def validate_password(self, value):
 		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[@#$%^&+=!]", value)):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		return value
+
+	# Ajoute par Clement
+	def validate_languageFav(self, value):
+
+		language_map = {
+			"English": 1,
+			"Français": 2,
+			"Tiếng Việt": 3,
+		}
+		valid_choices = [1, 2, 3]
+		# if value not in [None, ""] and value not in valid_choices:
+		if value not in [None, ""] and value not in language_map:
+			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
+		return language_map[value]
+
 
 	def update(self, instance, validated_data):
 		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}

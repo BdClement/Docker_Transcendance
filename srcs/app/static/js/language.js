@@ -79,7 +79,8 @@ const translations = {
         loginToSeeFriends: "Please log in to see your friends!",
         tournamentUnexpectedError: "An unexpected error occurred during the tournament flow.",
         tournamentStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "An error occurred while fetching user information"
+        errorFetchingUser: "An error occurred while fetching user information",
+        loginToUpdateProfile: "Please log in to access update profile section !"
     },
     fr: {
         play: "Jouer",
@@ -161,7 +162,8 @@ const translations = {
         loginToSeeFriends: "Connectez-vous pour voir vos amis !",
         tournamentUnexpectedError: "Une erreur est survenue lors du déroulement du tournoi.",
         tournamentStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur"
+        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur",
+        loginToUpdateProfile: "Connectez-vous pour acceder a la mise a jour de votre profil !"
     },
     viet: {
         play: "Chơi",
@@ -243,7 +245,8 @@ const translations = {
         loginToSeeFriends: "Vui lòng đăng nhập để xem bạn bè của bạn!",
         tournamentUnexpectedError: "Đã xảy ra lỗi bất ngờ trong quá trình diễn ra giải đấu.",
         tournamentStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng"
+        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng",
+        loginToUpdateProfile: "Vui lòng đăng nhập để xem bạn bè của bạn!"
     }
 };
 

@@ -129,7 +129,7 @@ const PongGame = (function() {
             } else {
                 if (keyState.ArrowUp) sendPaddleMovement(2, 'up');
                 if (keyState.ArrowDown) sendPaddleMovement(2, 'down');
-            }        
+            }
         } else {
             if (keyState.w) sendPaddleMovement(1, 'up');
             if (keyState.s) sendPaddleMovement(1, 'down');
@@ -168,7 +168,7 @@ const PongGame = (function() {
 
         if (gameDetails && gameDetails.is_finished) {
             const { nb_players, results } = gameDetails;
-        
+
             if (nb_players === 2) {
                 message = t('PlayerWin') + gameDetails.results.winners;
             } else if (nb_players === 4) {
@@ -177,20 +177,20 @@ const PongGame = (function() {
         } else {
             message = t('gameEndedUnexpectedly');
         }
-    
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-    
+
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
         ctx.fillStyle = 'white';
         ctx.font = '36px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-    
+
         clearInterval(gameLoopInterval);
-    
+
         setTimeout(() => {
             gameModal.hide();
             document.body.classList.remove('modal-open');
@@ -289,16 +289,16 @@ const PongGame = (function() {
                 container.className = 'main-content';
                 document.body.insertBefore(container, document.getElementById('gameModal'));
             }
-            
+
             container.style.display = 'block';
             container.innerHTML = '';
-        
+
             const title = document.createElement('h1');
             title.textContent = 'Available Games';
             container.appendChild(title);
 
             const availableGames = games.filter(game => game.player_connected > 0);
-        
+
             if (availableGames.length > 0) {
                 const gameList = document.createElement('ul');
                 availableGames.forEach(game => {
@@ -316,7 +316,7 @@ const PongGame = (function() {
                 noGamesMessage.textContent = 'No available games found.';
                 container.appendChild(noGamesMessage);
             }
-        
+
             const newGameButton = document.createElement('button');
             newGameButton.textContent = 'Create New Game';
             newGameButton.addEventListener('click', () => {
@@ -324,12 +324,12 @@ const PongGame = (function() {
                 container.style.display = 'none';
             });
             container.appendChild(newGameButton);
-        
+
         }
 
         function joinGame(gameId) {
             console.log(`[joinGame] Attempting to join game: ${gameId}`);
-            
+
             fetchWithCsrf(`/api/play/join/${gameId}`, {
                 method: 'PUT',
                 headers: {
@@ -398,7 +398,7 @@ const PongGame = (function() {
                 languageSelector.addEventListener('change', function() {
                     const selectedLanguage = this.value;
                     localStorage.setItem('language', selectedLanguage);
-                    location.reload();
+                    // location.reload();
                 });
 
                 const currentLanguage = localStorage.getItem('language') || 'fr';

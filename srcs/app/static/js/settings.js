@@ -1,34 +1,62 @@
 // settings.js
 const settingsModal = document.getElementById('settingsModal');
 const settingsForm = document.getElementById('settingsForm');
+const errorMessage = document.getElementById('errorMessage');
 const settingsLink = document.getElementById('settingsLink');
 
 async function loadUserProfile() {
+    errorMessage.style.display = 'none';
+    settingsForm.style.display = 'block';
+
     try {
-        const response = await fetch('/api/userprofile/', {
+        ///api/userprofile/ AVANT
+        const response = await fetch('/api/user/', {
             method: 'GET',
             headers: {
                 'X-CSRFToken': getCsrfToken(),
             },
             credentials: 'include',
         });
-
-        if (response.ok) {
-            const userData = await response.json();
-            document.getElementById('settingsUsername').value = userData.username || '';
-            document.getElementById('settingsEmail').value = userData.email || '';
-            document.getElementById('settingsAlias').value = userData.alias || '';
-            
-            const photoPreview = document.getElementById('photoPreview');
-            if (photoPreview && userData.photoProfile) {
-                photoPreview.src = userData.photoProfile;
-                photoPreview.style.display = 'block';
-            }
-        } else {
-            console.error('Failed to load user profile');
+        console.log('Response Status:', response.status); // Log du statut
+        const textResponse = await response.text(); // Obtenez la réponse brute en texte
+        console.log('Raw Response:', textResponse); // Log de la réponse brute
+        if (response.status === 401) {
+            console.error('User is not authenticated');
+            settingsForm.style.display = 'none';
+            errorMessage.style.display = 'block';
         }
+        // else if (response.ok) {
+        //     const userData = await response.json();
+        //     document.getElementById('settingsUsername').value = userData.username || '';
+        //     document.getElementById('settingsEmail').value = userData.email || '';
+        //     document.getElementById('settingsAlias').value = userData.alias || '';
+        //     const photoPreview = document.getElementById('photoPreview');
+        //     if (photoPreview && userData.photoProfile) {
+        //         photoPreview.src = userData.photoProfile;
+        //         photoPreview.style.display = 'block';
+        //     }
+        // }
+
+        // if (response.ok) {
+        //     const userData = await response.json();
+        //     document.getElementById('settingsUsername').value = userData.username || '';
+        //     document.getElementById('settingsEmail').value = userData.email || '';
+        //     document.getElementById('settingsAlias').value = userData.alias || '';
+
+        //     const photoPreview = document.getElementById('photoPreview');
+        //     if (photoPreview && userData.photoProfile) {
+        //         photoPreview.src = userData.photoProfile;
+        //         photoPreview.style.display = 'block';
+        //     }
+        // } else {
+        //     console.error('Failed to load user profile');
+        //     settingsForm.style.display = 'none';
+        //     errorMessage.style.display = 'block';
+        // }
     } catch (error) {
         console.error('Error loading user profile:', error);
+        // settingsForm.style.display = 'none';
+        // errorMessage.style.display = 'block';
     }
 }
 

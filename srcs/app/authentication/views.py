@@ -41,7 +41,9 @@ class UserInfoAPI(APIView):
 				'alias': request.user.alias,
 				'username': request.user.username,
 				'email': request.user.email,
-				'photoProfile': request.user.photoProfile.url if request.user.photoProfile else None
+				'photoProfile': request.user.photoProfile.url if request.user.photoProfile else None,
+				'languageFav': request.user.get_languageFav_display()#A tester Ajoute apr Clement
+				# 'languageFav': request.languageFav
 			})
 		else:
 			return Response({'message': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -74,6 +76,11 @@ class SignupAPI(APIView):
 				email=serializer.validated_data['email'],
 				alias=serializer.validated_data['alias'],
 			)
+
+			# Ajoute par Clement
+			if 'languageFav' in serializer.validated_data:
+				user.languageFav = serializer.validated_data['languageFav']
+
 			user.set_password(serializer.validated_data['password'])
 
 			# Handle profile photo upload
@@ -96,7 +103,7 @@ class SignupAPI(APIView):
 				"user": user_data
 			}, status=status.HTTP_201_CREATED)
 		else:
-				logger.error(f"Validation errors: {serializer.errors}")
+			logger.error(f"Validation errors: {serializer.errors}")
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		pass
 
