@@ -23,10 +23,10 @@ function fetchWithCsrf(url, options = {}) {
 
 function updateUserInfo(username, photoProfile) {
     let profilePictureElement = document.getElementById('profilePicture');
-    
+
     if (username) {
         window.dispatchEvent(new Event('userLoggedIn'));
-        
+
         let usernameDisplay = document.getElementById('usernameDisplay');
         if (!usernameDisplay) {
             usernameDisplay = document.createElement('div');
@@ -124,6 +124,7 @@ function logout() {
         if (data.message === "Déconnexion réussie") {
             updateUserInfo(null);
             window.dispatchEvent(new Event('userLoggedOut'));
+
         } else {
             throw new Error(data.message);
         }

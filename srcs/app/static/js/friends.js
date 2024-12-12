@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFriendModalBody();
         const followingList = document.getElementById('followingList');
         const followersList = document.getElementById('followersList');
+        console.log('Appel apiFollowing');
         fetch('/api/following/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -170,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
+            console.log('Lappel a lAPI fonctionne donc jaffiche le modalFriend');
 
             followingList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
@@ -188,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm custom-btn view-profile" 
+                            <button class="btn btn-sm custom-btn view-profile"
                                     style="background-color: #194452; color: #ad996d;"
                                     data-i18n="seeProfile"
                                     data-user-id="${user.id}">
@@ -219,6 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             return; //Pas d'appel a la deuxieme API
         });
+
+        //J'expose la fonction au contexte global pour ne pas trop modifier le front mais acceder a cette fonction pour la deconnexion
+        window.loadFriendLists = loadFriendLists;
 
         fetch('/api/followers/', {
             headers: {

@@ -145,6 +145,7 @@ function openuserModal() {
 window.addEventListener('userLoggedOut', function() {
     clearUserInfo();
     //clearFriendList
+    loadFriendLists();//Ajoute par Clement
     const modal = bootstrap.Modal.getInstance(userModal);
     if (modal) {
         modal.hide();

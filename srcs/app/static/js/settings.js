@@ -20,7 +20,7 @@ async function updateUserProfile(formData) {
             if (!validatePassword(newPassword)) {
                 throw new Error(t('invalidPasswordFormat'));
             }
-            
+
             if (newPassword !== confirmPassword) {
                 throw new Error(t('passwordsDoNotMatch'));
             }
@@ -70,9 +70,44 @@ async function updateUserProfile(formData) {
     }
 }
 
+// function opensettingsModal() {
+//     const modal = new bootstrap.Modal(settingsModal);
+//     modal.show();
+// }
+
 function opensettingsModal() {
     const modal = new bootstrap.Modal(settingsModal);
-    modal.show();
+
+    // Appel API pour vérifier l'état de connexion de l'utilisateur
+    fetchWithCsrf('/api/user/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // L'utilisateur est connecté
+            settingsForm.style.display = 'block';
+            errorMessage.style.display = 'none';
+        } else if (response.status === 401) {
+            // L'utilisateur n'est pas connecté
+            settingsForm.style.display = 'none';
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'Vous devez être connecté pour accéder à cette section.'; // Adapter le message si nécessaire
+        } else {
+            throw new Error('Erreur inattendue lors de la vérification de l\'état de connexion.');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de la vérification de l\'état de connexion :', error);
+        settingsForm.style.display = 'none';
+        errorMessage.style.display = 'block';
+        errorMessage.textContent = 'Une erreur est survenue. Veuillez réessayer plus tard.';
+    })
+    .finally(() => {
+        modal.show();
+    });
 }
 
 settingsForm.addEventListener('submit', async (e) => {
