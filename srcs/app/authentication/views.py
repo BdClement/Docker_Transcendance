@@ -157,22 +157,61 @@ class MatchHistoryView(generics.ListAPIView):
 			Q(player2=user) |
 			Q(player3=user) |
 			Q(player4=user)
-		).order_by('date')
+		).order_by('-date')
 
 class UserProfileUpdateView(APIView):
-	permission_classes = [IsAuthenticated]
-	def get(self, request):
-		user = request.user
-		serializer = UserUpdateSerializer(user)
-		return Response(serializer.data)
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        serializer = UserUpdateSerializer(user)
+        return Response(serializer.data)
 
-	def put(self, request):
-		user = request.user
-		serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_200_OK)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request):
+        user = request.user
+        old_username = user.username
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True, context={'request': request})
+        
+        if serializer.is_valid():
+            # Gérer le changement de photo de profil
+            if 'photoProfile' in request.FILES:
+                photo = request.FILES['photoProfile']
+                old_filename = f'{old_username}.jpg'
+                new_filename = f'{user.username}.jpg'
+                old_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', old_filename)
+                new_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', new_filename)
+
+                # Supprimer l'ancienne photo si elle existe
+                if os.path.exists(old_filepath):
+                    os.remove(old_filepath)
+
+                # Enregistrer la nouvelle photo
+                with open(new_filepath, 'wb+') as destination:
+                    for chunk in photo.chunks():
+                        destination.write(chunk)
+
+                # Mettre à jour le chemin de la photo de profil
+                user.photoProfile = f'images/{new_filename}'
+                user.save()
+
+            # Si le nom d'utilisateur change, renommer la photo de profil
+            if 'username' in serializer.validated_data and serializer.validated_data['username'] != old_username:
+                old_filename = f'{old_username}.jpg'
+                new_filename = f'{serializer.validated_data["username"]}.jpg'
+                old_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', old_filename)
+                new_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', new_filename)
+
+                # Renommer le fichier si l'ancienne photo existe
+                if os.path.exists(old_filepath):
+                    os.rename(old_filepath, new_filepath)
+                    user.photoProfile = f'images/{new_filename}'
+                    user.save()
+
+            # Save the user with the serializer to update other fields
+            user_updated = serializer.save()
+            
+            return Response(UserSerializer(user_updated).data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserDeleteView(APIView):
 	permission_classes = [IsAuthenticated]

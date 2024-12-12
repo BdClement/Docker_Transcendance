@@ -1,6 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const friendModal = document.getElementById('friendModal');
+    const friendModalTrigger = document.querySelector('[data-bs-target="#friendModal"]');
+
+    function updateUrlForFriendModal() {
+        history.pushState({ page: 'friends' }, '', '/friend');
+    }
+
+    function resetUrlAfterFriendModal() {
+        history.pushState({ page: 'home' }, '', '/');
+    }
+
+    function handlePopState(event) {
+        if (event.state) {
+            if (event.state.page === 'friends') {
+                const friendModalInstance = bootstrap.Modal.getInstance(friendModal) || new bootstrap.Modal(friendModal);
+                friendModalInstance.show();
+            } else if (event.state.page === 'home') {
+                const friendModalInstance = bootstrap.Modal.getInstance(friendModal);
+                if (friendModalInstance) {
+                    friendModalInstance.hide();
+                }
+            }
+        }
+    }
+
+    if (friendModalTrigger) {
+        friendModalTrigger.addEventListener('click', updateUrlForFriendModal);
+    }
+
+    friendModal.addEventListener('hidden.bs.modal', resetUrlAfterFriendModal);
+    window.addEventListener('popstate', handlePopState);
     // const followingList = document.getElementById('followingList');
     // const followersList = document.getElementById('followersList');
+    // const addFriendForm = document.getElementById('addFriendForm');
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
     const unfollowButton = document.getElementById('unfollowButton');
 
@@ -99,13 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm custom-btn view-profile"
+                            <button class="btn btn-sm custom-btn view-profile" 
                                     style="background-color: #194452; color: #ad996d;"
+                                    data-i18n="seeProfile"
                                     data-user-id="${user.id}">
                                 Voir profil
                             </button>
                             <button class="btn btn-sm custom-btn delete-friend"
                                     style="background-color: #194452; color: #ad996d;"
+                                    data-i18n="unfollowButton"
                                     data-user-id="${user.id}">
                                 Ne plus suivre
                             </button>
@@ -141,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             if (data.length === 0) {
-                followersList.innerHTML = `<li class="custom-list-group-item text-muted">${t('noFollowers')}</li>` ;
+                followersList.innerHTML = `<li class="custom-list-group-item text-muted" data-i18n="noFollowers">Aucun abonné</li>` ;
                 return;
             }
 
@@ -181,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Le reste du code reste identique...
     function attachEventListeners() {
         const deleteButtons = document.querySelectorAll('.delete-friend');
         deleteButtons.forEach(button => {
@@ -247,19 +280,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="row text-center">
                             <div class="col-4">
                                 <h5>${data.nbVictoires + data.nbDefaites}</h5>
-                                <small class="text-muted">Parties</small>
+                                <small class="text-muted" data-i18n="games">Parties</small>
                             </div>
                             <div class="col-4">
                                 <h5>${data.nbVictoires}</h5>
-                                <small class="text-muted">Victoires</small>
+                                <small class="text-muted" data-i18n="victories">Victoires</small>
                             </div>
                             <div class="col-4">
                                 <h5>${data.nbDefaites}</h5>
-                                <small class="text-muted">Défaites</small>
+                                <small class="text-muted" data-i18n="defeats">Défaites</small>
                             </div>
                         </div>
                     `;
-                    unfollowButton.dataset.userId = userId;
                     friendProfileModal.show();
                 });
         }

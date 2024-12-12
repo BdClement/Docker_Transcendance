@@ -28,7 +28,7 @@
                     </a>
                 </li>
                 <li data-i18n="friendModalTitle">
-                    <a href="friend" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal">
+                    <a href="friend" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal" id="friendLink">
                         <img src="/static/images/Friend.png" alt="Icone Friend">
                     </a>
                 </li>
@@ -208,7 +208,6 @@
                 <div class="modal-body" id="friendProfileContent">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="unfollowButton" data-i18n="unfollowButton">Se désabonner</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="closeButton">Fermer</button>
                 </div>
             </div>
@@ -284,6 +283,15 @@
                                    title="Choisir un fichier">
                             <img id="photoPreview" class="mt-2" style="max-width: 200px; display: none;">
                         </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsNewPassword">New Password</p>
+                            <input type="password" class="form-control" id="settingsNewPassword" name="password">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsConfirmPassword">Confirm New Password</p>
+                            <input type="password" class="form-control" id="settingsConfirmPassword">
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary" data-i18n="settingsSaveChanges">Save Changes</button>
                     </form>
                     <!-- Ajoute par clement  -->

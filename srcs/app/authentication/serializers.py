@@ -94,7 +94,7 @@ class SignupSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Ce nom d'utilisateur est deja utilisé.")
 		if user.objects.filter(alias=alias).exists():
 			raise serializers.ValidationError("Cet alias est deja utilisé.")
-		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[@#$%^&+=!]", password):
+		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[.@,#$%^&+=!_\-]", password):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		# Ajoute par Clement
 		valid_choices = [1, 2, 3]
@@ -123,13 +123,20 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
 	languageFav = serializers.CharField(required=False)
 
+	# photoProfile = serializers.ImageField(required=False, allow_null=True)
+
 	class Meta:
 		model = User
 		fields = ['username', 'alias', 'email', 'photoProfile', 'password', 'languageFav']
-		extra_kwargs = {'password' : {'write_only': True, 'required': False},}
+		extra_kwargs = {
+            'username': {'required': False},
+            'alias': {'required': False},
+            'email': {'required': False},
+            'password': {'write_only': True, 'required': False},
+        }
 
 	def validate_password(self, value):
-		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[@#$%^&+=!]", value)):
+		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[.@,#$%^&+=!_\-]", value)):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		return value
 
@@ -151,6 +158,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 	def update(self, instance, validated_data):
 		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		password = validated_data.pop('password', None)
+		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
 		if password:
