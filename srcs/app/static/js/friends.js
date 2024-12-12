@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const friendModal = document.getElementById('friendModal');
-    const friendTabs = document.getElementById('friendTabs');
     const friendModalTrigger = document.querySelector('[data-bs-target="#friendModal"]');
 
     function updateUrlForFriendModal() {
@@ -156,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Le reste du code reste identique...
     function attachEventListeners() {
         const deleteButtons = document.querySelectorAll('.delete-friend');
         deleteButtons.forEach(button => {

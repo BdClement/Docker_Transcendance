@@ -110,15 +110,15 @@ if (photoInput) {
 
 settingsLink.addEventListener('click', (e) => {
     e.preventDefault();
-    history.pushState(null, '', '/settings');
+    history.pushState({ page: 'settings' }, '', '/settings');
     opensettingsModal();
 });
 
 window.addEventListener('popstate', (event) => {
+    const modal = bootstrap.Modal.getInstance(settingsModal);
     if (window.location.pathname === '/settings') {
         opensettingsModal();
     } else {
-        const modal = bootstrap.Modal.getInstance(settingsModal);
         if (modal) {
             modal.hide();
         }
