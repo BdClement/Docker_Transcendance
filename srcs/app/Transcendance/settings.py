@@ -65,7 +65,9 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8443',
     'https://127.0.0.1:8443',
-	'https://10.25.102.1:8443'
+	'https://10.25.102.1:8443',
+    'https://10.25.2.5:8443'
+    # poste a ajouter si on change de place
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'

@@ -34,12 +34,104 @@ document.addEventListener('DOMContentLoaded', () => {
     // const followersList = document.getElementById('followersList');
     // const addFriendForm = document.getElementById('addFriendForm');
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
-    const unfollowButton = document.getElementById('unfollowButton');
 
     // Ajoute par Clement
     const modalBody = document.getElementById('friendModalBody');
-    updateFriendModalBody();
-    const addFriendForm = document.getElementById('addFriendForm');
+    function updateFriendModalBody() {
+        modalBody.innerHTML = `
+            <div class="custom-tabs-container">
+                <ul class="nav nav-pills nav-fill" id="friendTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active custom-tab-button" id="friend-list-tab" data-bs-toggle="pill" data-bs-target="#friend-list" type="button" role="tab" aria-controls="friend-list" aria-selected="true" data-i18n="friendListTab">Liste d'amis</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link custom-tab-button" id="add-friend-tab" data-bs-toggle="pill" data-bs-target="#add-friend" type="button" role="tab" aria-controls="add-friend" aria-selected="false" data-i18n="addFriendTab">Ajouter un ami</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content custom-tab-content" id="friendTabsContent">
+                <div class="tab-pane fade show active" id="friend-list" role="tabpanel" aria-labelledby="friend-list-tab">
+                    <h6 class="friend-list-title" data-i18n="yourFollowing">Vos abonnements</h6>
+                    <ul id="followingList" class="list-group custom-list-group">
+                    </ul>
+                    <h6 class="friend-list-title" data-i18n="yourFollowers">Vos abonnés</h6>
+                    <ul id="followersList" class="list-group custom-list-group">
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="add-friend" role="tabpanel" aria-labelledby="add-friend-tab">
+                    <form id="addFriendForm" class="mt-3">
+                        <div class="mb-3">
+                            <p for="friendUsername" class="form-label" data-i18n="addFriendUsername">Nom d'utilisateur de l'ami</p>
+                            <input type="text" class="form-control custom-input" id="friendUsername" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary custom-btn" data-i18n="addFriendButton">Ajouter</button>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // Immediately set up the form listener after updating the modal body
+        const addFriendForm = document.getElementById('addFriendForm');
+        if (addFriendForm) {
+            addFriendForm.addEventListener('submit', handleAddFriend);
+        }
+    }
+
+    function handleAddFriend(e) {
+        e.preventDefault();
+        const friendUsername = document.getElementById('friendUsername').value.trim();
+
+        if (!friendUsername) {
+            alert("Veuillez entrer un nom d'utilisateur");
+            return;
+        }
+
+        console.log('Attempting to add friend:', friendUsername);
+
+        fetch(`/api/users/${friendUsername}/`, {
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('User search response:', response);
+            if (!response.ok) throw new Error('Utilisateur non trouvé');
+            return response.json();
+        })
+        .then(data => {
+            console.log('User data:', data);
+            if (!data.id) throw new Error('ID de l\'utilisateur non trouvé');
+
+            return fetch(`/api/addfriend/${data.id}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                credentials: 'same-origin'
+            });
+        })
+        .then(response => {
+            console.log('Add friend response:', response);
+            if (!response.ok) {
+                return response.json().then(data => {
+                    console.error('Error response:', data);
+                    throw new Error(data.detail || 'Erreur lors de l\'ajout');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.detail);
+            document.getElementById('friendUsername').value = '';
+            loadFriendLists();
+        })
+        .catch(error => {
+            console.error('Erreur complète:', error);
+            alert(error.message);
+        });
+    }
 
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
@@ -59,41 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getProfilePictureUrl(username) {
         return `/static/images/${username}.jpg`;
-    }
-    //Tentative de depalcement du body du modal dans le JS pour pouvoir garder une trace et le placer lrosque jen ai beosin
-    // Ajoute par Clement
-    function updateFriendModalBody() {
-        modalBody.innerHTML = `
-                    <div class="custom-tabs-container">
-                        <ul class="nav nav-pills nav-fill" id="friendTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active custom-tab-button" id="friend-list-tab" data-bs-toggle="pill" data-bs-target="#friend-list" type="button" role="tab" aria-controls="friend-list" aria-selected="true" data-i18n="friendListTab">Liste d'amis</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link custom-tab-button" id="add-friend-tab" data-bs-toggle="pill" data-bs-target="#add-friend" type="button" role="tab" aria-controls="add-friend" aria-selected="false" data-i18n="addFriendTab">Ajouter un ami</button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="tab-content custom-tab-content" id="friendTabsContent">
-                        <div class="tab-pane fade show active" id="friend-list" role="tabpanel" aria-labelledby="friend-list-tab">
-                            <h6 class="friend-list-title" data-i18n="yourFollowing">Vos abonnements</h6>
-                            <ul id="followingList" class="list-group custom-list-group">
-                            </ul>
-                            <h6 class="friend-list-title" data-i18n="yourFollowers">Vos abonnés</h6>
-                            <ul id="followersList" class="list-group custom-list-group">
-                            </ul>
-                        </div>
-                        <div class="tab-pane fade" id="add-friend" role="tabpanel" aria-labelledby="add-friend-tab">
-                            <form id="addFriendForm" class="mt-3">
-                                <div class="mb-3">
-                                    <p for="friendUsername" class="form-label" data-i18n="addFriendUsername">Nom d'utilisateur de l'ami</p>
-                                    <input type="text" class="form-control custom-input" id="friendUsername" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary custom-btn" data-i18n="addFriendButton">Ajouter</button>
-                            </form>
-                        </div>
-                    </div>
-        `
     }
 
     function loadFriendLists() {
@@ -312,74 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return cookieValue;
     }
 
-    addFriendForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const friendUsername = document.getElementById('friendUsername').value.trim();
-
-        if (!friendUsername) {
-            alert("Veuillez entrer un nom d'utilisateur");
-            return;
-        }
-
-        fetch(`/api/users/${friendUsername}/`, {
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Utilisateur non trouvé');
-            return response.json();
-        })
-        .then(data => {
-            if (!data.id) throw new Error('ID de l\'utilisateur non trouvé');
-
-            return fetch(`/api/addfriend/${data.id}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                credentials: 'same-origin'
-            });
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.detail || 'Erreur lors de l\'ajout');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.detail);
-            document.getElementById('friendUsername').value = '';
-            loadFriendLists();
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert(error.message);
-        });
-    });
-
-    unfollowButton.addEventListener('click', () => {
-        const userId = unfollowButton.dataset.userId;
-        fetch(`/api/suppfriend/${userId}/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.detail);
-            friendProfileModal.hide();
-            loadFriendLists();
-        })
-        .catch(error => {
-            alert("Erreur lors du désabonnement");
-        });
-    });
-
+    updateFriendModalBody();
     loadFriendLists();
 });
