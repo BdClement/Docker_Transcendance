@@ -67,6 +67,21 @@ function checkLoginStatus() {
         console.log("DATA :", data);
         if (data.username) {
             updateUserInfo(data.username, data.photoProfile, data.alias);
+            
+            if (data.languageFav) {
+                let languageMap = {
+                    "English": "en",
+                    "Français": "fr", 
+                    "Tiếng Việt": "viet"
+                };
+                
+                const mappedLanguage = languageMap[data.languageFav];
+                if (mappedLanguage) {
+                    localStorage.setItem('language', mappedLanguage);
+                    document.getElementById('language').value = mappedLanguage;
+                    applyTranslations();
+                }
+            }
         } else {
             updateUserInfo(null);
         }
@@ -89,6 +104,7 @@ function login(username, password) {
     .then(data => {
         if (data.message === "Connexion réussie") {
             updateUserInfo(data.user.username, data.user.photoProfile);
+            checkLoginStatus();
             return data.user;
         } else {
             throw new Error(data.message);
@@ -105,6 +121,7 @@ function signup(formData) {
     .then(data => {
         if (data.message === "Inscription réussie") {
             updateUserInfo(data.user.username, data.user.photoProfile, data.user.alias);
+            checkLoginStatus();
             return data.user;
         } else {
             throw new Error(data.message);

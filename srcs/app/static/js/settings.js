@@ -10,11 +10,33 @@ function validatePassword(password) {
     return passwordRegex.test(password);
 }
 
+function setInitialLanguagePreference() {
+    const savedLanguage = localStorage.getItem('language') || 'fr';
+    const languageMap = {
+        'en': '1',
+        'fr': '2',
+        'viet': '3'
+    };
+
+    const languagePreferenceSelect = document.getElementById('settingsLanguagePreference');
+    if (languagePreferenceSelect) {
+        languagePreferenceSelect.value = languageMap[savedLanguage] || '2';
+    }
+}
+
 async function updateUserProfile(formData) {
     try {
 
         const newPassword = formData.get('password');
         const confirmPassword = settingsConfirmPassword.value;
+        const languagePreference = document.getElementById('settingsLanguagePreference').value;
+        const languageMap = {
+            '1': 'English',
+            '2': 'Français',
+            '3': 'Tiếng Việt'
+        };
+        const languagePreferenceText = languageMap[languagePreference];
+        formData.append('languageFav', languagePreferenceText);
 
         if (newPassword) {
             if (!validatePassword(newPassword)) {
@@ -56,6 +78,17 @@ async function updateUserProfile(formData) {
             setTimeout(() => alertDiv.remove(), 3000);
             settingsNewPassword.value = '';
             settingsConfirmPassword.value = '';
+            const languageMap = {
+                '1': 'en',
+                '2': 'fr',
+                '3': 'viet'
+            };
+            const selectedLanguage = languageMap[languagePreference];
+            if (selectedLanguage) {
+                localStorage.setItem('language', selectedLanguage);
+                document.getElementById('language').value = selectedLanguage;
+                applyTranslations();
+            }
             checkLoginStatus();
         } else {
             const error = await response.json();
@@ -85,6 +118,7 @@ function opensettingsModal() {
             console.log('opensettingsModal: l\'utilisateur est connecte, on affiche le formulaire');
             settingsForm.style.display = 'block';
             errorMessage.style.display = 'none';
+            setInitialLanguagePreference();
         } else if (response.status === 401) {
             console.log('opensettingsModal: l\'utilisateur n\'est pas connecte, on affiche le message d\'erreur');
             settingsForm.style.display = 'none';
