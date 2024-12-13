@@ -50,12 +50,16 @@ class UserAPITestCase(APITestCase):
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
         # self.assertEqual(response.data['languageFav'], '2')
         updated_data = {
-            # 'languageFav': 'English'  # Nouvelle valeur
-            'username': 'testuser2'
+            'languageFav': 'English'  # Nouvelle valeur
+            # 'username': 'testuser2'
         }
         response = self.client.put(self.user_update_url, updated_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['languageFav'], '2')
+        self.assertEqual(response.data['languageFav'], 1)
+
+        response = self.client.get(self.user_update_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['languageFav'], 1)
 
         # Vérifiez que la mise à jour est persistée
         user.refresh_from_db()

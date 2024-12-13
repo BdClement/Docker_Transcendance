@@ -70,15 +70,10 @@ async function updateUserProfile(formData) {
     }
 }
 
-// function opensettingsModal() {
-//     const modal = new bootstrap.Modal(settingsModal);
-//     modal.show();
-// }
-
 function opensettingsModal() {
     const modal = new bootstrap.Modal(settingsModal);
 
-    // Appel API pour vérifier l'état de connexion de l'utilisateur
+    //Appel API uniquement pour voir si l'utilisateur est connecte. Pas propre mais plus simpla sans trop ajouter de changement
     fetchWithCsrf('/api/user/', {
         method: 'GET',
         headers: {
@@ -87,14 +82,13 @@ function opensettingsModal() {
     })
     .then(response => {
         if (response.ok) {
-            // L'utilisateur est connecté
+            console.log('opensettingsModal: l\'utilisateur est connecte, on affiche le formulaire');
             settingsForm.style.display = 'block';
             errorMessage.style.display = 'none';
         } else if (response.status === 401) {
-            // L'utilisateur n'est pas connecté
+            console.log('opensettingsModal: l\'utilisateur n\'est pas connecte, on affiche le message d\'erreur');
             settingsForm.style.display = 'none';
             errorMessage.style.display = 'block';
-            errorMessage.textContent = 'Vous devez être connecté pour accéder à cette section.'; // Adapter le message si nécessaire
         } else {
             throw new Error('Erreur inattendue lors de la vérification de l\'état de connexion.');
         }
@@ -103,11 +97,8 @@ function opensettingsModal() {
         console.error('Erreur lors de la vérification de l\'état de connexion :', error);
         settingsForm.style.display = 'none';
         errorMessage.style.display = 'block';
-        errorMessage.textContent = 'Une erreur est survenue. Veuillez réessayer plus tard.';
     })
-    .finally(() => {
-        modal.show();
-    });
+    modal.show();
 }
 
 settingsForm.addEventListener('submit', async (e) => {

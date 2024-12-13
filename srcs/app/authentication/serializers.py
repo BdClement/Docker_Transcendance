@@ -98,12 +98,6 @@ class SignupSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		# Ajoute par Clement
 		valid_choices = [1, 2, 3]
-		# language_map = {
-		# 	"English": 1,
-		# 	"Français": 2,
-		# 	"Tiếng Việt": 3,
-		# }
-		# if language_fav not in [None, ""] and language_fav not in language_map:
 		if language_fav not in [None, ""] and language_fav not in valid_choices:
 			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
 
@@ -133,7 +127,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'alias': {'required': False},
             'email': {'required': False},
             'password': {'write_only': True, 'required': False},
-        }
+			'languageFav': {'required': False},
+		}
 
 	def validate_password(self, value):
 		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[.@,#$%^&+=!_\-]", value)):
@@ -142,7 +137,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 	# Ajoute par Clement
 	def validate_languageFav(self, value):
-
 		language_map = {
 			"English": 1,
 			"Français": 2,
@@ -152,13 +146,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 		# if value not in [None, ""] and value not in valid_choices:
 		if value not in [None, ""] and value not in language_map:
 			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
-		return language_map[value]
+		return language_map[value]#Retourne la langue sous forme de texte
 
 
 	def update(self, instance, validated_data):
 		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		password = validated_data.pop('password', None)
-		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
+		# validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
 		if password:

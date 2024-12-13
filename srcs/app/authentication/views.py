@@ -42,7 +42,7 @@ class UserInfoAPI(APIView):
 				'username': request.user.username,
 				'email': request.user.email,
 				'photoProfile': request.user.photoProfile.url if request.user.photoProfile else None,
-				'languageFav': request.user.get_languageFav_display()#A tester Ajoute apr Clement
+				'languageFav': request.user.get_languageFav_display()
 				# 'languageFav': request.languageFav
 			})
 		else:
@@ -170,7 +170,7 @@ class UserProfileUpdateView(APIView):
         user = request.user
         old_username = user.username
         serializer = UserUpdateSerializer(user, data=request.data, partial=True, context={'request': request})
-        
+
         if serializer.is_valid():
             # Gérer le changement de photo de profil
             if 'photoProfile' in request.FILES:
@@ -208,9 +208,9 @@ class UserProfileUpdateView(APIView):
 
             # Save the user with the serializer to update other fields
             user_updated = serializer.save()
-            
+
             return Response(UserSerializer(user_updated).data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserDeleteView(APIView):

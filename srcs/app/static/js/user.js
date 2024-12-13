@@ -107,14 +107,6 @@ function updateUserInfo2(user) {
     });
 }
 function clearUserInfo() {
-    //MODIFIE PAR CLEMENT
-    // userForm.innerHTML = `
-    //     <div class="row text-center">
-    //         <div class="col-12">
-    //             <p class="text-muted" data-i18n="noUserInfo">Aucune information utilisateur disponible</p>
-    //         </div>
-    //     </div>
-    // `;
     userForm.innerHTML = `
         <div class="auth-message">
             <i class="fas fa-lock"></i>

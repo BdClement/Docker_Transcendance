@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     friendModal.addEventListener('hidden.bs.modal', resetUrlAfterFriendModal);
     window.addEventListener('popstate', handlePopState);
-    // const followingList = document.getElementById('followingList');
-    // const followersList = document.getElementById('followersList');
-    // const addFriendForm = document.getElementById('addFriendForm');
     const friendProfileModal = new bootstrap.Modal(document.getElementById('friendProfileModal'));
 
     // Ajoute par Clement
@@ -178,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <div class="profile-picture-small me-3"
-                                 style="width: 40px; height: 40px;
+                                style="width: 40px; height: 40px;
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
@@ -209,11 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
             attachEventListeners();
         })
         .catch(error => {
-            // followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
-            // followingList.innerHTML = '';
-            // followersList.innerHTML = '';
-
-            // const modalBody = document.getElementById('friendModalBody');
             modalBody.innerHTML = `
                 <div class="auth-message">
                     <i class="fas fa-lock"></i>
@@ -246,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <div class="profile-picture-small me-3"
-                                 style="width: 40px; height: 40px;
+                                style="width: 40px; height: 40px;
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
@@ -268,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
             attachEventListeners();
         })
         .catch(error => {
-            // followersList.innerHTML = `<li class="custom-list-group-item text-danger">${t('loginToSeeFriends')}</li>`;
             modalBody.innerHTML = `
             <div class="auth-message">
                 <i class="fas fa-lock"></i>
@@ -330,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('friendProfileContent').innerHTML = `
                         <div class="text-center mb-3">
                             <div class="profile-picture-large mx-auto mb-2"
-                                 style="width: 100px; height: 100px;
+                                style="width: 100px; height: 100px;
                                         border-radius: 50%;
                                         background-size: cover;
                                         background-position: center;
