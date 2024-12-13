@@ -55,7 +55,7 @@ const translations = {
         username: "Username",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "No user information available",
+        noUserInfo: "Unavailable. You must be connected to see your profile",
         userNotFound: "User not found",
         userIdNotFound: "User ID not found",
         notificationModalTitle: "Notification",
@@ -66,7 +66,7 @@ const translations = {
         startNextGame: "Play",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "No followers",
-        settingsModalTitle: "Settings",
+        settingsModalTitle: "Update profile",
         settingsUsername: "Username",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -79,7 +79,13 @@ const translations = {
         loginToSeeFriends: "Please log in to see your friends!",
         tournamentUnexpectedError: "An unexpected error occurred during the tournament flow.",
         tournamentStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "An error occurred while fetching user information"
+        errorFetchingUser: "An error occurred while fetching user information",
+        loginToUpdateProfile: "Please log in to access update profile section !",
+        passwordsDoNotMatch: "Passwords do not match",
+        settingsNewPassword: "New Password",
+        settingsConfirmPassword: "Password confirmation",
+        seeProfile: "See profile",
+        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
         play: "Jouer",
@@ -109,10 +115,10 @@ const translations = {
         addFriendTab: "Ajouter un ami",
         yourFollowing: "Vos abonnements :",
         yourFollowers: "Vos abonnés :",
-        addFriendUsername: "Nom d'utilisateur de l'ami",
+        addFriendUsername: "Nom de l'ami",
         addFriendButton: "Ajouter",
         friendProfileTitle: "Profil de l'ami",
-        unfollowButton: "Se désabonner",
+        unfollowButton: "Ne plus suivre",
         closeButton: "Fermer",
         tournamentModalTitle: "Créer un tournoi",
         playerCount: "Nombre de joueurs",
@@ -137,7 +143,7 @@ const translations = {
         username: "Nom d'utilisateur",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "Aucune information utilisateur disponible",
+        noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
         userNotFound: "Utilisateur non trouvé",
         userIdNotFound: "ID de l'utilisateur non trouvé",
         notificationModalTitle: "Notification",
@@ -148,7 +154,7 @@ const translations = {
         startNextGame: "Jouer",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Aucun abonné",
-        settingsModalTitle: "Paramètres",
+        settingsModalTitle: "Mettre a jour le profil",
         settingsUsername: "Nom d'utilisateur",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -161,7 +167,13 @@ const translations = {
         loginToSeeFriends: "Connectez-vous pour voir vos amis !",
         tournamentUnexpectedError: "Une erreur est survenue lors du déroulement du tournoi.",
         tournamentStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur"
+        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur",
+        loginToUpdateProfile: "Connectez-vous pour acceder a la mise a jour de votre profil !",
+        passwordsDoNotMatch: "Les mots de passe ne correspondent pas",
+        settingsNewPassword: "Nouveau mot de passe",
+        settingsConfirmPassword: "Confirmation mot de passe",
+        seeProfile: "Voir profil",
+        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
         play: "Chơi",
@@ -230,7 +242,7 @@ const translations = {
         startNextGame: "Chơi",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Không có người theo dõi",
-        settingsModalTitle: "Cài Đặt",
+        settingsModalTitle: "Chỉnh sửa hồ sơ",
         settingsUsername: "Tên người dùng",
         settingsEmail: "Email",
         settingsAlias: "Biệt danh",
@@ -243,18 +255,24 @@ const translations = {
         loginToSeeFriends: "Vui lòng đăng nhập để xem bạn bè của bạn!",
         tournamentUnexpectedError: "Đã xảy ra lỗi bất ngờ trong quá trình diễn ra giải đấu.",
         tournamentStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng"
+        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng",
+        loginToUpdateProfile: "Vui lòng đăng nhập để xem bạn bè của bạn!",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        invalidPasswordFormat: "Mật khẩu của bạn phải chứa 8 ký tự bao gồm ít nhất 1 chữ hoa và chữ thường, 1 số và 1 ký tự [.@,#$%^&+=!_\-]",
+        passwordsDoNotMatch: "Mật khẩu không khớp"
     }
 };
 
 const t = (key, params = {}) => {
     const lang = localStorage.getItem('language') || 'fr';
     let translation = translations[lang][key] || key;
-    
+
     Object.keys(params).forEach(param => {
         translation = translation.replace(`{${param}}`, params[param]);
     });
-    
+
     return translation;
 };
 
@@ -263,15 +281,21 @@ function applyTranslations() {
         const key = element.getAttribute('data-i18n');
         const paramsAttr = element.getAttribute('data-i18n-params');
         const params = paramsAttr ? JSON.parse(paramsAttr) : {};
-        
-        if (element.tagName === 'INPUT') {
-            if (element.type === 'submit') {
-                element.value = t(key, params);
-            } else if (element.type === 'file') {
-                element.setAttribute('title', t(key, params));
-            }
+
+        //Ajout pour les pseudo-elements
+        const translation = t(key, params);
+        if (element.tagName === 'LI') {
+            element.style.setProperty('--pseudo-content', `"${translation}"`);
         } else {
-            element.textContent = t(key, params);
+            if (element.tagName === 'INPUT') {
+                if (element.type === 'submit') {
+                    element.value = t(key, params);
+                } else if (element.type === 'file') {
+                    element.setAttribute('title', t(key, params));
+                }
+            } else {
+                element.textContent = t(key, params);
+            }
         }
     });
 }

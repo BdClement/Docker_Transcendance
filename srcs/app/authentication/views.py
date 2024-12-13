@@ -41,7 +41,9 @@ class UserInfoAPI(APIView):
 				'alias': request.user.alias,
 				'username': request.user.username,
 				'email': request.user.email,
-				'photoProfile': request.user.photoProfile.url if request.user.photoProfile else None
+				'photoProfile': request.user.photoProfile.url if request.user.photoProfile else None,
+				'languageFav': request.user.get_languageFav_display()
+				# 'languageFav': request.languageFav
 			})
 		else:
 			return Response({'message': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -74,6 +76,11 @@ class SignupAPI(APIView):
 				email=serializer.validated_data['email'],
 				alias=serializer.validated_data['alias'],
 			)
+
+			# Ajoute par Clement
+			if 'languageFav' in serializer.validated_data:
+				user.languageFav = serializer.validated_data['languageFav']
+
 			user.set_password(serializer.validated_data['password'])
 
 			# Handle profile photo upload
@@ -96,7 +103,7 @@ class SignupAPI(APIView):
 				"user": user_data
 			}, status=status.HTTP_201_CREATED)
 		else:
-				logger.error(f"Validation errors: {serializer.errors}")
+			logger.error(f"Validation errors: {serializer.errors}")
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		pass
 
@@ -150,23 +157,61 @@ class MatchHistoryView(generics.ListAPIView):
 			Q(player2=user) |
 			Q(player3=user) |
 			Q(player4=user)
-		).order_by('date')
-
+		).order_by('-date')
 
 class UserProfileUpdateView(APIView):
-	permission_classes = [IsAuthenticated]
-	def get(self, request):
-		user = request.user
-		serializer = UserUpdateSerializer(user)
-		return Response(serializer.data)
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        serializer = UserUpdateSerializer(user)
+        return Response(serializer.data)
 
-	def put(self, request):
-		user = request.user
-		serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_200_OK)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request):
+        user = request.user
+        old_username = user.username
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True, context={'request': request})
+
+        if serializer.is_valid():
+            # Gérer le changement de photo de profil
+            if 'photoProfile' in request.FILES:
+                photo = request.FILES['photoProfile']
+                old_filename = f'{old_username}.jpg'
+                new_filename = f'{user.username}.jpg'
+                old_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', old_filename)
+                new_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', new_filename)
+
+                # Supprimer l'ancienne photo si elle existe
+                if os.path.exists(old_filepath):
+                    os.remove(old_filepath)
+
+                # Enregistrer la nouvelle photo
+                with open(new_filepath, 'wb+') as destination:
+                    for chunk in photo.chunks():
+                        destination.write(chunk)
+
+                # Mettre à jour le chemin de la photo de profil
+                user.photoProfile = f'images/{new_filename}'
+                user.save()
+
+            # Si le nom d'utilisateur change, renommer la photo de profil
+            if 'username' in serializer.validated_data and serializer.validated_data['username'] != old_username:
+                old_filename = f'{old_username}.jpg'
+                new_filename = f'{serializer.validated_data["username"]}.jpg'
+                old_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', old_filename)
+                new_filepath = os.path.join(settings.BASE_DIR, 'static', 'images', new_filename)
+
+                # Renommer le fichier si l'ancienne photo existe
+                if os.path.exists(old_filepath):
+                    os.rename(old_filepath, new_filepath)
+                    user.photoProfile = f'images/{new_filename}'
+                    user.save()
+
+            # Save the user with the serializer to update other fields
+            user_updated = serializer.save()
+
+            return Response(UserSerializer(user_updated).data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserDeleteView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -180,14 +225,14 @@ class AddFriendView(APIView):
     def post(self, request, user_id):
         user_to_follow = get_object_or_404(User, id=user_id)
         if request.user == user_to_follow:
-            return Response({"detail": "Vous ne pouvez pas vous suivre vous-même."}, 
+            return Response({"detail": "Vous ne pouvez pas vous suivre vous-même."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Vérifier si l'utilisateur est déjà dans la liste des following
         if user_to_follow in request.user.following.all():
-            return Response({"detail": "Vous suivez déjà cet utilisateur."}, 
+            return Response({"detail": "Vous suivez déjà cet utilisateur."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         request.user.following.add(user_to_follow)
         return Response({
             "detail": f"Vous suivez maintenant {user_to_follow.username}.",
@@ -201,12 +246,12 @@ class SuppFriendView(APIView):
     permission_classes = [IsAuthenticated]
     def delete(self, request, user_id):
         user_to_unfollow = get_object_or_404(User, id=user_id)
-        
+
         # Vérifier si l'utilisateur est bien dans la liste des following
         if user_to_unfollow not in request.user.following.all():
-            return Response({"detail": "Vous ne suivez pas cet utilisateur."}, 
+            return Response({"detail": "Vous ne suivez pas cet utilisateur."},
                           status=status.HTTP_400_BAD_REQUEST)
-        
+
         request.user.following.remove(user_to_unfollow)
         return Response({
             "detail": f"Vous ne suivez plus {user_to_unfollow.username}.",

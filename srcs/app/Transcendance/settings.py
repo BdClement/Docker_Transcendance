@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import socket
 
 PUBLIC_KEY = os.getenv("PUBLIC_KEY")
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
@@ -61,10 +62,17 @@ MIDDLEWARE = [
 	#python manage.py collectstatic pour trouver les fichier static (Django le fait seul)
 ]
 
+# Fonction pour recuperer l'adresse IP du poste sur lequel tourne le serveur et l'ajouter a CSRF_TRUSTED_ORIGINS
+def get_local_ips():
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    return [f'http://{local_ip}:8443']
+
 #Ajoute pour autoriser l'origne HTTPS (Schema / Nom D'Hote / Port) puisque utilisation d'un proxy
-CSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = get_local_ips() + [
     'https://localhost:8443',
-    'https://127.0.0.1:8443'
+    'https://127.0.0.1:8443',
+	# 'https://10.25.102.1:8443',
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'

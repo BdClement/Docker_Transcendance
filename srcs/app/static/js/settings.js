@@ -1,40 +1,42 @@
-// settings.js
 const settingsModal = document.getElementById('settingsModal');
 const settingsForm = document.getElementById('settingsForm');
+const errorMessage = document.getElementById('errorMessage');
 const settingsLink = document.getElementById('settingsLink');
+const settingsNewPassword = document.getElementById('settingsNewPassword');
+const settingsConfirmPassword = document.getElementById('settingsConfirmPassword');
 
-async function loadUserProfile() {
-    try {
-        const response = await fetch('/api/userprofile/', {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCsrfToken(),
-            },
-            credentials: 'include',
-        });
-
-        if (response.ok) {
-            const userData = await response.json();
-            document.getElementById('settingsUsername').value = userData.username || '';
-            document.getElementById('settingsEmail').value = userData.email || '';
-            document.getElementById('settingsAlias').value = userData.alias || '';
-            
-            const photoPreview = document.getElementById('photoPreview');
-            if (photoPreview && userData.photoProfile) {
-                photoPreview.src = userData.photoProfile;
-                photoPreview.style.display = 'block';
-            }
-        } else {
-            console.error('Failed to load user profile');
-        }
-    } catch (error) {
-        console.error('Error loading user profile:', error);
-    }
+function validatePassword(password) {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.@,#$%^&+=!_\-])[A-Za-z\d.@,#$%^&+=!_\-]{8,}$/;
+    return passwordRegex.test(password);
 }
 
 async function updateUserProfile(formData) {
     try {
-        const response = await fetch('/api/userprofileupdate/', {
+
+        const newPassword = formData.get('password');
+        const confirmPassword = settingsConfirmPassword.value;
+
+        if (newPassword) {
+            if (!validatePassword(newPassword)) {
+                throw new Error(t('invalidPasswordFormat'));
+            }
+
+            if (newPassword !== confirmPassword) {
+                throw new Error(t('passwordsDoNotMatch'));
+            }
+        }
+
+        for (let [key, value] of formData.entries()) {
+            if (value === '') {
+                formData.delete(key);
+            }
+        }
+
+        if (formData.keys().next().done) {
+            throw new Error(t('noUpdateFieldsProvided'));
+        }
+
+        const response = await fetchWithCsrf('/api/userprofileupdate/', {
             method: 'PUT',
             headers: {
                 'X-CSRFToken': getCsrfToken(),
@@ -42,15 +44,19 @@ async function updateUserProfile(formData) {
             body: formData,
             credentials: 'include',
         });
+        console.log("Réponse du serveur :", response);
+        const responseBody = await response.clone().json();
+        console.log("Corps de la réponse :", responseBody);
 
         if (response.ok) {
-            const result = await response.json();
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-success';
             alertDiv.textContent = t('profileUpdateSuccess');
             settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
             setTimeout(() => alertDiv.remove(), 3000);
-            updateProfileDisplay(result);
+            settingsNewPassword.value = '';
+            settingsConfirmPassword.value = '';
+            checkLoginStatus();
         } else {
             const error = await response.json();
             throw new Error(error.detail || t('profileUpdateError'));
@@ -64,32 +70,50 @@ async function updateUserProfile(formData) {
     }
 }
 
-function updateProfileDisplay(userData) {
-    const profilePhoto = document.querySelector('.profile-photo');
-    if (profilePhoto && userData.photoProfile) {
-        profilePhoto.src = userData.photoProfile;
-    }
-
-    const usernameDisplay = document.querySelector('.username-display');
-    if (usernameDisplay) {
-        usernameDisplay.textContent = userData.username;
-    }
-
-    const aliasDisplay = document.querySelector('.alias-display');
-    if (aliasDisplay) {
-        aliasDisplay.textContent = userData.alias;
-    }
-}
-
 function opensettingsModal() {
     const modal = new bootstrap.Modal(settingsModal);
-    loadUserProfile();
+
+    //Appel API uniquement pour voir si l'utilisateur est connecte. Pas propre mais plus simpla sans trop ajouter de changement
+    fetchWithCsrf('/api/user/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('opensettingsModal: l\'utilisateur est connecte, on affiche le formulaire');
+            settingsForm.style.display = 'block';
+            errorMessage.style.display = 'none';
+        } else if (response.status === 401) {
+            console.log('opensettingsModal: l\'utilisateur n\'est pas connecte, on affiche le message d\'erreur');
+            settingsForm.style.display = 'none';
+            errorMessage.style.display = 'block';
+        } else {
+            throw new Error('Erreur inattendue lors de la vérification de l\'état de connexion.');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de la vérification de l\'état de connexion :', error);
+        settingsForm.style.display = 'none';
+        errorMessage.style.display = 'block';
+    })
     modal.show();
 }
 
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(settingsForm);
+    console.log("Contenu détaillé de formData :");
+    for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log(`Détails du fichier ${key}:`, {
+                name: value.name,
+                type: value.type,
+                size: value.size
+            });
+        }
+    }
     await updateUserProfile(formData);
 });
 
@@ -113,15 +137,15 @@ if (photoInput) {
 
 settingsLink.addEventListener('click', (e) => {
     e.preventDefault();
-    history.pushState(null, '', '/settings');
+    history.pushState({ page: 'settings' }, '', '/settings');
     opensettingsModal();
 });
 
 window.addEventListener('popstate', (event) => {
+    const modal = bootstrap.Modal.getInstance(settingsModal);
     if (window.location.pathname === '/settings') {
         opensettingsModal();
     } else {
-        const modal = bootstrap.Modal.getInstance(settingsModal);
         if (modal) {
             modal.hide();
         }

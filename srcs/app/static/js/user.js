@@ -67,7 +67,7 @@ function updateUserInfo2(user) {
     .then(data => {
         if (!data.id) throw new Error(t('userIdNotFound'));
         const userId = data.id;
-        
+
         fetch(`/api/userprofile/${userId}/`)
             .then(response => response.json())
             .then(data => {
@@ -106,13 +106,11 @@ function updateUserInfo2(user) {
             });
     });
 }
-
 function clearUserInfo() {
     userForm.innerHTML = `
-        <div class="row text-center">
-            <div class="col-12">
-                <p class="text-muted" data-i18n="noUserInfo">Aucune information utilisateur disponible</p>
-            </div>
+        <div class="auth-message">
+            <i class="fas fa-lock"></i>
+            <p data-i18n="noUserInfo">Aucune information utilisateur disponible</p>
         </div>
     `;
     applyTranslations();
@@ -138,6 +136,8 @@ function openuserModal() {
 
 window.addEventListener('userLoggedOut', function() {
     clearUserInfo();
+    //clearFriendList
+    loadFriendLists();//Ajoute par Clement
     const modal = bootstrap.Modal.getInstance(userModal);
     if (modal) {
         modal.hide();
