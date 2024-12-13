@@ -104,7 +104,10 @@ class SignupAPI(APIView):
 			}, status=status.HTTP_201_CREATED)
 		else:
 			logger.error(f"Validation errors: {serializer.errors}")
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		return Response({
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+		# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		pass
 
 class Logout(APIView):

@@ -107,7 +107,8 @@ function signup(formData) {
             updateUserInfo(data.user.username, data.user.photoProfile, data.user.alias);
             return data.user;
         } else {
-            throw new Error(data.message);
+            // throw new Error(data.message);
+            throw new Error(JSON.stringify(data.errors));
         }
     });
 }
@@ -165,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Erreur de connexion: ' + error.message);
+                alert('Erreur de connexion: ' + 'L\'identifiant ou mot de passe est incorrect. Veuillez réessayer');
             });
     });
 
@@ -181,8 +182,35 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Erreur d\'inscription: ' + error.message);
-            });
+                let errorMessage = 'Erreur d\'inscription :\n';
+
+                // On vérifie si l'erreur est un objet Error et contient un message
+                if (error.message) {
+                    try {
+                        // On tente de parser la chaîne JSON de l'erreur (si c'est du JSON)
+                        const errorData = JSON.parse(error.message);
+
+                        // Si l'objet contient des erreurs (data.errors), on les parcourt
+                        if (errorData) {
+                            for (let field in errorData) {
+                                if (errorData.hasOwnProperty(field)) {
+                                    // Ajout de chaque message d'erreur sans le nom du champ
+                                    errorMessage += `${errorData[field].join(', ')}\n`;
+                                }
+                            }
+                        } else {
+                            // Si pas d'erreurs spécifiques, affiche le message directement
+                            errorMessage += 'Détails de l\'erreur inconnus.';
+                        }
+                    } catch (e) {
+                        // Si le parsing échoue (le format n'est pas du JSON), on ajoute un message générique
+                        errorMessage += 'Erreur inconnue';
+                    }
+                }
+
+            // Affichage du message d'erreur
+            alert(errorMessage);
+        });
     });
 
     logoutButton.addEventListener('click', function() {
