@@ -5,6 +5,77 @@ const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
 
+function showFullScreenTournamentModal() {
+
+    const existingModal = document.getElementById('tournamentFullScreenModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'tournamentFullScreenModal';
+    modal.className = 'modal show';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('role', 'dialog');
+    modal.style.cssText = `
+        display: block; 
+        background-color: rgba(13, 30, 41, 0.9); 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        z-index: 2;
+        overflow: hidden;
+    `;
+
+    modal.innerHTML = `
+        <div class="modal-dialog modal-fullscreen" role="document" style="max-width: 100%; margin: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center;">
+            <div class="modal-content" style="
+                height: auto; 
+                width: 100%; 
+                background: transparent; 
+                box-shadow: none; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center;
+                padding-bottom: 20vh;
+            ">
+                <div class="modal-body text-center" style="color: #ad996d; text-align: center; width: 100%;">
+                    <div class="spinner-border" role="status" style="
+                        width: 3rem; 
+                        height: 3rem; 
+                        color: #ad996d; 
+                        border-width: 0.25em;
+                        margin-bottom: 20px;
+                    ">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h2 class="mt-3" data-i18n="tournamentInProgress" style="
+                        color: #ad996d; 
+                        font-size: 2rem; 
+                        margin-bottom: 15px;
+                    ">Tournament in Progress</h2>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.style.zIndex = '2';
+
+    if (typeof applyTranslations === 'function') {
+        applyTranslations();
+    }
+
+    return function closeFullScreenModal() {
+        const modalToRemove = document.getElementById('tournamentFullScreenModal');
+        if (modalToRemove) {
+            modalToRemove.remove();
+        }
+    };
+}
+
 function openTournamentModal() {
     const modal = new bootstrap.Modal(tournamentModal);
     modal.show();
@@ -96,6 +167,7 @@ tournamentForm.addEventListener('submit', async (e) => {
 });
 
 async function startTournament(tournamentId) {
+    const closeFullScreenModal = showFullScreenTournamentModal();
     let tournamentFinished = false;
 
     while (!tournamentFinished) {
@@ -129,6 +201,7 @@ async function startTournament(tournamentId) {
                 // Fonction pour le stockage de du tournoi dans la Blockchain
                 // startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
+                closeFullScreenModal();
             } else {
                 throw new Error('Erreur inattendue');
             }
@@ -136,6 +209,7 @@ async function startTournament(tournamentId) {
             console.error('Erreur lors du déroulement du tournoi:', error);
             alert('Une erreur est survenue lors du déroulement du tournoi.');
             tournamentFinished = true;
+            closeFullScreenModal();
         }
     }
 }
@@ -187,7 +261,7 @@ function waitForGameCompletion(playId) {
                     clearInterval(checkInterval);
                     resolve();
                 });
-        }, 5000); // verifie toutes les 15 secondes pour etre sur que la websocket de la partie precedente est close
+        }, 10000); // verifie toutes les 15 secondes pour etre sur que la websocket de la partie precedente est close
     });
 }
 

@@ -86,6 +86,7 @@ const translations = {
         settingsConfirmPassword: "Password confirmation",
         seeProfile: "See profile",
         languageSetting : "Preferred Language",
+        tournamentInProgress: "Tournament in Progress",
         invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
@@ -175,6 +176,7 @@ const translations = {
         settingsConfirmPassword: "Confirmation mot de passe",
         seeProfile: "Voir profil",
         languageSetting : "Langue préférée",
+        tournamentInProgress: "Tournoi en cours",
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
@@ -264,6 +266,7 @@ const translations = {
         seeProfile: "Xem hồ sơ",
         invalidPasswordFormat: "Mật khẩu của bạn phải chứa 8 ký tự bao gồm ít nhất 1 chữ hoa và chữ thường, 1 số và 1 ký tự [.@,#$%^&+=!_\-]",
         languageSetting : "Ngôn ngữ ưa thích",
+        tournamentInProgress: "Giải đấu đang diễn ra",
         passwordsDoNotMatch: "Mật khẩu không khớp"
     }
 };
