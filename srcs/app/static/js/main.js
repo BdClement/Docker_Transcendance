@@ -228,6 +228,10 @@ const PongGame = (function() {
                     remote = true;
                     nbPlayers = 2;
                     break;
+                case 'remote_2v2':
+                    remote = true;
+                    nbPlayers = 4;
+                    break;
                 case 'local_1v1':
                     remote = false;
                     nbPlayers = 2;
@@ -241,7 +245,7 @@ const PongGame = (function() {
             isLocalGame = !remote;
             console.log(`[playForm] Game settings - Remote: ${remote}, Players: ${nbPlayers}`);
 
-            if (remote && nbPlayers === 2) {
+            if (remote) {
                 fetchAvailableGames(remote, nbPlayers);
             } else {
                 createNewGame(remote, nbPlayers);
@@ -268,20 +272,22 @@ const PongGame = (function() {
                 .then(response => response.json())
                 .then(games => {
                     console.log(`[fetchAvailableGames] Received ${games.length} available games`);
-                    if (games.length > 0) {
-                        displayAvailableGames(games);
+                    const filteredGames = games.filter(game => game.nb_players === nbPlayers && game.player_connected > 0);
+
+                    if (filteredGames.length > 0) {
+                        displayAvailableGames(filteredGames, nbPlayers);
                     } else {
                         console.log(`[fetchAvailableGames] No games available, creating new game`);
-                        createNewGame(true, 2);
+                        createNewGame(true, nbPlayers);
                     }
                 })
                 .catch(error => {
                     console.error('[fetchAvailableGames] Error:', error);
-                    createNewGame(true, 2);
+                    createNewGame(true, nbPlayers);
                 });
         }
 
-        function displayAvailableGames(games) {
+        function displayAvailableGames(games, nbPlayers) {
             let container = document.querySelector('.main-content');
             if (!container) {
                 container = document.createElement('div');
@@ -293,14 +299,12 @@ const PongGame = (function() {
             container.innerHTML = '';
 
             const title = document.createElement('h1');
-            title.textContent = 'Available Games';
+            title.textContent = nbPlayers === 2 ? 'Available 1v1 Games' : 'Available 2v2 Games';
             container.appendChild(title);
 
-            const availableGames = games.filter(game => game.player_connected > 0);
-
-            if (availableGames.length > 0) {
+            if (games.length > 0) {
                 const gameList = document.createElement('ul');
-                availableGames.forEach(game => {
+                games.forEach(game => {
                     const listItem = document.createElement('li');
                     listItem.textContent = `Game ${game.id} (${game.player_connected}/${game.nb_players} players)`;
                     listItem.addEventListener('click', () => {
@@ -319,7 +323,7 @@ const PongGame = (function() {
             const newGameButton = document.createElement('button');
             newGameButton.textContent = 'Create New Game';
             newGameButton.addEventListener('click', () => {
-                createNewGame(true, 2);
+                createNewGame(true, nbPlayers);
                 container.style.display = 'none';
             });
             container.appendChild(newGameButton);
