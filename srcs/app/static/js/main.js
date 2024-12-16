@@ -7,6 +7,9 @@ const PongGame = (function() {
     let gameModal = null;
     let gameState = {};
     let isPlayer1 = false;
+    let isPlayer2 = false;
+    let isPlayer3 = false;
+    let isPlayer4 = false;
     let keyState = { w: false, s: false, ArrowUp: false, ArrowDown: false, t: false, g: false, i: false, k: false };
 
     function initializeGame(gameId, nbPlayers,isCreator = false) {
@@ -125,7 +128,16 @@ const PongGame = (function() {
             if (isPlayer1) {
                 if (keyState.w) sendPaddleMovement(1, 'up');
                 if (keyState.s) sendPaddleMovement(1, 'down');
-            } else {
+            }
+            if (isPlayer3) {
+                if (keyState.w) sendPaddleMovement(3, 'up');
+                if (keyState.s) sendPaddleMovement(3, 'down');
+            }
+            else if (isPlayer4) {
+                if (keyState.w) sendPaddleMovement(4, 'up');
+                if (keyState.s) sendPaddleMovement(4, 'down');
+            }
+            else if (isPlayer2){
                 if (keyState.w) sendPaddleMovement(2, 'up');
                 if (keyState.s) sendPaddleMovement(2, 'down');
             }        
@@ -307,6 +319,18 @@ const PongGame = (function() {
                 games.forEach(game => {
                     const listItem = document.createElement('li');
                     listItem.textContent = `Game ${game.id} (${game.player_connected}/${game.nb_players} players)`;
+                    if (game.player_connected == 1)
+                    {
+                        isPlayer2 = true;
+                    }
+                    else if(game.player_connected == 2)
+                    {
+                        isPlayer3 = true;
+                    }
+                    else if(game.player_connected == 3)
+                    {
+                        isPlayer4 = true;
+                    }
                     listItem.addEventListener('click', () => {
                         joinGame(game.id);
                         container.style.display = 'none';
