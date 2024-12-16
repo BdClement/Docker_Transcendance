@@ -132,6 +132,54 @@ function logout() {
     });
 }
 
+// Cette variable va contenir les messages d'erreur en fonction de la langue
+let errorMessages = {};
+
+//Ajoute par Clement pour la traduction des erreurs de signUp [ pas propre mais plus simple ]
+function setErrorMessages() {
+    const userLanguage = localStorage.getItem('language') || 'fr';
+    console.log('UL== ', userLanguage);
+    if (userLanguage === 'fr') {
+        errorMessages = {
+            'This password is too short. It must contain at least 8 characters., This password is too common.': 'Ce mot de passe est trop court. Il doit contenir au moins 8 caracteres.',
+            'This password is too short. It must contain at least 8 characters.': 'Ce mot de passe est trop court. Il doit contenir au moins 8 caracteres.',
+            'Cet email est deja utilisé.': 'Cet email est deja utilisé.',
+            'Ce nom d\'utilisateur est deja utilisé.': 'Ce nom d\'utilisateur est deja utilisé.',
+            'Cet alias est deja utilisé.': 'Cet alias est deja utilisé.',
+            'Le mot de passe doit contenir au moins une lettre minuscule.': 'Le mot de passe doit contenir au moins une lettre minuscule',
+            'Le mot de passe doit contenir au moins une lettre majuscule.': 'Le mot de passe doit contenir au moins une lettre majuscule',
+            'Le mot de passe doit contenir au moins un chiffre.': 'Le mot de passe doit contenir au moins un chiffre.',
+            'Le mot de passe doit contenir au moins un caractère spécial (par exemple @, #, $, %, etc.).': 'Le mot de passe doit contenir au moins un caractère spécial (@, #, $, %, etc.)'
+        };
+    } else if (userLanguage === 'en') {
+        errorMessages = {
+            'This password is too short. It must contain at least 8 characters., This password is too common.': 'This password is too short. It must contain at least 8 characters.',
+            // 'This password is too short. It must contain at least 8 characters.'
+            'This password is too short. It must contain at least 8 characters.': 'This password is too short. It must contain at least 8 characters.',
+            'Cet email est deja utilisé.': 'Email already used',
+            'Ce nom d\'utilisateur est deja utilisé.': 'Username already used',
+            'Cet alias est deja utilisé.': 'Alias name already used',
+            'Le mot de passe doit contenir au moins une lettre minuscule.': 'Password must contain at least a lowercase letter',
+            'Le mot de passe doit contenir au moins une lettre majuscule.': 'Password must contain at least a capital letter',
+            'Le mot de passe doit contenir au moins un chiffre.': 'Password must contain at least a number',
+            'Le mot de passe doit contenir au moins un caractère spécial (par exemple @, #, $, %, etc.).': 'Password must contain at least a special character (@, #, $, %, etc.)'
+        };
+    } else if (userLanguage === 'viet') {
+        errorMessages = {
+            'This password is too short. It must contain at least 8 characters., This password is too common.': 'Mật khẩu phải chứa ít nhất một chữ cái viết hoa',
+            'This password is too short. It must contain at least 8 characters.': 'Mật khẩu phải chứa ít nhất một chữ cái viết hoa',
+            'Cet email est deja utilisé.': 'Email đã được sử dụng',
+            'Ce nom d\'utilisateur est deja utilisé.': 'Tên người dùng đã được sử dụng',
+            'Cet alias est deja utilisé.': 'Tên biệt danh đã được sử dụng',
+            'Le mot de passe doit contenir au moins une lettre minuscule.': 'Mật khẩu phải chứa ít nhất một chữ cái viết thường',
+            'Le mot de passe doit contenir au moins une lettre majuscule.': 'Mật khẩu phải chứa ít nhất một chữ cái viết hoa',
+            'Le mot de passe doit contenir au moins un chiffre.': 'Mật khẩu phải chứa ít nhất một số',
+            'Le mot de passe doit contenir au moins un caractère spécial (par exemple @, #, $, %, etc.).': 'Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)'
+        };
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
     const loginForm = document.getElementById('loginForm');
@@ -166,7 +214,14 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Erreur de connexion: ' + 'L\'identifiant ou mot de passe est incorrect. Veuillez réessayer');
+                const userLanguage = localStorage.getItem('language') || 'fr';
+                if (userLanguage === 'fr') {
+                    alert('Erreur de connexion: ' + 'L\'identifiant ou mot de passe est incorrect. Veuillez réessayer');
+                } else if (userLanguage === 'en') {
+                    alert('Error: ' + 'Login or password is incorrect. Please try again');
+                } else if (userLanguage === 'viet') {
+                    alert('Lỗi kết nối: Tên người dùng hoặc mật khẩu không chính xác. Vui lòng thử lại');
+                }
             });
     });
 
@@ -182,12 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                let errorMessage = 'Erreur d\'inscription :\n';
-
+                let errorMessage = '';
                 // On vérifie si l'erreur est un objet Error et contient un message
                 if (error.message) {
                     try {
-                        // On tente de parser la chaîne JSON de l'erreur (si c'est du JSON)
                         const errorData = JSON.parse(error.message);
 
                         // Si l'objet contient des erreurs (data.errors), on les parcourt
@@ -198,18 +251,27 @@ document.addEventListener('DOMContentLoaded', function() {
                                     errorMessage += `${errorData[field].join(', ')}\n`;
                                 }
                             }
-                        } else {
-                            // Si pas d'erreurs spécifiques, affiche le message directement
-                            errorMessage += 'Détails de l\'erreur inconnus.';
                         }
+                        // else {
+                        //     // Si pas d'erreurs spécifiques, affiche le message directement
+                        //     errorMessage += 'Détails de l\'erreur inconnus.';
+                        // }
                     } catch (e) {
                         // Si le parsing échoue (le format n'est pas du JSON), on ajoute un message générique
                         errorMessage += 'Erreur inconnue';
                     }
                 }
-
+            console.log('error message : ', errorMessage);
+            setErrorMessages();
             // Affichage du message d'erreur
-            alert(errorMessage);
+            console.log('errorMessages[errorMessage] : ', errorMessages[errorMessage.trim()]);
+            if (errorMessages[errorMessage.trim()]) {
+                console.log('rentre dans le if : ', errorMessages[errorMessage.trim()]);
+                alert(errorMessages[errorMessage.trim()]);
+            } else {
+                alert(errorMessage);
+                console.log('rentre dans le else : ', errorMessages[errorMessage.trim()]);
+            }
         });
     });
 

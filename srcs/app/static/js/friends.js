@@ -93,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => {
             console.log('User search response:', response);
-            if (!response.ok) throw new Error('Utilisateur non trouvé');
+            if (!response.ok) throw new Error('L\'utilisateur n\'existe pas');
             return response.json();
         })
         .then(data => {
             console.log('User data:', data);
-            if (!data.id) throw new Error('ID de l\'utilisateur non trouvé');
+            if (!data.id) throw new Error('ID de l\'utilisateur n\'existe pas');
 
             return fetch(`/api/addfriend/${data.id}/`, {
                 method: 'POST',
@@ -126,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Erreur complète:', error);
-            alert(error.message);
+            // alert(error.message);
+            alert(t('userNotFound'));
         });
     }
 

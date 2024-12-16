@@ -36,7 +36,7 @@ const translations = {
         playerCount: "Number of Players",
         createTournament: "Create Tournament",
         playerAlias: "Player {number} Alias",
-        tournamentCreationError: "An error occurred while creating the tournament",
+        tournamentCreationError: "Tournament creation failed. Check aliases provided",
         pleaseEnterValidAliases: "Please enter {count} valid aliases",
         playerCountOption4: "4 players",
         playerCountOption8: "8 players",
@@ -85,7 +85,14 @@ const translations = {
         settingsNewPassword: "New Password",
         settingsConfirmPassword: "Password confirmation",
         seeProfile: "See profile",
-        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
+        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]",
+        EmailError: "Email already used",
+        UsernameError: "Username already used",
+        AliasError: "Alias name already used",
+        PasswordLowercaseError: "Password must contain at least a lowercase letter",
+        PasswordUppercaseError: "Password must contain at least a capital letter",
+        PasswordNumber: "Password must contain at least a number",
+        PasswordSpecialCharError: "Password must contain at least a special character (@, #, $, %, etc.)",
     },
     fr: {
         play: "Jouer",
@@ -124,7 +131,7 @@ const translations = {
         playerCount: "Nombre de joueurs",
         createTournament: "Créer le tournoi",
         playerAlias: "Alias du joueur {number}",
-        tournamentCreationError: "Une erreur est survenue lors de la création du tournoi",
+        tournamentCreationError: "Creation de tournoi impossible. Verifiez les alias fournis",
         pleaseEnterValidAliases: "Veuillez entrer {count} alias valides",
         playerCountOption4: "4 joueurs",
         playerCountOption8: "8 joueurs",
@@ -144,7 +151,7 @@ const translations = {
         alias: "Alias",
         email: "Email",
         noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
-        userNotFound: "Utilisateur non trouvé",
+        userNotFound: "L\'utilisateur n'existe pas",
         userIdNotFound: "ID de l'utilisateur non trouvé",
         notificationModalTitle: "Notification",
         tournamentScoreStorageAttempt: "Tentative de stockage du score du tournoi {tournamentId}. Cela peut prendre quelques instants...\nVous pouvez accéder aux données on-chain à l'adresse du contrat via Etherscan : \n<a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
@@ -173,7 +180,8 @@ const translations = {
         settingsNewPassword: "Nouveau mot de passe",
         settingsConfirmPassword: "Confirmation mot de passe",
         seeProfile: "Voir profil",
-        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
+        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]",
+        PasswordLengthError: "Ce mot de passe est trop court. Il doit conetenir au moins 8 caracteres.",
     },
     viet: {
         play: "Chơi",
@@ -261,7 +269,18 @@ const translations = {
         settingsConfirmPassword: "Xác nhận mật khẩu",
         seeProfile: "Xem hồ sơ",
         invalidPasswordFormat: "Mật khẩu của bạn phải chứa 8 ký tự bao gồm ít nhất 1 chữ hoa và chữ thường, 1 số và 1 ký tự [.@,#$%^&+=!_\-]",
-        passwordsDoNotMatch: "Mật khẩu không khớp"
+        passwordsDoNotMatch: "Mật khẩu không khớp",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        invalidPasswordFormat: "Mật khẩu của bạn phải dài ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt [.@,#$%^&+=!_\-]",
+        EmailError: "Email này đã được sử dụng",
+        UsernameError: "Tên người dùng này đã được sử dụng",
+        AliasError: "Tên bí danh này đã được sử dụng",
+        PasswordLowercaseError: "Mật khẩu phải chứa ít nhất một chữ cái thường",
+        PasswordUppercaseError: "Mật khẩu phải chứa ít nhất một chữ cái in hoa",
+        PasswordSpecialCharError: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)",
+        PasswordLengthError: "Mật khẩu này quá ngắn. Nó phải chứa ít nhất 8 ký tự.",
     }
 };
 
