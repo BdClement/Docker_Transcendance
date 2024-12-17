@@ -94,6 +94,8 @@ const translations = {
         PasswordNumber: "Password must contain at least a number",
         PasswordSpecialCharError: "Password must contain at least a special character (@, #, $, %, etc.)",
         noUpdateFieldsProvided: "No update fields provided",
+        languageSetting : "Preferred Language",
+        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
         play: "Jouer",
@@ -187,6 +189,8 @@ const translations = {
         UsernameError: "Nom d'utilisateur déjà utlisé",
         AliasError: "Alias name déjà utlisé",
         noUpdateFieldsProvided: "Veuillez inclure au moins un champs a modifier",
+        languageSetting : "Langue préférée",
+        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
         play: "Chơi",
@@ -287,6 +291,7 @@ const translations = {
         PasswordSpecialCharError: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)",
         PasswordLengthError: "Mật khẩu này quá ngắn. Nó phải chứa ít nhất 8 ký tự.",
         noUpdateFieldsProvided: "Vui lòng bao gồm ít nhất một trường để sửa đổi",
+        languageSetting : "Ngôn ngữ ưa thích",
     }
 };
 
@@ -307,7 +312,6 @@ function applyTranslations() {
         const paramsAttr = element.getAttribute('data-i18n-params');
         const params = paramsAttr ? JSON.parse(paramsAttr) : {};
 
-        //Ajout pour les pseudo-elements
         const translation = t(key, params);
         if (element.tagName === 'LI') {
             element.style.setProperty('--pseudo-content', `"${translation}"`);
