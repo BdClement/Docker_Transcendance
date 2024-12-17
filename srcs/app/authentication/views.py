@@ -104,7 +104,10 @@ class SignupAPI(APIView):
 			}, status=status.HTTP_201_CREATED)
 		else:
 			logger.error(f"Validation errors: {serializer.errors}")
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		return Response({
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+		# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		pass
 
 class Logout(APIView):
@@ -151,13 +154,21 @@ class MatchHistoryView(generics.ListAPIView):
 		# 	user = User.objects.get(pk=user_id)
 		# else:
 		user = self.request.user
-		#La pagination est faites automatiquement par DRF grace a la reqquete qui contient des parametres sur la pages souhaitees
 		return Play.objects.filter(
-			Q(player1=user) |
+			(Q(player1=user) |
 			Q(player2=user) |
 			Q(player3=user) |
-			Q(player4=user)
+			Q(player4=user)) &
+			Q(is_finished=True)
 		).order_by('-date')
+		#La pagination est faites automatiquement par DRF grace a la reqquete qui contient des parametres sur la pages souhaitees
+		# return Play.objects.filter(
+        #     (Q(player1=user) |
+        #      Q(player2=user) |
+        #      Q(player3=user) |
+        #      Q(player4=user)) &
+        #     Q(is_finished=True)
+        # ).order_by('-date')
 
 class UserProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
