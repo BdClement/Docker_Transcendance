@@ -158,7 +158,8 @@ tournamentForm.addEventListener('submit', async (e) => {
             startTournament(tournamentData.id);
         } else {
             const errorData = await response.json();
-            alert(t('tournamentCreationError') + `: ${errorData.message}`);
+            alert(t('tournamentCreationError'));
+            // alert(t('tournamentCreationError') + `: ${errorData.message}`);
         }
     } catch (error) {
         console.error('Erreur lors de la création du tournoi:', error);
@@ -191,11 +192,11 @@ async function startTournament(tournamentId) {
             } else if (response.status === 410) {
                 tournamentFinished = true;
                 showNotification(
-                    t('tournamentScoreStorageAttempt', { 
-                        tournamentId: tournamentId, 
-                        etherscanLink: etherscanLink, 
-                        contractAddress: contractAddress 
-                    }), 
+                    t('tournamentScoreStorageAttempt', {
+                        tournamentId: tournamentId,
+                        etherscanLink: etherscanLink,
+                        contractAddress: contractAddress
+                    }),
                     true
                 );
                 // Fonction pour le stockage de du tournoi dans la Blockchain
@@ -221,9 +222,9 @@ function showNextGameModal(data) {
         const nextGameInfoForm = document.createElement('form');
 
         nextGameInfoForm.innerHTML = `
-            <p>${t('nextGameVs', { 
-                player1: data.player_name[0], 
-                player2: data.player_name[1] 
+            <p>${t('nextGameVs', {
+                player1: data.player_name[0],
+                player2: data.player_name[1]
             })}</p>
         `;
         nextGameForm.innerHTML = '';

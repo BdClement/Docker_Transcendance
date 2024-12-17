@@ -94,9 +94,19 @@ class SignupSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Ce nom d'utilisateur est deja utilisé.")
 		if user.objects.filter(alias=alias).exists():
 			raise serializers.ValidationError("Cet alias est deja utilisé.")
-		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[.@,#$%^&+=!_\-]", password):
-			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
+		# if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[.@,#$%^&+=!_\-]", password):
+		# 	raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		# Ajoute par Clement
+		if len(password) < 8:
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+		if not re.search("[a-z]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins une lettre minuscule.")
+		if not re.search("[A-Z]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins une lettre majuscule.")
+		if not re.search("[0-9]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+		if not re.search("[.@,#$%^&+=!_\-]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins un caractère spécial (par exemple @, #, $, %, etc.).")
 		valid_choices = [1, 2, 3]
 		if language_fav not in [None, ""] and language_fav not in valid_choices:
 			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")

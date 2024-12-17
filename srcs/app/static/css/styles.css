@@ -222,7 +222,7 @@ canvas {
 }
 
 .custom-input:focus {
-    background-color: rgba(173, 153, 109, 0.2);
+    /* background-color: rgba(173, 153, 109, 0.2); */ /* Commente par Clement */
     border-color: #ad996d;
     box-shadow: 0 0 0 0.2rem rgba(173, 153, 109, 0.25);
 }
@@ -479,6 +479,32 @@ fieldset {
 }
 
 .remote-buttons input[type="radio"] {
+    margin-bottom: 25px;/* Ajoute par Clement */
+    width: 48%;
+}
+
+/* === Ajoute par Clement pour le UserModal ===*/
+.UserInfoForm h5, .UserInfoForm small.text-muted, .UserInfoForm p{
+    /* color: #7f5f20 !important; */
+    color: #ad996d !important;
+}
+
+.UserInfoForm input {
+    /* color: #194452; */
+    color: black
+}
+
+#friendProfileModal .modal-body, #friendProfileModal .modal-body .text-muted {
+    color: #ad996d !important;
+}
+
+#nextGameModal .modal-body p {
+    color: #ad996d;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.row input[type="radio"] {
     position: absolute;
     opacity: 0;
     width: 0;
