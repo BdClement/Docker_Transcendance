@@ -41,7 +41,7 @@ function handleIncomingMessage(e) {
 			console.error("messageContainer introuvable !");
 			return;
 		}
-		test(data.message);
+		invitationJeu(data.message);
 		messageContainer.scrollTop = messageContainer.scrollHeight;
 	}
 	else {
@@ -49,23 +49,23 @@ function handleIncomingMessage(e) {
 	}
 }
 
-async function handleGameInvitation(gameId) {
-    try {
-        console.log(`[handleGameInvitation] Attempting to join game: ${gameId}`);
-        await joinGame(gameId);
-        console.log(`[handleGameInvitation] Successfully joined game: ${gameId}`);
-    } catch (error) {
-        console.error(`[handleGameInvitation] Error joining game: ${error.message}`);
-        alert('Failed to join the game. Please try again.');
-    }
+function handleWebSocketError(e) {
+	console.error('Erreur WebSocket : ', e);
 }
 
-function test(message) {
+function handleWebSocketClose() {
+	console.log('WebSocket fermé, tentez de reconnecter si nécessaire');
+	// Si tu souhaites ajouter une reconnexion automatique, tu peux l'implémenter ici
+}
+
+// gere les messages recu en rapport au partie via le liveCHat
+function invitationJeu(message) {
 	const messageContainer = document.getElementById('message-container');
     if (!messageContainer) {
         console.error("messageContainer introuvable !");
         return;
     }
+
 	charIdInvitation = "Invitation_" + message.message_id;
 	messageElement = document.getElementById(charIdInvitation);
 	if (messageElement) {
@@ -81,77 +81,95 @@ function test(message) {
 	}
 }
 
+// affiche des messages spécifiques pour les invitations et les résultats d'une partie, en adaptant le contenu à l'expéditeur, au destinataire, et au contexte.
 function afficherInvitationJeu(message, messageElement) {
-    if (message.message === "invitation à jouer") {
-
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur_username} vous invite à jouer une partie
-                <button class="bouton-liveChat" onclick="invitationAccepte(${message.expediteur_id}, '${message.message_id}')">accepter</button>
-                <button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
-            `;
-        } else {
-            messageElement.innerHTML = `
-                vous avez invité ${message.destinataire_username} à jouer une partie
-                <button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
-            `;
-        }
+	if (message.message === "invitation à jouer") {
+		if ((message.expediteur_id !== destinataireId) && (message.destinataire_id !== destinataireId))
+			{
+				showNotification(`Nouvelle invitation à jouer de ${message.expediteur_username}`);
+				return;
+			}
+		if (message.expediteur_id === destinataireId) {
+			messageElement.innerHTML = `
+				${message.expediteur_username} vous invite à jouer une partie
+				<button class="bouton-liveChat" onclick="invitationAccepte(${message.expediteur_id}, '${message.message_id}')">accepter</button>
+				<button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+			`;
+		} else {
+			messageElement.innerHTML = `
+				vous avez invité ${message.destinataire_username} à jouer une partie
+				<button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
+			`;
+		}
 		return ;
-    } else if (message.message === "temps écoulé") {
-        messageElement.innerHTML = `L'invitation est obsolète`;
-    } else if (message.message === "invitation annulée") {
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur_username} a annulé une invitation
-            `;
-        } else {
-            messageElement.innerHTML = `
-                Vous avez annulé l'invitation
-            `;
-        }
-    } else if (message.message === "invitation refusée") {
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur_username} a refusé votre invitation
-            `;
-        } else {
-            messageElement.innerHTML = `
-                Vous avez refusé l'invitation
-            `;
-        }
-    } else if (message.message === "invitation acceptée") {
+	} else if (message.message === "temps écoulé") {
+		messageElement.innerHTML = `L'invitation est obsolète`;
+	} else if (message.message === "invitation annulée") {
+		if (message.expediteur_id === destinataireId) {
+			messageElement.innerHTML = `
+				${message.expediteur_username} a annulé une invitation
+			`;
+		} else {
+			messageElement.innerHTML = `
+				Vous avez annulé l'invitation
+			`;
+		}
+	} else if (message.message === "invitation refusée") {
+		if (message.expediteur_id === destinataireId) {
+			messageElement.innerHTML = `
+				${message.expediteur_username} a refusé votre invitation
+			`;
+		} else {
+			messageElement.innerHTML = `
+				Vous avez refusé l'invitation
+			`;
+		}
+	} else if (message.message === "invitation acceptée") {
 		console.log("[afficherInvitationJeu] expediteur = '", message.expediteur_username, "', destinataire = '", message.destinataire_username, "'")
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
+		if (message.expediteur_id === destinataireId) {
+			messageElement.innerHTML = `
 				invitation acceptée, partie en cours...
-            `;
+			`;
 			console.log("je suis la personne 1, j'envoie");
-        } else {
-            messageElement.innerHTML = `
+		} else {
+			messageElement.innerHTML = `
 				invitation acceptée, partie en cours...
-            `;
+			`;
 			console.log("je suis la personne 2, j'accepte");
 			PongGame.joinGame(message.gameId);
-        }
-    } else if (message.message === "resultats partie"){
-		if (message.winners.includes(parseInt(destinataireId))) {
+		}
+	} else if (message.message === "resultats partie"){
+		if (message.winners.includes(parseInt(destinataireId)) && destinataireId === message.destinataire_id) {
 			messageElement.innerHTML = `
 				Partie terminée<br>
 				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				${message.expediteur_username} a gagné, vous avez perdu
+				cas 1 ${message.destinataire_username} a gagné, vous avez perdu
+			`;
+		} else if (message.winners.includes(parseInt(destinataireId)) && destinataireId !== message.destinataire_id) {
+			messageElement.innerHTML = `
+				Partie terminée<br>
+				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
+				cas 2 vous avez gagné, ${message.expediteur_username} a perdu
+			`;
+		} else if (!message.winners.includes(parseInt(destinataireId)) && destinataireId === message.destinataire_id) {
+			messageElement.innerHTML = `
+				Partie terminée<br>
+				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
+				cas 3 ${message.destinataire_username} a gagné, vous avez perdu
 			`;
 		} else {
 			messageElement.innerHTML = `
 				Partie terminée<br>
 				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				vous avez gagné, ${message.expediteur_username} a perdu
+				cas 4 vous avez gagné, ${message.expediteur_username} a perdu
 			`;
 		}
 	} else {
-        console.log("Une erreur est survenue, message.mesage = '", message.message, "'");
-    }
+		console.log("Une erreur est survenue, message.mesage = '", message.message, "'");
+	}
 }
 
+// envoie un message via websocket si l'utilisateur annule la partie
 function invitationAnnule(destinataire_id, message_id) {
     chatSocket.send(JSON.stringify({
         'type': "pong_invitation_annulation",
@@ -160,6 +178,7 @@ function invitationAnnule(destinataire_id, message_id) {
     }));
 }
 
+// envoie un message via websocket si l'utilisateur refuse la partie
 function invitationRefuse(expediteur_id, message_id) {
     chatSocket.send(JSON.stringify({
         'type': "pong_invitation_refuse",
@@ -168,6 +187,16 @@ function invitationRefuse(expediteur_id, message_id) {
     }));
 }
 
+// Envoie une invitation à jouer à Pong via WebSocket à un destinataire spécifié par son IdDestinataire.
+function inviterPartiePong(IdDestinataire) {
+	console.log("fonction inviterPartiePong, IdDestinataire = ", IdDestinataire);
+	chatSocket.send(JSON.stringify({
+		'type': "pong_invitation",
+		'destinataire_id': IdDestinataire
+	}));
+}
+
+// crée une partie en remote puis envoie un message via websocket si l'utilisateur accepte la partie
 function invitationAccepte(expediteur_id, message_id) {
     PongGame.createNewGame(true, 2)
         .then(gameId => {
@@ -203,6 +232,7 @@ function afficherMessage(data) {
 		messageElement.classList.add('message-expediteur');
 	else {
 		console.log("message recu de ", message.expediteur_id);
+		showNotification(`Nouveau message de ${message.expediteur_username}`);
 	}
 
 	messageElement.textContent = `${message.expediteur}: ${message.message}`;
@@ -210,15 +240,21 @@ function afficherMessage(data) {
 	messageContainer.scrollTop = messageContainer.scrollHeight;
 }
 
-function handleWebSocketError(e) {
-	console.error('Erreur WebSocket : ', e);
+// Affiche une notification avec le message donné, rend la pop-up visible, puis la cache après 5 secondes
+function showNotification(message) {
+    const popup = document.getElementById('notification-popup');
+    popup.textContent = message;
+    popup.classList.add('show');
+
+    // Cachez la pop-up après 5 secondes
+    setTimeout(() => {
+        popup.classList.remove('show');
+    }, 5000);
 }
 
-function handleWebSocketClose() {
-	console.log('WebSocket fermé, tentez de reconnecter si nécessaire');
-	// Si tu souhaites ajouter une reconnexion automatique, tu peux l'implémenter ici
-}
-
+// Affiche la liste des amis,
+// réinitialise le champ de recherche,
+// charge les conversations depuis l'API
 function listeAmisLiveChat() {
 	document.getElementById('liste-amis-live-chat').style.display = 'block';
 	document.getElementById('conversation-live-chat').style.display = 'none';
@@ -306,6 +342,10 @@ function displayUserList(users) {
     });
 }
 
+// Affiche l'historique des messages d'une conversation
+// charge les données depuis l'API,
+// met à jour l'interface avec les informations du destinataire et les messages
+// Si aucune conversation n'est trouvée, affiche un message approprié.
 function HistoriqueMessages(id, destinataireUsername) {
 	enTeteConv = document.getElementById('en-tete-conversation-live-chat');
 	envoieOuBloque = document.getElementById('envoie-ou-message-bloque');
@@ -341,11 +381,10 @@ function HistoriqueMessages(id, destinataireUsername) {
 	});
 }
 
-function affichageProfileUtilisateur(id) {
-	document.getElementById("liveChatModal").style.display = "none";
-	document.getElementById("friendProfileModal").style.display = "block";
-}
-
+// Met à jour l'en-tête de la conversation avec le nom du destinataire
+// et un bouton pour voir son profil
+// Gère l'affichage des boutons pour bloquer ou débloquer un utilisateur en fonction de l'état de blocage,
+// et affiche un champ de message pour envoyer des messages si aucune restriction n'est en place
 function affichageConversation(id, destinataireUsername, data) {
 	enTeteConv.innerHTML = `
 		<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
@@ -398,6 +437,9 @@ function affichageConversation(id, destinataireUsername, data) {
 	}
 }
 
+// Affiche l'historique des messages en vidant d'abord le conteneur,
+// puis en ajoutant chaque message avec un style spécifique (message normal ou invitation de jeu).
+// Les messages sont distingués entre expéditeur et destinataire.
 function afficherHistoriqueMessages(messages) {
 	const messageContainer = document.getElementById('message-container');
 	if (!messageContainer) {
@@ -421,7 +463,7 @@ function afficherHistoriqueMessages(messages) {
 				messageContainer.appendChild(messageElement);	
 		}
 		else if (message.style === "jeu") {
-			test(message);
+			invitationJeu(message);
 		}
 		else {
 			console.error("erreur lors de l'affichage de l'historique");
@@ -429,6 +471,10 @@ function afficherHistoriqueMessages(messages) {
 	});
 }
 
+// Bloque un utilisateur en envoyant une requête POST au serveur,
+// puis envoie un message via WebSocket pour notifier le blocage
+// Si l'opération réussit, l'historique des messages est mis à jour
+// et un message de confirmation est affiché.
 function bloquerUtilisateur(idDestinataire, destinataireUsername) {
 	fetch(`/bloquer-utilisateur/${idDestinataire}/`, {
 		method: 'POST',
@@ -458,6 +504,10 @@ function bloquerUtilisateur(idDestinataire, destinataireUsername) {
 	.catch(error => console.error('Erreur:', error));
 }
 
+// Débloque un utilisateur en envoyant une requête POST au serveur,
+// puis envoie un message via WebSocket pour notifier le déblocage.
+// Si l'opération réussit, l'historique des messages est mis à jour
+// et un message de confirmation est affiché.
 function debloquerUtilisateur(idDestinataire, destinataireUsername) {
 	fetch(`/debloquer-utilisateur/${idDestinataire}/`, {
 		method: 'POST',
@@ -485,14 +535,6 @@ function debloquerUtilisateur(idDestinataire, destinataireUsername) {
 	.catch(error => console.error('Erreur:', error));
 }
 
-function inviterPartiePong(IdDestinataire) {
-	console.log("fonction inviterPartiePong, IdDestinataire = ", IdDestinataire);
-    chatSocket.send(JSON.stringify({
-        'type': "pong_invitation",
-        'destinataire_id': IdDestinataire
-    }));
-}
-
 // Fonction pour défiler en bas
 function scrollToBottom() {
     const messageContainer = document.getElementById("message-container");
@@ -505,6 +547,7 @@ function scrollToBottom() {
     }
 }
 
+// Réinitialise l'ID du destinataire (destinataireId) à null pour fermer la conversation en cours.
 function boutonClose() {
 	destinataireId = null;
 }

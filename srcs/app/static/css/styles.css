@@ -621,7 +621,8 @@ input[type="radio"]:focus + label {
 /* === Style pour la modal liveChat === */
 #message-container {
     color: white;
-    max-height: 40vh;
+    height: 50vh;
+    max-height: 50vh;
     overflow-y: auto;
 }
 
@@ -677,6 +678,10 @@ input[type="radio"]:focus + label {
     text-align: center; /* Centrer le texte */
     display: inline-block; /* Pour que la taille s'ajuste au contenu */
     white-space: nowrap; /* Empêche le texte de se casser */
+}
+
+#liveChatModal {
+    z-index: 1100;
 }
 
 /* === Style pour la modal d'historique === */
@@ -842,4 +847,25 @@ input[type="radio"]:focus + label {
 
 #notificationModal .modal-content {
     pointer-events: auto;
+}
+
+.notification-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #444;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none; /* Caché par défaut */
+    z-index: 1150; /* Ajustez ce chiffre */
+}
+.notification-popup.show {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
