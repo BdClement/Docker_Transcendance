@@ -154,13 +154,21 @@ class MatchHistoryView(generics.ListAPIView):
 		# 	user = User.objects.get(pk=user_id)
 		# else:
 		user = self.request.user
-		#La pagination est faites automatiquement par DRF grace a la reqquete qui contient des parametres sur la pages souhaitees
 		return Play.objects.filter(
-			Q(player1=user) |
+			(Q(player1=user) |
 			Q(player2=user) |
 			Q(player3=user) |
-			Q(player4=user)
+			Q(player4=user)) &
+			Q(is_finished=True)
 		).order_by('-date')
+		#La pagination est faites automatiquement par DRF grace a la reqquete qui contient des parametres sur la pages souhaitees
+		# return Play.objects.filter(
+        #     (Q(player1=user) |
+        #      Q(player2=user) |
+        #      Q(player3=user) |
+        #      Q(player4=user)) &
+        #     Q(is_finished=True)
+        # ).order_by('-date')
 
 class UserProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]

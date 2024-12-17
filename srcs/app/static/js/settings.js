@@ -26,9 +26,33 @@ async function updateUserProfile(formData) {
             }
         }
 
+        //Je recupere les cles initiales de FormData
+        const keys = [];
         for (let [key, value] of formData.entries()) {
-            if (value === '') {
+            keys.push(key);
+        }
+
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            let value = formData.get(key);
+
+            console.log('[avant delete] key == ', key);
+            console.log(`Type de valeur pour ${key}:`, typeof value);
+
+            if (value instanceof File) {
+                console.log(`C'est un fichier: ${key}, taille: ${value.size}, nom: ${value.name}`);
+            }
+
+            // Suppression des clés vides ou des fichiers vides
+            if (value instanceof File && value.size === 0) {
+                console.log('Key supprimee (fichier vide) = ', key);
                 formData.delete(key);
+                // Si vous supprimez l'élément, ne passez pas à l'élément suivant
+                i--;  // Décrémente l'index pour vérifier à nouveau la même position après la suppression (donc element suivant)
+            } else if (value === '') {
+                console.log('Key supprimee (valeur vide) = ', key);
+                formData.delete(key);
+                i--;
             }
         }
 
@@ -58,8 +82,27 @@ async function updateUserProfile(formData) {
             settingsConfirmPassword.value = '';
             checkLoginStatus();
         } else {
-            const error = await response.json();
-            throw new Error(error.detail || t('profileUpdateError'));
+            // const error = await response.json();
+            // throw new Error(error.detail || t('profileUpdateError'));
+            // Traiter les erreurs spécifiques
+            if (response.status === 400 && responseBody) {
+                let errorMessages = [];
+                if (responseBody.username) {
+                    errorMessages.push(t('UsernameError'));
+                }
+                if (responseBody.alias) {
+                    errorMessages.push(t('AliasError'));
+                }
+                if (responseBody.email) {
+                    errorMessages.push(t('EmailError'));
+                }
+                console.log('errorMessages == ', errorMessages);
+                if (errorMessages.length > 0) {
+                    throw new Error(errorMessages.join(', '));
+                }
+            }
+            // Si aucune erreur spécifique n'est trouvée, message générique
+            throw new Error(t('profileUpdateError'));
         }
     } catch (error) {
         const alertDiv = document.createElement('div');
@@ -104,7 +147,7 @@ function opensettingsModal() {
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(settingsForm);
-    console.log("Contenu détaillé de formData :");
+    console.log("Contenu détaillé de formData :", formData)
     for (let [key, value] of formData.entries()) {
         if (value instanceof File) {
             console.log(`Détails du fichier ${key}:`, {

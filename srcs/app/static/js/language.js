@@ -93,6 +93,7 @@ const translations = {
         PasswordUppercaseError: "Password must contain at least a capital letter",
         PasswordNumber: "Password must contain at least a number",
         PasswordSpecialCharError: "Password must contain at least a special character (@, #, $, %, etc.)",
+        noUpdateFieldsProvided: "No update fields provided",
     },
     fr: {
         play: "Jouer",
@@ -182,6 +183,10 @@ const translations = {
         seeProfile: "Voir profil",
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]",
         PasswordLengthError: "Ce mot de passe est trop court. Il doit conetenir au moins 8 caracteres.",
+        EmailError: "Email déjà utlisé",
+        UsernameError: "Nom d'utilisateur déjà utlisé",
+        AliasError: "Alias name déjà utlisé",
+        noUpdateFieldsProvided: "Veuillez inclure au moins un champs a modifier",
     },
     viet: {
         play: "Chơi",
@@ -281,6 +286,7 @@ const translations = {
         PasswordUppercaseError: "Mật khẩu phải chứa ít nhất một chữ cái in hoa",
         PasswordSpecialCharError: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)",
         PasswordLengthError: "Mật khẩu này quá ngắn. Nó phải chứa ít nhất 8 ký tự.",
+        noUpdateFieldsProvided: "Vui lòng bao gồm ít nhất một trường để sửa đổi",
     }
 };
 
