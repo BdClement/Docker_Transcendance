@@ -53,7 +53,7 @@ async function updateUserProfile(formData) {
         for (let [key, value] of formData.entries()) {
             keys.push(key);
         }
-
+        let languageFavIsSame = false;
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
             let value = formData.get(key);
@@ -63,6 +63,27 @@ async function updateUserProfile(formData) {
 
             if (value instanceof File) {
                 console.log(`C'est un fichier: ${key}, taille: ${value.size}, nom: ${value.name}`);
+            }
+            if ((key === 'languagePreference' && value)) {
+                const languageMap = {
+                    '1': 'en',
+                    '2': 'fr',
+                    '3': 'viet'
+                };
+                const lang = localStorage.getItem('language');
+                console.log('value === ', value);
+                console.log('languageMap[value] == ', languageMap[value]);
+                console.log('lang == ', lang);
+                if (languageMap[value] === lang) {
+                    console.log('Key supprimee (valeur vide) = ', key);
+                    formData.delete(key);
+                    languageFavIsSame = true;
+                    i--;
+                }
+            }
+            if (key === 'languageFav' && value && languageFavIsSame) {
+                formData.delete(key);
+                i--;
             }
 
             // Suppression des clés vides ou des fichiers vides
