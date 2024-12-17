@@ -43,14 +43,19 @@ class MessageHistory(APIView):
 				messages_data = [
 					{
 						"style": message.style,
-						"expediteur": message.expediteur.username,
-						"destinataire": message.destinataire.username,
+						"expediteur_username": message.expediteur.username,
+						"destinataire_username": message.destinataire.username,
 						"expediteur_id": message.expediteur.id,
 						"destinataire_id": message.destinataire.id,
 						"message": message.message,
 						"date": message.date,
 						"lu": message.lu,
-						"message_id": message.id
+						"message_id": message.id,
+						**({
+							"winners": message.play.results.get('winners', []),
+							"losers": message.play.results.get('losers', []),
+							"score": message.play.results.get('score', None)
+						} if message.style == "jeu" and getattr(message, 'play', None) and message.play.is_finished else {})
 					}
 					for message in messages
 				]

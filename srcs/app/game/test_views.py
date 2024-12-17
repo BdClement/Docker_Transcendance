@@ -152,7 +152,7 @@ class TestTournamentAPI(APITestCase):
 
 #Test a mettre normalement dans test_views dans authenticate ??
 #Exemple pour tester une vue qui necessite l'authentication
-class MatchHistoryViewTest(APITestCase):
+class MatchHistoryViewafficherInvitationJeu(APITestCase):
 
 	def setUp(self):
 		self.user = User.objects.create(username='testuser', password='p#ssword123')

@@ -1,5 +1,6 @@
 from django.db import models
 from authentication.models import User
+from game.models import Play
 
 # Create your models here.
 
@@ -25,6 +26,7 @@ class Message(models.Model):
     message = models.TextField(max_length=200)
     date = models.DateTimeField(auto_now_add=True)
     lu = models.BooleanField(default=False)
+    play = models.ForeignKey(Play, on_delete=models.CASCADE, null=True, blank=True, related_name='messages')  # Relation optionnelle avec Play
 
     def __str__(self):
         return f'{self.expediteur} : {self.message}'

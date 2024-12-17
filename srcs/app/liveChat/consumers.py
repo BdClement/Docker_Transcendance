@@ -8,6 +8,7 @@ from authentication.models import User
 from django.db.models import Q
 from channels.db import database_sync_to_async
 import sys
+from game.models import Play
 import asyncio
 
 User = get_user_model()
@@ -52,8 +53,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.handle_pong_invitation_annulation(data, destinataire)
 		elif event_type == "pong_invitation_refuse":
 			await self.handle_pong_invitation_refuse(data, destinataire)
+		elif event_type == "pong_invitation_accepté":
+			await self.handle_pong_invitation_accepte(data, destinataire)
 		else:
-			await self.send(text_data=json.dumps({"error": "Type d'événement inconnu"}))
+			test = "Type d'événement inconnu : '" + event_type + "'"
+			await self.send(text_data=json.dumps({"error": test}))
 
 	async def handle_send_message(self, data, destinataire):
 		style = "message"
@@ -219,6 +223,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			message = await sync_to_async(Message.objects.get)(id=message_id_db)
 		except Message.DoesNotExist:
 			await self.send(text_data=json.dumps({"error": "Message non trouvé"}))
+			return
 		
 		await sync_to_async(setattr)(message, 'message', "invitation annulée")
 		await sync_to_async(message.save)()
@@ -271,6 +276,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			message = await sync_to_async(Message.objects.get)(id=message_id_db)
 		except Message.DoesNotExist:
 			await self.send(text_data=json.dumps({"error": "Message non trouvé"}))
+			return
 		
 		await sync_to_async(setattr)(message, 'message', "invitation refusée")
 		await sync_to_async(message.save)()
@@ -285,14 +291,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await sync_to_async(conversation.save)()
 		except Conversation.DoesNotExist:
 			await self.send(text_data=json.dumps({"error": "Conversation non trouvée"}))
+			return
 
         # Etape 2: renvoyer l'info aux deux personnes
 		message_data = {
 			"style": style,
-			"expediteur_id": self.user.id,
-			"expediteur_username": self.user.username,
-			"destinataire_id": destinataire.id,
-			"destinataire_username": destinataire.username,
+			"expediteur_id": destinataire.id,
+			"expediteur_username": destinataire.username,
+			"destinataire_id": self.user.id,
+			"destinataire_username": self.user.username,
 			"message_id": message.id,
 			"message": "invitation refusée",
 			"date": message.date.isoformat() # Utilisation de isoformat() pour la date
@@ -309,8 +316,80 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"type": "pong_invitation_refusée_event",
 				"message_data": message_data
 			})
-		
+
 	async def pong_invitation_refusée_event(self, event):
+		await self.send(text_data=json.dumps({
+			"type": "pong_invitation",
+			"message": event["message_data"]
+		}))
+		
+	async def handle_pong_invitation_accepte(self, data, destinataire):
+		message_id_db = data.get("message_id_db")
+		gameId = data.get("gameId")
+		style = "jeu"
+
+		# Etape 1: mettre a jour le message dans la basse de données
+		try:
+			message = await sync_to_async(Message.objects.get)(id=message_id_db)
+		except Message.DoesNotExist:
+			await self.send(text_data=json.dumps({"error": "Message non trouvé"}))
+			return
+		
+		try:
+			game = await sync_to_async(Play.objects.get)(id=gameId)
+		except Play.DoesNotExist:
+			await self.send(text_data=json.dumps({"error": "Partie non trouvée"}))
+			return
+
+		await sync_to_async(setattr)(message, 'play', game)
+		await sync_to_async(setattr)(message, 'message', "invitation acceptée")
+		await sync_to_async(message.save)()
+
+
+		#Etape 2: chercher la conversation et mettre invitationAJouer à False
+		try:
+			conversation = await sync_to_async(Conversation.objects.filter(
+				(Q(user_1=self.user) & Q(user_2=destinataire)) |
+				(Q(user_1=destinataire) & Q(user_2=self.user))
+			).first)()
+			await sync_to_async(setattr)(conversation, 'invitationAJouer', False)
+			await sync_to_async(conversation.save)()
+		except Conversation.DoesNotExist:
+			await self.send(text_data=json.dumps({"error": "Conversation non trouvée"}))
+			return
+
+		print("\ndestinataire : '", destinataire.username, "', expediteur : '", self.user.username, "'\n", flush=True)
+
+        # Etape 2: renvoyer l'info aux deux personnes
+		message_data = {
+			"style": style,
+			"expediteur_id": destinataire.id,
+			"expediteur_username": destinataire.username,
+			"destinataire_id": self.user.id,
+			"destinataire_username": self.user.username,
+			"message_id": message.id,
+			"message": "invitation acceptée",
+			"gameId": message.play.id,
+			"date": message.date.isoformat() # Utilisation de isoformat() pour la date
+		}
+
+		await self.send(text_data=json.dumps({
+			"type": "pong_invitation",
+			"message": message_data
+		}))
+
+		await self.channel_layer.group_send(
+			f"user_{destinataire.id}",
+			{
+				"type": "pong_invitation_acceptée_event",
+				"message_data": message_data
+			})
+		
+		await asyncio.sleep(2)
+
+		await self.wait_for_game_to_finish(destinataire, message)
+		
+	async def pong_invitation_acceptée_event(self, event):
 		await self.send(text_data=json.dumps({
 			"type": "pong_invitation",
 			"message": event["message_data"]
@@ -333,4 +412,74 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			"block_type": event["block_type"],
 			"blocker_id": event["blocker_id"],
 			"blocker_username": event["blocker_username"]
+		}))
+
+	@database_sync_to_async
+	def get_game_results(self, message):
+		#Récupère les résultats de la partie.
+		return {
+			'winners': message.play.results.get('winners', []),
+			'losers': message.play.results.get('losers', []),
+			'score': message.play.results.get('score', []),
+		}
+
+	async def wait_for_game_to_finish(self, destinataire, message):
+		print("\nen attente de la fin du jeu\n", flush=True)
+		#Attendre que la partie soit terminée.
+		while True:
+			# Rafraîchir l'objet Play depuis la base de données
+			await sync_to_async(message.play.refresh_from_db)()
+
+			# Vérifier si la partie est terminée
+			if message.play.is_finished:
+				break
+			print("\nest ce fini ?\n", flush=True)
+
+			# Attendre 1 seconde avant de vérifier à nouveau
+			await asyncio.sleep(1)
+
+		print("\nFin du jeu\n", flush=True)
+
+
+		# Une fois que la partie est terminée, récupérer les résultats
+		results = await self.get_game_results(message)
+
+		winners = results['winners']
+		losers = results['losers']
+		score = results['score']
+
+		message_data = {
+			"style": "jeu",
+			"expediteur_id": destinataire.id,
+			"expediteur_username": destinataire.username,
+			"destinataire_id": self.user.id,
+			"destinataire_username": self.user.username,
+			"message_id": message.id,
+			"message": "resultats partie",
+			"gameId": message.play.id,
+			'winners': winners,
+			'losers': losers,
+			'score': score,
+			"date": message.date.isoformat() # Utilisation de isoformat() pour la date
+		}
+
+		await sync_to_async(setattr)(message, 'message', "resultats partie")
+		await sync_to_async(message.save)()
+
+		await self.send(text_data=json.dumps({
+			"type": "pong_invitation",
+			"message": message_data
+		}))
+
+		await self.channel_layer.group_send(
+			f"user_{destinataire.id}",
+			{
+				"type": "pong_invitation_resultats_event",
+				"message_data": message_data
+			})
+		
+	async def pong_invitation_resultats_event(self, event):
+		await self.send(text_data=json.dumps({
+			"type": "pong_invitation",
+			"message": event["message_data"]
 		}))

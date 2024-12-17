@@ -23,7 +23,6 @@ function initWebSocket() {
 // gere les messages recus
 function handleIncomingMessage(e) {
 	const data = JSON.parse(e.data);
-	const message = data.message;
 
 	if (data.type === 'message') {
 		afficherMessage(data);
@@ -37,71 +36,120 @@ function handleIncomingMessage(e) {
 	}
 	else if (data.type === 'pong_invitation') {
 		console.log("invitation à jouer recu");
-		affichageInvitationJeu(data);
-	}	else if (data.type === 'pong_invitation_annulée') {
-		console.log("invitation annulée");
-		affichageInvitationJeu(data);
+		const messageContainer = document.getElementById('message-container');
+		if (!messageContainer) {
+			console.error("messageContainer introuvable !");
+			return;
+		}
+		test(data.message);
+		messageContainer.scrollTop = messageContainer.scrollHeight;
 	}
 	else {
-		console.warn("Le type de message n'est pas reconnu.");
+		console.warn("Le type de message n'est pas reconnu. data : '", data, "' mesage : '", data.type, "', data.message : '", data.message, "'");
 	}
 }
 
-function affichageInvitationJeu(data) {
+async function handleGameInvitation(gameId) {
+    try {
+        console.log(`[handleGameInvitation] Attempting to join game: ${gameId}`);
+        await joinGame(gameId);
+        console.log(`[handleGameInvitation] Successfully joined game: ${gameId}`);
+    } catch (error) {
+        console.error(`[handleGameInvitation] Error joining game: ${error.message}`);
+        alert('Failed to join the game. Please try again.');
+    }
+}
+
+function test(message) {
 	const messageContainer = document.getElementById('message-container');
-	message = data.message
+    if (!messageContainer) {
+        console.error("messageContainer introuvable !");
+        return;
+    }
 	charIdInvitation = "Invitation_" + message.message_id;
-	if (message.message === "invitation à jouer") {
-		console.log("invitation à jouer");
-		const messageElement = document.createElement('div');
+	messageElement = document.getElementById(charIdInvitation);
+	if (messageElement) {
+		afficherInvitationJeu(message, messageElement);
+	}
+	else {
+		messageElement = document.createElement('div');
 		messageElement.classList.add('message-invitation-jeu');
 		messageElement.id = charIdInvitation;
+		// Ajoute l'élément au DOM avant de le manipuler
 		messageContainer.appendChild(messageElement);
-		if (message.expediteur_id === destinataireId) {
-			document.getElementById(charIdInvitation).innerHTML = `
-				${message.expediteur_username} vous invite a jouer une partie
-				<button class="bouton-liveChat" onclick="console.log('demande accepté')">accepter</button><button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+		afficherInvitationJeu(message, messageElement);
+	}
+}
+
+function afficherInvitationJeu(message, messageElement) {
+    if (message.message === "invitation à jouer") {
+
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} vous invite à jouer une partie
+                <button class="bouton-liveChat" onclick="invitationAccepte(${message.expediteur_id}, '${message.message_id}')">accepter</button>
+                <button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
+            `;
+        } else {
+            messageElement.innerHTML = `
+                vous avez invité ${message.destinataire_username} à jouer une partie
+                <button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
+            `;
+        }
+		return ;
+    } else if (message.message === "temps écoulé") {
+        messageElement.innerHTML = `L'invitation est obsolète`;
+    } else if (message.message === "invitation annulée") {
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} a annulé une invitation
+            `;
+        } else {
+            messageElement.innerHTML = `
+                Vous avez annulé l'invitation
+            `;
+        }
+    } else if (message.message === "invitation refusée") {
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+                ${message.expediteur_username} a refusé votre invitation
+            `;
+        } else {
+            messageElement.innerHTML = `
+                Vous avez refusé l'invitation
+            `;
+        }
+    } else if (message.message === "invitation acceptée") {
+		console.log("[afficherInvitationJeu] expediteur = '", message.expediteur_username, "', destinataire = '", message.destinataire_username, "'")
+        if (message.expediteur_id === destinataireId) {
+            messageElement.innerHTML = `
+				invitation acceptée, partie en cours...
+            `;
+			console.log("je suis la personne 1, j'envoie");
+        } else {
+            messageElement.innerHTML = `
+				invitation acceptée, partie en cours...
+            `;
+			console.log("je suis la personne 2, j'accepte");
+			PongGame.joinGame(message.gameId);
+        }
+    } else if (message.message === "resultats partie"){
+		if (message.winners.includes(parseInt(destinataireId))) {
+			messageElement.innerHTML = `
+				Partie terminée<br>
+				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
+				${message.expediteur_username} a gagné, vous avez perdu
 			`;
-		}
-		else {
-			document.getElementById(charIdInvitation).innerHTML = `
-				vous avez invité ${message.destinataire_username} à jouer une partie
-				<button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
-			`;
-		}
-	} else if (message.message === "temps écoulé") {
-		console.log("temps écoulé");
-		document.getElementById(charIdInvitation).innerHTML = `
-			L'invitation est obsolète
-	`;
-	} else if (message.message === "invitation annulée") {
-		console.log("invitation annulée");
-		if (message.expediteur_id === destinataireId) {
-			document.getElementById(charIdInvitation).innerHTML = `
-				${message.expediteur_username} a annulé une invitation
-			`;
-		}
-		else {
-			document.getElementById(charIdInvitation).innerHTML = `
-				Vous avez annulé l'invitation
-			`;
-		}
-	} else if (message.message === "invitation refusée") {
-		console.log("invitation refusée");
-		if (message.expediteur_id === destinataireId) {
-			document.getElementById(charIdInvitation).innerHTML = `
-				${message.expediteur_username} a refusé votre invitation
-			`;
-		}
-		else {
-			document.getElementById(charIdInvitation).innerHTML = `
-				Vous avez refusé l'invitation
+		} else {
+			messageElement.innerHTML = `
+				Partie terminée<br>
+				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
+				vous avez gagné, ${message.expediteur_username} a perdu
 			`;
 		}
 	} else {
-		console.log("une erreur est survenue");
-	}
-	messageContainer.scrollTop = messageContainer.scrollHeight;
+        console.log("Une erreur est survenue, message.mesage = '", message.message, "'");
+    }
 }
 
 function invitationAnnule(destinataire_id, message_id) {
@@ -118,6 +166,21 @@ function invitationRefuse(expediteur_id, message_id) {
         'destinataire_id': expediteur_id,
 		'message_id_db': message_id
     }));
+}
+
+function invitationAccepte(expediteur_id, message_id) {
+    PongGame.createNewGame(true, 2)
+        .then(gameId => {
+            chatSocket.send(JSON.stringify({
+                'type': "pong_invitation_accepté",
+                'destinataire_id': expediteur_id,
+                'message_id_db': message_id,
+                'gameId': gameId
+            }));
+        })
+        .catch(error => {
+            console.error("Erreur lors de la création du jeu ou de l'envoi via WebSocket :", error);
+        });
 }
 
 // affiche les messages recus
@@ -285,10 +348,10 @@ function affichageProfileUtilisateur(id) {
 
 function affichageConversation(id, destinataireUsername, data) {
 	enTeteConv.innerHTML = `
-		<h6 id="nom-contact-live-chat" onclick="affichageProfileUtilisateur(${id})">${destinataireUsername}</h6>
-		<button id="view-profile-btn-from-liveChat" class="btn btn-sm custom-btn view-profile" 
-			style="background-color: #194452; color: #ad996d;"
-			data-user-id="${id}">Voir profil
+		<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
+		<button class="bouton-liveChat" id="view-profile-btn-from-liveChat" class="btn btn-sm custom-btn view-profile" 
+			data-user-id="${id}"
+			onclick="profileView.handleViewProfile(event)">Voir profil
 		</button>
 	`;
 	const viewProfileButtonFromLiveChat = enTeteConv.querySelector('#view-profile-btn-from-liveChat');
@@ -335,62 +398,6 @@ function affichageConversation(id, destinataireUsername, data) {
 	}
 }
 
-function afficherHistoriqueInvitationJeu(message) {
-    const messageContainer = document.getElementById('message-container');
-    if (!messageContainer) {
-        console.error("messageContainer introuvable !");
-        return;
-    }
-
-    // Étape 1 : créer la div
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message-invitation-jeu');
-    charIdInvitation = "Invitation_" + message.id;
-    messageElement.id = charIdInvitation;
-
-    // Ajoute l'élément au DOM avant de le manipuler
-    messageContainer.appendChild(messageElement);
-
-    if (message.message === "invitation à jouer") {
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur} vous invite à jouer une partie
-                <button class="bouton-liveChat" onclick="console.log('demande accepté')">accepter</button>
-                <button class="bouton-liveChat" onclick="invitationRefuse(${message.expediteur_id}, '${message.message_id}')">refuser</button>
-            `;
-        } else {
-            messageElement.innerHTML = `
-                vous avez invité ${message.destinataire} à jouer une partie
-                <button class="bouton-liveChat" onclick="invitationAnnule(${message.destinataire_id}, '${message.message_id}')">annuler</button>
-            `;
-        }
-    } else if (message.message === "temps écoulé") {
-        messageElement.innerHTML = `L'invitation est obsolète`;
-    } else if (message.message === "invitation annulée") {
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur} a annulé une invitation
-            `;
-        } else {
-            messageElement.innerHTML = `
-                Vous avez annulé l'invitation
-            `;
-        }
-    } else if (message.message === "invitation refusée") {
-        if (message.expediteur_id === destinataireId) {
-            messageElement.innerHTML = `
-                ${message.expediteur} a refusé votre invitation
-            `;
-        } else {
-            messageElement.innerHTML = `
-                Vous avez refusé l'invitation
-            `;
-        }
-    } else {
-        console.log("Une erreur est survenue, message.mesage = '", message.message, "'");
-    }
-}
-
 function afficherHistoriqueMessages(messages) {
 	const messageContainer = document.getElementById('message-container');
 	if (!messageContainer) {
@@ -410,11 +417,11 @@ function afficherHistoriqueMessages(messages) {
 				else {
 					messageElement.classList.add('message-expediteur');
 				}
-				messageElement.textContent = `${message.expediteur}: ${message.message}`;
+				messageElement.textContent = `${message.expediteur_username}: ${message.message}`;
 				messageContainer.appendChild(messageElement);	
 		}
 		else if (message.style === "jeu") {
-			afficherHistoriqueInvitationJeu(message);
+			test(message);
 		}
 		else {
 			console.error("erreur lors de l'affichage de l'historique");

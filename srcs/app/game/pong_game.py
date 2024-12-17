@@ -3,6 +3,9 @@ import asyncio
 import django
 import os
 
+import sys
+
+
 # from django.db import transaction#Test
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
@@ -220,7 +223,9 @@ class PongGame:
             await asyncio.sleep(1 / 60)
             if self.team_scores[1] == 3 or self.team_scores[2] == 3:
                 self.is_running = False
+                print("\npartie numero : ", self.play.id,", etat de is_finished avant la fin = ", self.play.is_finished, "\n", flush=True)
                 self.play.is_finished = True
+                print("\npartie numero : ", self.play.id,", etat de is_finished apres la fin = ", self.play.is_finished, "\n", flush=True)
                 await database_sync_to_async(self.play.save)()
                 await self.stop_game()
                 await self.channel_layer.group_send(

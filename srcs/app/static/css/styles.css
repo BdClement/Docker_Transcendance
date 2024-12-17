@@ -618,6 +618,7 @@ input[type="radio"]:focus + label {
     filter: brightness(0) invert(1);
 }
 
+/* === Style pour la modal liveChat === */
 #message-container {
     color: white;
     max-height: 40vh;
@@ -677,6 +678,7 @@ input[type="radio"]:focus + label {
     display: inline-block; /* Pour que la taille s'ajuste au contenu */
     white-space: nowrap; /* Empêche le texte de se casser */
 }
+
 /* === Style pour la modal d'historique === */
 .modal-dialog {
     max-width: 800px;

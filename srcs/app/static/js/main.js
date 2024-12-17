@@ -205,6 +205,73 @@ const PongGame = (function() {
         }, 2000);
     }
 
+    function createNewGame(remote, nbPlayers) {
+        console.log(`[createNewGame] Creating new game. Remote: ${remote}, Players: ${nbPlayers}`);
+        const data = {
+            remote: remote,
+            nb_players: nbPlayers
+        };
+
+        console.log(`[createNewGame] Sending game creation request with data:`, data);
+
+        return fetchWithCsrf(`api/play/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(data),
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log(`[createNewGame] Game creation response:`, result);
+            const gameId = result.id;
+            const newUrl = `/game/${gameId}`;
+            const newTitle = `Pong Game ${gameId}`;
+            const newContent = `Playing Pong Game ${gameId}`;
+            navigateTo(newTitle, newUrl, newContent, gameId);
+            initializeGame(gameId, nbPlayers, true);
+
+            return gameId;
+        })
+        .catch(error => {
+            console.error('[createNewGame] Error:', error);
+            alert(error.message);
+        });
+    }
+    
+    function joinGame(gameId) {
+        console.log(`[joinGame] Attempting to join game: ${gameId}`);
+        
+        fetchWithCsrf(`/api/play/join/${gameId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to join the game');
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log(`[joinGame] Game joining response:`, result);
+            const newUrl = `/game/${gameId}`;
+            const newTitle = `Pong Game ${gameId}`;
+            const newContent = `Playing Pong Game ${gameId}`;
+            navigateTo(newTitle, newUrl, newContent, gameId);
+            initializeGame(gameId, 2, false);
+        })
+        .catch(error => {
+            console.error('[joinGame] Error:', error);
+            alert('Failed to join the game. Please try again.');
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         console.log(`[DOMContentLoaded] Initializing PongGame`);
         gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
@@ -327,71 +394,6 @@ const PongGame = (function() {
         
         }
 
-        function joinGame(gameId) {
-            console.log(`[joinGame] Attempting to join game: ${gameId}`);
-            
-            fetchWithCsrf(`/api/play/join/${gameId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to join the game');
-                }
-                return response.json();
-            })
-            .then(result => {
-                console.log(`[joinGame] Game joining response:`, result);
-                const newUrl = `/game/${gameId}`;
-                const newTitle = `Pong Game ${gameId}`;
-                const newContent = `Playing Pong Game ${gameId}`;
-                navigateTo(newTitle, newUrl, newContent, gameId);
-                initializeGame(gameId, 2, false);
-            })
-            .catch(error => {
-                console.error('[joinGame] Error:', error);
-                alert('Failed to join the game. Please try again.');
-            });
-        }
-
-        function createNewGame(remote, nbPlayers) {
-            console.log(`[createNewGame] Creating new game. Remote: ${remote}, Players: ${nbPlayers}`);
-            const data = {
-                remote: remote,
-                nb_players: nbPlayers
-            };
-
-            console.log(`[createNewGame] Sending game creation request with data:`, data);
-
-            return fetchWithCsrf(`api/play/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify(data),
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log(`[createNewGame] Game creation response:`, result);
-                const gameId = result.id;
-                const newUrl = `/game/${gameId}`;
-                const newTitle = `Pong Game ${gameId}`;
-                const newContent = `Playing Pong Game ${gameId}`;
-                navigateTo(newTitle, newUrl, newContent, gameId);
-                initializeGame(gameId, nbPlayers, true);
-            })
-            .catch(error => {
-                console.error('[createNewGame] Error:', error);
-                alert(error.message);
-            });
-        }
-
         function initializeLanguageSelector() {
             const languageSelector = document.getElementById('language');
             if (languageSelector) {
@@ -427,7 +429,9 @@ const PongGame = (function() {
 
     return {
         navigateTo: navigateTo,
-        initializeGame: initializeGame
+        initializeGame: initializeGame,
+        createNewGame: createNewGame,
+        joinGame: joinGame
     };
 })();
 

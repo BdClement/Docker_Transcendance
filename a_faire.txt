@@ -27,3 +27,19 @@ ordre invitation au jeu :
         - repasser la variable a False
         - mettre a jour le message dans la basse de donnée
         - envoyer un msg aux deux personnes pour dire que le temps s'est écoulé
+
+lancement partie dans le chat : 
+lanceur de l'invitation :
+- clique sur le bouton "partie"
+    - envoie d'un message a l'invité via websockets
+    - la personne accepte : 
+        - message recu via websocket pour indiquer que la personne a accepté l'invitation avec l'id de la partie
+        - rejoindre la partie grace a la fonction "joinGame" et a l'id de la partie
+- clique sur le bouton "annuler"
+    - annuler l'invitation
+invité :
+- clique sur le bouton "accepter"
+    - creation d'une partie privée avec la fonction "createNewGame"
+    - envoie d'un message via websockets pour indiquer a la personne l'acceptation (?) et l'id de la partie
+- clique sur le bouton "refuser"
+    - envoie d'un message par websockets  pour indiquer qu'on a refusé l'invitation

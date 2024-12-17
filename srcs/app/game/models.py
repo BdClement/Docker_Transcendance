@@ -27,6 +27,7 @@ class Play(models.Model):
 	remote = models.BooleanField(default=False)# Remote ou pas
 	date = models.DateTimeField(blank=True, null=True)
 	is_finished = models.BooleanField(default=False)
+	
 
 	#Choix de stocker les resultats dans un JSONField pour permettre une flexibilite au client en terme d'affchage
 	#Possibilite de modifier le field sans toucher a la base de donnee
