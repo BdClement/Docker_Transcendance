@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const friendModal = document.getElementById('friendModal');
     const friendModalTrigger = document.querySelector('[data-bs-target="#friendModal"]');
 
+    function escapeHtmlFriend(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function updateUrlForFriendModal() {
         history.pushState({ page: 'friends' }, '', '/friend');
     }
@@ -79,8 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const friendUsername = document.getElementById('friendUsername').value.trim();
 
         if (!friendUsername) {
-            alert("Veuillez entrer un nom d'utilisateur");
+            alert(t('errorFriend'));
             return;
+        }
+
+        const validFriendUsername = validateInput(friendUsername, 'username');
+
+        if (!validFriendUsername || validFriendUsername == "1") {
+            throw alert(t('invalidFriendName'));
         }
 
         console.log('Attempting to add friend:', friendUsername);
@@ -148,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function getProfilePictureUrl(username) {
-        return `/static/images/${username}.jpg`;
+        return `/static/images/${escapeHtmlFriend(username)}.jpg`;
     }
 
     function loadFriendLists() {
@@ -183,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                         background-image: url('${getProfilePictureUrl(user.username)}');">
                             </div>
                             <div>
-                                <div class="fw-bold">${user.username}</div>
-                                <small class="text-muted">${user.alias}</small>
+                                <div class="fw-bold">${escapeHtmlUser(user.username)}</div>
+                                <small class="text-muted">${escapeHtmlUser(user.alias)}</small>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
@@ -246,8 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                         background-image: url('${getProfilePictureUrl(user.username)}');">
                             </div>
                             <div>
-                                <div class="fw-bold">${user.username}</div>
-                                <small class="text-muted">${user.alias}</small>
+                                <div class="fw-bold">${escapeHtmlUser(user.username)}</div>
+                                <small class="text-muted">${escapeHtmlUser(user.alias)}</small>
                             </div>
                         </div>
                         <button class="btn btn-sm custom-btn view-profile"
@@ -328,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                         background-position: center;
                                         background-image: url('${getProfilePictureUrl(data.username)}');">
                             </div>
-                            <h4>${data.username}</h4>
-                            <p class="text-muted">${data.alias}</p>
+                            <h4>${escapeHtmlUser(data.username)}</h4>
+                            <p class="text-muted">${escapeHtmlUser(data.alias)}</p>
                         </div>
                         <div class="row text-center">
                             <div class="col-4">

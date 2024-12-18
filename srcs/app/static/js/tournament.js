@@ -5,6 +5,15 @@ const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
 
+function escapeHtmlTournois(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function showFullScreenTournamentModal() {
 
     const existingModal = document.getElementById('tournamentFullScreenModal');
@@ -114,8 +123,8 @@ function updateAliasInputs() {
         const input = document.createElement('div');
         input.classList.add('mb-3');
         input.innerHTML = `
-            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${i}</p>
-            <input type="text" class="form-control" id="alias${i}" required>
+            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
+            <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
         `;
         aliasInputs.appendChild(input);
     }
@@ -131,6 +140,15 @@ tournamentForm.addEventListener('submit', async (e) => {
         const aliasInput = document.getElementById(`alias${i}`);
         if (aliasInput && aliasInput.value.trim() !== '') {
             aliasNames.push(aliasInput.value.trim());
+        }
+    }
+
+    for (let index = 0; index < playerCount; index++) {
+
+        const validAlias = validateInput(aliasNames[index], 'alias');
+
+        if (!validAlias || validAlias == "1") {
+            throw alert(t('invalidAliasFormat'));
         }
     }
 
@@ -223,8 +241,8 @@ function showNextGameModal(data) {
 
         nextGameInfoForm.innerHTML = `
             <p>${t('nextGameVs', {
-                player1: data.player_name[0],
-                player2: data.player_name[1]
+                player1: escapeHtmlTournois(data.player_name[0]),
+                player2: escapeHtmlTournois(data.player_name[1])
             })}</p>
         `;
         nextGameForm.innerHTML = '';

@@ -174,6 +174,20 @@ const PongGame = (function() {
             })
     }
 
+    function escapeHtmlmain(text) {
+        if (!text) return '';
+        return text.toString().replace(/[&<>"']/g, function(match) {
+            const escapeMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            };
+            return escapeMap[match];
+        });
+    }
+
     function endGame(gameDetails) {
         let message;
 
@@ -181,9 +195,9 @@ const PongGame = (function() {
             const { nb_players, results } = gameDetails;
 
             if (nb_players === 2) {
-                message = t('PlayerWin') + gameDetails.results.winners;
+                message = t('PlayerWin') + escapeHtmlmain(results.winners);
             } else if (nb_players === 4) {
-                message = t('TeamWins') + gameDetails.results.winners;
+                message = t('TeamWins') + escapeHtmlmain(results.winners);
             }
         } else {
             message = t('gameEndedUnexpectedly');
