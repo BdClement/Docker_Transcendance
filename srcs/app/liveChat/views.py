@@ -61,6 +61,7 @@ class MessageHistory(APIView):
 				]
 				return Response({
 					"messages": messages_data,
+					"destinataire_onlineStatus": user_2.onlineStatus,
 					"1bloque2": unBloqueDeux,
 					"2bloque1": deuxBloqueUn
 				}, status=status.HTTP_200_OK)
@@ -68,6 +69,7 @@ class MessageHistory(APIView):
 				# Si aucune conversation trouvée
 				return Response({
 					"noConversation": f"Aucune conversation trouvée entre {user_1.username} et {user_2.username}.",
+					"destinataire_onlineStatus": user_2.onlineStatus,
 					"destinataire": user_2.username,
 					"1bloque2": unBloqueDeux,
 					"2bloque1": deuxBloqueUn
@@ -126,15 +128,21 @@ class listeUtilisateurs(APIView):
 	permission_classes = [IsAuthenticated]
 	
 	def get(self, request):
-		search_query = request.GET.get('search', '')
+		search_query = request.GET.get('search', '').strip()  # Enlever les espaces inutiles
 		
-		# Filtrer les utilisateurs selon le query de recherche
-		utilisateurs = User.objects.filter(username__icontains=search_query) | \
-						User.objects.filter(alias__icontains=search_query)
+		# Récupérer l'utilisateur connecté
+		utilisateur_connecte = request.user
 		
-		# Sérialiser les données des utilisateurs en utilisant PublicUserSerializer
+		# Filtrer les utilisateurs selon la recherche (par préfixe) et exclure l'utilisateur connecté
+		utilisateurs = (
+			User.objects.filter(username__istartswith=search_query) |
+			User.objects.filter(alias__istartswith=search_query)
+		).exclude(id=utilisateur_connecte.id)  # Exclure l'utilisateur connecté
+		
+		# Sérialiser les données des utilisateurs en utilisant UserSerializer
 		serializer = UserSerializer(utilisateurs, many=True)
 		
 		# Retourner les données sérialisées
 		return Response(serializer.data)
+
 

@@ -630,6 +630,10 @@ input[type="radio"]:focus + label {
     color: white;
 }
 
+#onlineStatus {
+    color: white;
+}
+
 .message-expediteur {
     margin-left: auto; /* Aligne à droite */
     margin-right: 10px; /* Ajoute un espace avec le bord droit */
@@ -659,6 +663,7 @@ input[type="radio"]:focus + label {
 #choix-conversation {
     background-color: white;
     color: black;
+    margin: 0px;
 }
 
 .message-invitation-jeu {

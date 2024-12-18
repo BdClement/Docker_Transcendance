@@ -26,15 +26,13 @@ function handleIncomingMessage(e) {
 
 	if (data.type === 'message') {
 		afficherMessage(data);
-	}
-	else if (data.type === 'block_user') {
+	} else if (data.type === 'block_user') {
 		if (destinataireId == data.blocker_id)
 		{
 			console.log("changement d'etat de blocage");
 			HistoriqueMessages(data.blocker_id, data.blocker_username);
 		}
-	}
-	else if (data.type === 'pong_invitation') {
+	} else if (data.type === 'pong_invitation') {
 		console.log("invitation à jouer recu");
 		const messageContainer = document.getElementById('message-container');
 		if (!messageContainer) {
@@ -43,8 +41,21 @@ function handleIncomingMessage(e) {
 		}
 		invitationJeu(data.message);
 		messageContainer.scrollTop = messageContainer.scrollHeight;
-	}
-	else {
+	} else if (data.type === 'connection_status') {
+		console.log(`${data.user_id} vient de se ${data.status}`);
+		
+		if (destinataireId === data.user_id) {
+			const onlineStatusElement = document.getElementsByClassName("liveChat-online-offline-Status")[0]; // Accéder au premier élément avec cette classe
+			
+			if (data.status === "connected") {
+				onlineStatusElement.innerHTML = `en ligne`;  // Met à jour le texte
+				onlineStatusElement.id = "liveChat-onlineStatus";  // Change l'id de l'élément
+			} else {
+				onlineStatusElement.innerHTML = `hors ligne`;  // Met à jour le texte
+				onlineStatusElement.id = "liveChat-offlineStatus";  // Change l'id de l'élément
+			}
+		}
+	} else {
 		console.warn("Le type de message n'est pas reconnu. data : '", data, "' mesage : '", data.type, "', data.message : '", data.message, "'");
 	}
 }
@@ -142,26 +153,22 @@ function afficherInvitationJeu(message, messageElement) {
 		if (message.winners.includes(parseInt(destinataireId)) && destinataireId === message.destinataire_id) {
 			messageElement.innerHTML = `
 				Partie terminée<br>
-				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				cas 1 ${message.destinataire_username} a gagné, vous avez perdu
+				${message.destinataire_username} a gagné, vous avez perdu
 			`;
 		} else if (message.winners.includes(parseInt(destinataireId)) && destinataireId !== message.destinataire_id) {
 			messageElement.innerHTML = `
 				Partie terminée<br>
-				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				cas 2 vous avez gagné, ${message.expediteur_username} a perdu
+				Vous avez gagné, ${message.expediteur_username} a perdu
 			`;
 		} else if (!message.winners.includes(parseInt(destinataireId)) && destinataireId === message.destinataire_id) {
 			messageElement.innerHTML = `
 				Partie terminée<br>
-				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				cas 3 ${message.destinataire_username} a gagné, vous avez perdu
+				${message.destinataire_username} a gagné, vous avez perdu
 			`;
 		} else {
 			messageElement.innerHTML = `
 				Partie terminée<br>
-				destinataireId : ${destinataireId}, JSON.stringify(message.winners) : ${JSON.stringify(message.winners)}<br>
-				cas 4 vous avez gagné, ${message.expediteur_username} a perdu
+				Vous avez gagné, ${message.expediteur_username} a perdu
 			`;
 		}
 	} else {
@@ -232,7 +239,7 @@ function afficherMessage(data) {
 		messageElement.classList.add('message-expediteur');
 	else {
 		console.log("message recu de ", message.expediteur_id);
-		showNotification(`Nouveau message de ${message.expediteur_username}`);
+		showNotification(`Nouveau message de ${message.expediteur}`);
 	}
 
 	messageElement.textContent = `${message.expediteur}: ${message.message}`;
@@ -273,9 +280,7 @@ function listeAmisLiveChat() {
 			}
 			listeConversation.innerHTML = data.conversations.map(user => `
 				<li>
-					<button data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')">
-						${user.username} ${user.online ? 'online' : 'offline'}
-					</button>
+					<button data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')"></button>
 				</li>
 			`).join('');
 		})
@@ -286,60 +291,61 @@ function listeAmisLiveChat() {
 
 // Fonction pour gérer la recherche en temps réel
 function handleSearchInput(event) {
-    const query = event.target.value.trim();  // Récupère la valeur du champ de recherche
-    console.log("Recherche en cours : ", query);  // Vérifier si la valeur de recherche est récupérée correctement
+    const query = event.target.value.trim(); // Récupère la valeur du champ de recherche
+    const userListContainer = document.getElementById('userListContainer');
 
-    // Vérifier si la requête est vide ou non
     if (query.length > 0) {
-        fetchUsers(query);  // Appelle la fonction pour récupérer les utilisateurs
+        console.log("Recherche en cours : ", query); // Vérifie si la valeur de recherche est récupérée correctement
+        fetchUsers(query); // Appelle la fonction pour récupérer les utilisateurs
     } else {
         console.log("Recherche vide");
+        userListContainer.innerHTML = ''; // Efface les résultats affichés
     }
 }
 
 // Fonction pour récupérer la liste des utilisateurs via l'API
 function fetchUsers(query = '') {
-    console.log("Envoi de la requête avec la recherche :", query);
-    fetch(`/api/utilisateurs/?search=${query}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken(), // Ajoutez votre token CSRF ici si nécessaire
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Réponse de l'API :", data); // Vérifier la réponse de l'API
-        displayUserList(data);  // Affiche les utilisateurs dans la liste
-    })
-    .catch(error => {
-        console.error('Erreur lors de la récupération des utilisateurs:', error);
-    });
+	console.log("Envoi de la requête avec la recherche :", query);
+	fetch(`/api/utilisateurs/?search=${query}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': getCsrfToken(), // Ajoutez votre token CSRF ici si nécessaire
+		},
+	})
+	.then(response => response.json())
+	.then(data => {
+		console.log("Réponse de l'API :", data); // Vérifier la réponse de l'API
+		displayUserList(data);  // Affiche les utilisateurs dans la liste
+	})
+	.catch(error => {
+		console.error('Erreur lors de la récupération des utilisateurs:', error);
+	});
 }
 
 // Fonction pour afficher la liste des utilisateurs
 function displayUserList(users) {
-    console.log("Affichage de la liste des utilisateurs :", users);  // Vérifier les utilisateurs récupérés
-    const userListContainer = document.getElementById('userListContainer');
-    userListContainer.innerHTML = '';  // Réinitialiser la liste avant d'ajouter les nouveaux résultats
-    
-    if (users.length === 0) {
-        userListContainer.innerHTML = '<p>Aucun utilisateur trouvé.</p>';
-        return;
-    }
+	console.log("Affichage de la liste des utilisateurs :", users);  // Vérifier les utilisateurs récupérés
+	const userListContainer = document.getElementById('userListContainer');
+	userListContainer.innerHTML = '';  // Réinitialiser la liste avant d'ajouter les nouveaux résultats
+	
+	if (users.length === 0) {
+		userListContainer.innerHTML = '<p id="choix-conversation"> Aucun utilisateur trouvé.</p>';
+		return;
+	}
 
-    // Créez un élément HTML pour chaque utilisateur
-    users.forEach(user => {
+	// Créez un élément HTML pour chaque utilisateur
+	users.forEach(user => {
 		console.log("utilisateur individuel : ", user.username, ", id : ", user.id);
-        const userElement = document.createElement('div');
-        userElement.classList.add('user-item');
-        userElement.innerHTML = `
-            <p id="choix-conversation" data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')">
-                ${user.username} ${user.online ? 'online' : 'offline'}
-            </p>
-        `;
-        userListContainer.appendChild(userElement);
-    });
+		const userElement = document.createElement('div');
+		userElement.classList.add('user-item');
+		userElement.innerHTML = `
+			<p id="choix-conversation" data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')">
+				${user.username}
+			</p>
+		`;
+		userListContainer.appendChild(userElement);
+	});
 }
 
 // Affiche l'historique des messages d'une conversation
@@ -388,6 +394,9 @@ function HistoriqueMessages(id, destinataireUsername) {
 function affichageConversation(id, destinataireUsername, data) {
 	enTeteConv.innerHTML = `
 		<h6 id="nom-contact-live-chat">${destinataireUsername}</h6>
+		<p class="liveChat-online-offline-Status" id="${data.destinataire_onlineStatus ? 'liveChat-onlineStatus' : 'liveChat-offlineStatus'}">
+			${data.destinataire_onlineStatus ? 'en ligne' : 'hors ligne'}
+		</p>
 		<button class="bouton-liveChat" id="view-profile-btn-from-liveChat" class="btn btn-sm custom-btn view-profile" 
 			data-user-id="${id}"
 			onclick="profileView.handleViewProfile(event)">Voir profil

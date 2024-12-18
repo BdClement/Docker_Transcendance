@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile']
+		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'onlineStatus']
 
 #Verification des données fournies lors de la connexions
 # class LoginSerializer(serializers.Serializer):

@@ -20,7 +20,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.user_group_name = f"user_{self.user.id}"
 			self.user.onlineStatus = True
 			await database_sync_to_async(self.user.save)()
+			
+			# Ajouter au groupe individuel et global
 			await self.channel_layer.group_add(self.user_group_name, self.channel_name)
+			await self.channel_layer.group_add("global_users", self.channel_name)
+			
+			# Informer tous les utilisateurs de la connexion
+			await self.channel_layer.group_send(
+				"global_users",
+				{
+					"type": "connection_status",
+					"user_id": self.user.id,
+					"status": "connected",
+				}
+			)
+			
 			await self.accept()
 		else:
 			await self.close()
@@ -29,8 +43,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		if self.user.is_authenticated:
 			self.user.onlineStatus = False
 			await database_sync_to_async(self.user.save)()
-			await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 			
+			# Retirer des groupes
+			await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
+			await self.channel_layer.group_discard("global_users", self.channel_name)
+			
+			# Informer tous les utilisateurs de la déconnexion
+			await self.channel_layer.group_send(
+				"global_users",
+				{
+					"type": "connection_status",
+					"user_id": self.user.id,
+					"status": "disconnected",
+				}
+			)
+			
+	async def connection_status(self, event):
+		user_id = event["user_id"]
+		status = event["status"]  # "connected" ou "disconnected"
+
+		# Envoyer le message à ce client WebSocket
+		await self.send(text_data=json.dumps({
+			"type": "connection_status",
+			"user_id": user_id,
+			"status": status,
+		}))
+
 	async def receive(self, text_data):
 		data = json.loads(text_data)
 		event_type = data.get("type")
@@ -167,12 +205,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.handle_invitation_timeout(conversation.id, message_obj, destinataire))
 
 	async def handle_invitation_timeout(self, conversation_id, message_obj, destinataire):
-		print("\ndébut des 60 secondes\n", flush=True)
-
 		# Attendre 60 secondes
 		await asyncio.sleep(60)
-
-		print("\nfin des 60 secondes\n", flush=True)
 
 		# Étape 6: vérifier si la variable invitationAJouer est toujours True
 		conversation_refreshed = await sync_to_async(Conversation.objects.get)(id=conversation_id)
