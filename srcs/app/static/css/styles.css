@@ -630,8 +630,22 @@ input[type="radio"]:focus + label {
     color: white;
 }
 
-#onlineStatus {
-    color: white;
+#liveChat-onlineStatus {
+    color: green;
+}
+
+#liveChat-offlineStatus {
+    color: red;
+}
+
+#en-tete-conversation-live-chat {
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#messageInput {
+    width: 70vh;
 }
 
 .message-expediteur {

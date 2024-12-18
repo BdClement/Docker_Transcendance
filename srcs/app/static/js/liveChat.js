@@ -280,7 +280,7 @@ function listeAmisLiveChat() {
 			}
 			listeConversation.innerHTML = data.conversations.map(user => `
 				<li>
-					<button data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')"></button>
+					<button data-user-id="${user.id}" onclick="HistoriqueMessages(${user.id}, '${user.username}')">${user.username}</button>
 				</li>
 			`).join('');
 		})
