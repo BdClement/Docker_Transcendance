@@ -16,13 +16,13 @@ function validateInput(input, type) {
         case 'username':
             const usernameRegex = /^[a-zA-Z0-9_-]{1,20}$/;
             return usernameRegex.test(input) ? input : "1";
-        
+
         case 'alias':
             const aliasRegex = /^[a-zA-Z0-9_-]{1,20}$/;
             return aliasRegex.test(input) ? input : "1";
-        
+
         case 'password':
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.,-_])[A-Za-z\d@$!%*?&.,-_]{8,}$/;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.@,#$%^&+=!_\-])[A-Za-z\d.@,#$%^&+=!_\-]{8,}$/;
             return passwordRegex.test(input) ? input : "1";
 
         case 'email':
@@ -104,14 +104,14 @@ function checkLoginStatus() {
         console.log("DATA :", data);
         if (data.username) {
             updateUserInfo(data.username, data.photoProfile, data.alias);
-            
+
             if (data.languageFav) {
                 let languageMap = {
                     "English": "en",
-                    "Français": "fr", 
+                    "Français": "fr",
                     "Tiếng Việt": "viet"
                 };
-                
+
                 const mappedLanguage = languageMap[data.languageFav];
                 if (mappedLanguage) {
                     localStorage.setItem('language', mappedLanguage);
@@ -144,9 +144,9 @@ function login(username, password) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
-            username: validUsername, 
-            password: validPassword 
+        body: JSON.stringify({
+            username: validUsername,
+            password: validPassword
         })
     })
     .then(response => response.json())
@@ -166,7 +166,7 @@ function login(username, password) {
 }
 
 function signup(formData) {
-    
+
     const username = formData.get('username');
     const email = formData.get('email');
     const alias = formData.get('alias');
