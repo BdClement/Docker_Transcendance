@@ -2,6 +2,15 @@ const historiqueModal = document.getElementById('historiqueModal');
 const historiqueForm = document.getElementById('historiqueForm');
 const historiqueLink = document.getElementById('historiqueLink');
 
+function escapeHtmlHistorique(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function loadMatchHistory() {
     try {
         fetch('/api/user/match-history/', {
@@ -59,22 +68,23 @@ function displayMatchHistory(data) {
     table.appendChild(thead);
     
     const tbody = document.createElement('tbody');
-    // Inverser l'ordre des matchs (du plus récent au plus ancien)
-    // Limiter à 5 derniers matchs
     const displayedMatches = data.results.slice().reverse().slice(0, 5);
     
     displayedMatches.forEach(match => {
         const row = document.createElement('tr');
         
-        // Create a Date object and format it to include both date and time
         const matchDate = new Date(match.date);
-        const formattedDateTime = matchDate.toLocaleDateString() + ' ' + matchDate.toLocaleTimeString();
+        const formattedDateTime = escapeHtmlHistorique(matchDate.toLocaleDateString() + ' ' + matchDate.toLocaleTimeString());
         
         const matchResults = match.results;
-        const winners = matchResults.winners ? matchResults.winners.join(', ') : '-';
-        const losers = matchResults.losers ? matchResults.losers.join(', ') : '-';
-        const score = matchResults.score || '-';
-        const gameType = t('playersCount', { count: match.nb_players });
+        const winners = matchResults.winners 
+            ? escapeHtmlHistorique(matchResults.winners.join(', ')) 
+            : '-';
+        const losers = matchResults.losers 
+            ? escapeHtmlHistorique(matchResults.losers.join(', ')) 
+            : '-';
+        const score = escapeHtmlHistorique(matchResults.score || '-');
+        const gameType = escapeHtmlHistorique(t('playersCount', { count: match.nb_players }));
         
         row.innerHTML = `
             <td class="datetime-cell">${formattedDateTime}</td>
