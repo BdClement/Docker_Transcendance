@@ -82,6 +82,7 @@ function updateUserInfo2(user) {
             .then(data => {
                 const userInfoForm = document.createElement('form');
                 userInfoForm.innerHTML = `
+                <div class="UserInfoForm">
                     <div class="row text-center">
                         <div class="col-4">
                             <h5>${escapeHtmlUser(String(data.nbVictoires + data.nbDefaites))}</h5>
@@ -107,6 +108,7 @@ function updateUserInfo2(user) {
                     <div class="mb-3">
                         <p class="form-label" data-i18n="email">Email</p>
                         <input type="email" class="form-control" value="${escapeHtml(user.email)}" disabled>
+                    </div>
                 </div>`;
                 userForm.innerHTML = '';
                 userForm.appendChild(userInfoForm);
