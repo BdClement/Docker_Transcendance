@@ -63,7 +63,7 @@ async function updateUserProfile(formData) {
         }else if (validPassword == "1" && password) {
             throw alert(t('invalidPasswordFormat'));
         }
-        
+
         const sanitizedFormData = new FormData();
 
         for (let [key, value] of formData.entries()) {
@@ -90,7 +90,7 @@ async function updateUserProfile(formData) {
         const newPassword = sanitizedFormData.get('password');
         const confirmPassword = sanitizeAttribute(settingsConfirmPassword.value);
         const languagePreference = sanitizeAttribute(document.getElementById('settingsLanguagePreference').value);
-        
+
         const languageMap = {
             '1': 'English',
             '2': 'Français',
@@ -106,6 +106,57 @@ async function updateUserProfile(formData) {
 
             if (newPassword !== confirmPassword) {
                 throw new Error(t('passwordsDoNotMatch'));
+            }
+        }
+
+        //Je recupere les cles initiales de FormData
+        const keys = [];
+        for (let [key, value] of sanitizedFormData.entries()) {
+            keys.push(key);
+        }
+        let languageFavIsSame = false;
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            let value = sanitizedFormData.get(key);
+
+            console.log('[avant delete] key == ', key);
+            console.log(`Type de valeur pour ${key}:`, typeof value);
+
+            if (value instanceof File) {
+                console.log(`C'est un fichier: ${key}, taille: ${value.size}, nom: ${value.name}`);
+            }
+            if ((key === 'languagePreference' && value)) {
+                const languageMap = {
+                    '1': 'en',
+                    '2': 'fr',
+                    '3': 'viet'
+                };
+                const lang = localStorage.getItem('language');
+                console.log('value === ', value);
+                console.log('languageMap[value] == ', languageMap[value]);
+                console.log('lang == ', lang);
+                if (languageMap[value] === lang) {
+                    console.log('Key supprimee (valeur vide) = ', key);
+                    sanitizedFormData.delete(key);
+                    languageFavIsSame = true;
+                    i--;
+                }
+            }
+            if (key === 'languageFav' && value && languageFavIsSame) {
+                sanitizedFormData.delete(key);
+                i--;
+            }
+
+            // Suppression des clés vides ou des fichiers vides
+            if (value instanceof File && value.size === 0) {
+                console.log('Key supprimee (fichier vide) = ', key);
+                sanitizedFormData.delete(key);
+                // Si vous supprimez l'élément, ne passez pas à l'élément suivant
+                i--;  // Décrémente l'index pour vérifier à nouveau la même position après la suppression (donc element suivant)
+            } else if (value === '') {
+                console.log('Key supprimee (valeur vide) = ', key);
+                sanitizedFormData.delete(key);
+                i--;
             }
         }
 
@@ -132,7 +183,7 @@ async function updateUserProfile(formData) {
             alertDiv.textContent = escapeHtml(t('profileUpdateSuccess'));
             settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
             setTimeout(() => alertDiv.remove(), 3000);
-            
+
             settingsNewPassword.value = '';
             settingsConfirmPassword.value = '';
 
@@ -189,14 +240,14 @@ function opensettingsModal() {
         settingsForm.style.display = 'none';
         errorMessage.style.display = 'block';
     });
-    
+
     modal.show();
 }
 
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(settingsForm);
-    
+
     console.log("Contenu détaillé de formData :");
     for (let [key, value] of formData.entries()) {
         if (value instanceof File) {
@@ -207,7 +258,7 @@ settingsForm.addEventListener('submit', async (e) => {
             });
         }
     }
-    
+
     await updateUserProfile(formData);
 });
 

@@ -10,3 +10,4 @@ asgiref==3.8.1
 sqlparse==0.5.1
 tzdata==2024.1
 web3==7.4.0
+bleach==6.2.0

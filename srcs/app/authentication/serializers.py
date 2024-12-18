@@ -5,6 +5,17 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
 from authentication.models import User
+import bleach
+
+def clean_user_data(data):
+
+	cleaned_data = {}
+	for key, value in data.items():
+		if isinstance(value, str):
+			cleaned_data[key] = bleach.clean(value, tags=[], attributes=[], strip=True)
+		else:
+			cleaned_data[key] = value
+	return cleaned_data
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -41,25 +52,29 @@ class PublicUserSerializer(serializers.ModelSerializer):
 # 		}
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
 
-    def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
+	username = serializers.CharField(required=True)
+	password = serializers.CharField(write_only=True, required=True)
 
-        User = get_user_model()
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Identifiant invalide.")
+	def validate(self, data):
 
-        if not user.check_password(password):
-            raise serializers.ValidationError("Mot de passe invalide.")
+		data = clean_user_data(data)  # Protection contre les injections XSS
 
-        return {
-            'user': user
-        }
+		username = data.get('username')
+		password = data.get('password')
+
+		User = get_user_model()
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			raise serializers.ValidationError("Identifiant invalide.")
+
+		if not user.check_password(password):
+			raise serializers.ValidationError("Mot de passe invalide.")
+
+		return {
+			'user': user
+		}
 
 # verification des données fournies lors de l'inscription
 # /!\ ajouter la photo de profil
@@ -81,6 +96,9 @@ class SignupSerializer(serializers.ModelSerializer):
 		return value
 
 	def validate(self, data):
+
+		data = clean_user_data(data)  # Protection contre les injections XSS
+
 		username = data.get('username')
 		alias = data.get('alias')
 		email = data.get('email')
@@ -139,6 +157,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'password': {'write_only': True, 'required': False},
 			'languageFav': {'required': False},
 		}
+
+	def validate(self, data):
+		data = clean_user_data(data)  # Protection contre les injections XSS
+		return data
 
 	def validate_password(self, value):
 		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[.@,#$%^&+=!_\-]", value)):
