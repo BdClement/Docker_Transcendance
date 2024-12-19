@@ -73,7 +73,7 @@ body {
     top: 37%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 3;
+    z-index: 1;
     color: #ad996d;
     padding: 5px 10px;
     border-radius: 5px;
@@ -222,7 +222,7 @@ canvas {
 }
 
 .custom-input:focus {
-    background-color: rgba(173, 153, 109, 0.2);
+    /* background-color: rgba(173, 153, 109, 0.2); */ /* Commente par Clement */
     border-color: #ad996d;
     box-shadow: 0 0 0 0.2rem rgba(173, 153, 109, 0.25);
 }
@@ -336,7 +336,7 @@ canvas {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1;
 }
 
 .language-selector select {
@@ -472,12 +472,40 @@ fieldset {
     width: 100%;
 }
 
-.row {
+.remote-buttons {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+    gap: 8px;
     width: 48%;
+}
+
+.remote-buttons input[type="radio"] {
+    margin-bottom: 25px;/* Ajoute par Clement */
+    width: 48%;
+}
+
+/* === Ajoute par Clement pour le UserModal ===*/
+.UserInfoForm h5, .UserInfoForm small.text-muted, .UserInfoForm p{
+    /* color: #7f5f20 !important; */
+    color: #ad996d !important;
+}
+
+.UserInfoForm input {
+    /* color: #194452; */
+    color: black
+}
+
+#friendProfileModal .modal-body, #friendProfileModal .modal-body .text-muted {
+    color: #ad996d !important;
+}
+
+#nextGameModal .modal-body p {
+    color: #ad996d;
+    text-align: center;
+    font-size: 1.5rem;
 }
 
 .row input[type="radio"] {
@@ -487,7 +515,7 @@ fieldset {
     height: 0;
 }
 
-.row label {
+.remote-buttons label {
     flex: 0 0 auto;
     margin: 0;
 }
@@ -570,7 +598,7 @@ input[type="radio"]:focus + label {
     width: 80px;
     height: 100%;
     background-color: #0D1E29;
-    z-index: 1000;
+    z-index: 1;
 }
 
 .left-navbar {
@@ -580,7 +608,7 @@ input[type="radio"]:focus + label {
     margin: 0;
 }
 
-.left-navbar li {
+.left-navbar li, .pseudo-content{
     width: 80px;
     height: 80px;
     display: flex;
@@ -591,10 +619,36 @@ input[type="radio"]:focus + label {
     background-color: transparent;
     border-bottom: 2px solid #785E2C;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;/*Ajoute pour UX*/
 }
 
 .left-navbar li:hover {
     background-color: #0d2132;
+}
+
+/* pseudo-element ajoute pour UX */
+.left-navbar li::after {
+    content: var(--pseudo-content, '');
+    position: absolute;
+    top:0;
+    left:-80px;
+    width: 160px;
+    height: 80px;
+    background-color: #0d2132;
+    border-bottom: 2px solid #785E2C;
+    opacity:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #785E2C;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.25s ease-in-out, transform 0.3s ease;
+}
+
+.left-navbar li:hover::after {
+    opacity:1;
+    transform: translateX(160px);
 }
 
 .icon-tournoi, .icon-parametre, .icon-friend, .icon-historique, .icon-user {
@@ -618,7 +672,7 @@ input[type="radio"]:focus + label {
 .left-navbar li:hover .icon-parametre img,
 .left-navbar li:hover .icon-friend img,
 .left-navbar li:hover .icon-user img
- {
+{
     filter: brightness(0) invert(1);
 }
 
@@ -706,6 +760,8 @@ input[type="radio"]:focus + label {
 #liveChatModal {
     z-index: 1100;
 }
+/* === Style pour la modal User profile === */
+
 
 /* === Style pour la modal d'historique === */
 .modal-dialog {

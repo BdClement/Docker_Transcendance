@@ -4,6 +4,7 @@ const translations = {
         local_1v1: "Local 1v1",
         local_2v2: "Local 2v2",
         remote_1v1: "Remote 1v1",
+        remote_2v2: "Remote 2v2",
         language: "Language",
         PlayerWin: "The winner is : ",
         TeamWins: "Team winning is : ",
@@ -36,7 +37,7 @@ const translations = {
         playerCount: "Number of Players",
         createTournament: "Create Tournament",
         playerAlias: "Player {number} Alias",
-        tournamentCreationError: "An error occurred while creating the tournament",
+        tournamentCreationError: "Tournament creation failed. Check aliases provided",
         pleaseEnterValidAliases: "Please enter {count} valid aliases",
         playerCountOption4: "4 players",
         playerCountOption8: "8 players",
@@ -55,7 +56,7 @@ const translations = {
         username: "Username",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "No user information available",
+        noUserInfo: "Unavailable. You must be connected to see your profile",
         userNotFound: "User not found",
         userIdNotFound: "User ID not found",
         notificationModalTitle: "Notification",
@@ -66,7 +67,7 @@ const translations = {
         startNextGame: "Play",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "No followers",
-        settingsModalTitle: "Settings",
+        settingsModalTitle: "Update profile",
         settingsUsername: "Username",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -79,13 +80,35 @@ const translations = {
         loginToSeeFriends: "Please log in to see your friends!",
         tournamentUnexpectedError: "An unexpected error occurred during the tournament flow.",
         tournamentStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "An error occurred while fetching user information"
+        errorFetchingUser: "An error occurred while fetching user information",
+        loginToUpdateProfile: "Please log in to access update profile section !",
+        passwordsDoNotMatch: "Passwords do not match",
+        settingsNewPassword: "New Password",
+        settingsConfirmPassword: "Password confirmation",
+        seeProfile: "See profile",
+        EmailError: "Email already used",
+        UsernameError: "Username already used",
+        AliasError: "Alias name already used",
+        PasswordLowercaseError: "Password must contain at least a lowercase letter",
+        PasswordUppercaseError: "Password must contain at least a capital letter",
+        PasswordNumber: "Password must contain at least a number",
+        PasswordSpecialCharError: "Password must contain at least a special character (@, #, $, %, etc.)",
+        noUpdateFieldsProvided: "No update fields provided",
+        languageSetting : "Preferred Language",
+        errorFriend : "Please enter a username",
+        tournamentInProgress: "Tournament in Progress",
+        invalidAliasFormat : "Your alias is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidUsernameFormat : "Your username is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidFriendName : "Your friend name is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidEmailFormat : "Your email is invalid",
+        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
         play: "Jouer",
         local_1v1: "Local 1c1",
         local_2v2: "Local 2c2",
         remote_1v1: "Distant 1c1",
+        remote_2v2: "Distant 2c2",
         language: "Langue",
         PlayerWin: "Le gagnant est : ",
         TeamWins: "L'équipe gagnante est : ",
@@ -109,16 +132,16 @@ const translations = {
         addFriendTab: "Ajouter un ami",
         yourFollowing: "Vos abonnements :",
         yourFollowers: "Vos abonnés :",
-        addFriendUsername: "Nom d'utilisateur de l'ami",
+        addFriendUsername: "Nom de l'ami",
         addFriendButton: "Ajouter",
         friendProfileTitle: "Profil de l'ami",
-        unfollowButton: "Se désabonner",
+        unfollowButton: "Ne plus suivre",
         closeButton: "Fermer",
         tournamentModalTitle: "Créer un tournoi",
         playerCount: "Nombre de joueurs",
         createTournament: "Créer le tournoi",
         playerAlias: "Alias du joueur {number}",
-        tournamentCreationError: "Une erreur est survenue lors de la création du tournoi",
+        tournamentCreationError: "Creation de tournoi impossible. Verifiez les alias fournis",
         pleaseEnterValidAliases: "Veuillez entrer {count} alias valides",
         playerCountOption4: "4 joueurs",
         playerCountOption8: "8 joueurs",
@@ -137,8 +160,8 @@ const translations = {
         username: "Nom d'utilisateur",
         alias: "Alias",
         email: "Email",
-        noUserInfo: "Aucune information utilisateur disponible",
-        userNotFound: "Utilisateur non trouvé",
+        noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
+        userNotFound: "L\'utilisateur n'existe pas",
         userIdNotFound: "ID de l'utilisateur non trouvé",
         notificationModalTitle: "Notification",
         tournamentScoreStorageAttempt: "Tentative de stockage du score du tournoi {tournamentId}. Cela peut prendre quelques instants...\nVous pouvez accéder aux données on-chain à l'adresse du contrat via Etherscan : \n<a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
@@ -148,7 +171,7 @@ const translations = {
         startNextGame: "Jouer",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Aucun abonné",
-        settingsModalTitle: "Paramètres",
+        settingsModalTitle: "Mettre a jour le profil",
         settingsUsername: "Nom d'utilisateur",
         settingsEmail: "Email",
         settingsAlias: "Alias",
@@ -161,13 +184,32 @@ const translations = {
         loginToSeeFriends: "Connectez-vous pour voir vos amis !",
         tournamentUnexpectedError: "Une erreur est survenue lors du déroulement du tournoi.",
         tournamentStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur"
+        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur",
+        loginToUpdateProfile: "Connectez-vous pour acceder a la mise a jour de votre profil !",
+        passwordsDoNotMatch: "Les mots de passe ne correspondent pas",
+        settingsNewPassword: "Nouveau mot de passe",
+        settingsConfirmPassword: "Confirmation mot de passe",
+        seeProfile: "Voir profil",
+        PasswordLengthError: "Ce mot de passe est trop court. Il doit conetenir au moins 8 caracteres.",
+        EmailError: "Email déjà utlisé",
+        UsernameError: "Nom d'utilisateur déjà utlisé",
+        AliasError: "Alias name déjà utlisé",
+        noUpdateFieldsProvided: "Veuillez inclure au moins un champs a modifier",
+        languageSetting : "Langue préférée",
+        errorFriend : "Veuillez entrer un nom d'utilisateur",
+        tournamentInProgress: "Tournoi en cours",      
+        invalidAliasFormat : "Votre alias n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidUsernameFormat : "Votre pseudo n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidFriendName : "Le pseudo de votre amis n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidEmailFormat : "Votre Email est invalide",
+        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
         play: "Chơi",
         local_1v1: "ở gần 1t1",
         local_2v2: "ở gần 2t2",
         remote_1v1: "Khoảng 1t1",
+        remote_2v2: "Khoảng 2t2",
         language: "Ngôn ngữ",
         PlayerWin: "Người chiến thắng là : ",
         TeamWins: "Đội chiến thắng là : ",
@@ -230,7 +272,7 @@ const translations = {
         startNextGame: "Chơi",
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Không có người theo dõi",
-        settingsModalTitle: "Cài Đặt",
+        settingsModalTitle: "Chỉnh sửa hồ sơ",
         settingsUsername: "Tên người dùng",
         settingsEmail: "Email",
         settingsAlias: "Biệt danh",
@@ -243,18 +285,42 @@ const translations = {
         loginToSeeFriends: "Vui lòng đăng nhập để xem bạn bè của bạn!",
         tournamentUnexpectedError: "Đã xảy ra lỗi bất ngờ trong quá trình diễn ra giải đấu.",
         tournamentStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
-        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng"
+        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng",
+        loginToUpdateProfile: "Vui lòng đăng nhập để xem bạn bè của bạn!",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        passwordsDoNotMatch: "Mật khẩu không khớp",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        invalidAliasFormat : "Bí danh của bạn không hợp lệ, nó chỉ có thể chứa các chữ cái, số và ký tự đặc biệt _ và -",
+        invalidUsernameFormat : "Biệt hiệu của bạn không hợp lệ, chỉ được chứa chữ cái, số và ký tự đặc biệt _ và -",
+        invalidFriendName : "Biệt danh của bạn bè bạn không hợp lệ, chỉ được chứa chữ cái, số và ký tự đặc biệt _ và -",
+        invalidEmailFormat : "Email của bạn không hợp lệ",
+        invalidPasswordFormat: "Mật khẩu của bạn phải dài ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt [.@,#$%^&+=!_\-]",
+        EmailError: "Email này đã được sử dụng",
+        UsernameError: "Tên người dùng này đã được sử dụng",
+        AliasError: "Tên bí danh này đã được sử dụng",
+        PasswordLowercaseError: "Mật khẩu phải chứa ít nhất một chữ cái thường",
+        PasswordUppercaseError: "Mật khẩu phải chứa ít nhất một chữ cái in hoa",
+        PasswordSpecialCharError: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)",
+        PasswordLengthError: "Mật khẩu này quá ngắn. Nó phải chứa ít nhất 8 ký tự.",
+        noUpdateFieldsProvided: "Vui lòng bao gồm ít nhất một trường để sửa đổi",
+        languageSetting : "Ngôn ngữ ưa thích",
+        errorFriend : "Vui lòng nhập tên người dùng",
+        tournamentInProgress: "Giải đấu đang diễn ra"
     }
 };
 
 const t = (key, params = {}) => {
     const lang = localStorage.getItem('language') || 'fr';
     let translation = translations[lang][key] || key;
-    
+
     Object.keys(params).forEach(param => {
         translation = translation.replace(`{${param}}`, params[param]);
     });
-    
+
     return translation;
 };
 
@@ -263,15 +329,20 @@ function applyTranslations() {
         const key = element.getAttribute('data-i18n');
         const paramsAttr = element.getAttribute('data-i18n-params');
         const params = paramsAttr ? JSON.parse(paramsAttr) : {};
-        
-        if (element.tagName === 'INPUT') {
-            if (element.type === 'submit') {
-                element.value = t(key, params);
-            } else if (element.type === 'file') {
-                element.setAttribute('title', t(key, params));
-            }
+
+        const translation = t(key, params);
+        if (element.tagName === 'LI') {
+            element.style.setProperty('--pseudo-content', `"${translation}"`);
         } else {
-            element.textContent = t(key, params);
+            if (element.tagName === 'INPUT') {
+                if (element.type === 'submit') {
+                    element.value = t(key, params);
+                } else if (element.type === 'file') {
+                    element.setAttribute('title', t(key, params));
+                }
+            } else {
+                element.textContent = t(key, params);
+            }
         }
     });
 }

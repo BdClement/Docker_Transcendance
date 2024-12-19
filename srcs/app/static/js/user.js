@@ -2,6 +2,15 @@ const userModal = document.getElementById('userModal');
 const userLink = document.getElementById('userLink');
 const userForm = document.getElementById('userForm');
 
+function escapeHtmlUser(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function updateCsrfToken2() {
     return fetch('/api/get-csrf-token/', {
         method: 'GET',
@@ -67,52 +76,51 @@ function updateUserInfo2(user) {
     .then(data => {
         if (!data.id) throw new Error(t('userIdNotFound'));
         const userId = data.id;
-        
+
         fetch(`/api/userprofile/${userId}/`)
             .then(response => response.json())
             .then(data => {
                 const userInfoForm = document.createElement('form');
                 userInfoForm.innerHTML = `
+                <div class="UserInfoForm">
                     <div class="row text-center">
                         <div class="col-4">
-                            <h5>${data.nbVictoires + data.nbDefaites}</h5>
+                            <h5>${escapeHtmlUser(String(data.nbVictoires + data.nbDefaites))}</h5>
                             <small class="text-muted" data-i18n="games">Parties</small>
                         </div>
                         <div class="col-4">
-                            <h5>${data.nbVictoires}</h5>
+                            <h5>${escapeHtmlUser(String(data.nbVictoires))}</h5>
                             <small class="text-muted" data-i18n="victories">Victoires</small>
                         </div>
                         <div class="col-4">
-                            <h5>${data.nbDefaites}</h5>
+                            <h5>${escapeHtmlUser(String(data.nbDefaites))}</h5>
                             <small class="text-muted" data-i18n="defeats">Défaites</small>
                         </div>
                     </div>
                     <div class="mb-3">
                         <p class="form-label" data-i18n="username">Username</p>
-                        <input type="text" class="form-control" value="${user.username}" disabled>
+                        <input type="text" class="form-control" value="${escapeHtml(user.username)}" disabled>
                     </div>
                     <div class="mb-3">
                         <p class="form-label" data-i18n="alias">Alias</p>
-                        <input type="text" class="form-control" value="${user.alias}" disabled>
+                        <input type="text" class="form-control" value="${escapeHtml(user.alias)}" disabled>
                     </div>
                     <div class="mb-3">
                         <p class="form-label" data-i18n="email">Email</p>
-                        <input type="email" class="form-control" value="${user.email}" disabled>
+                        <input type="email" class="form-control" value="${escapeHtml(user.email)}" disabled>
                     </div>
-                `;
+                </div>`;
                 userForm.innerHTML = '';
                 userForm.appendChild(userInfoForm);
                 applyTranslations();
             });
     });
 }
-
 function clearUserInfo() {
     userForm.innerHTML = `
-        <div class="row text-center">
-            <div class="col-12">
-                <p class="text-muted" data-i18n="noUserInfo">Aucune information utilisateur disponible</p>
-            </div>
+        <div class="auth-message">
+            <i class="fas fa-lock"></i>
+            <p data-i18n="noUserInfo">Aucune information utilisateur disponible</p>
         </div>
     `;
     applyTranslations();
@@ -138,6 +146,7 @@ function openuserModal() {
 
 window.addEventListener('userLoggedOut', function() {
     clearUserInfo();
+    loadFriendLists();//Ajoute par Clement
     const modal = bootstrap.Modal.getInstance(userModal);
     if (modal) {
         modal.hide();

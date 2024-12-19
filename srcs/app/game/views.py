@@ -131,6 +131,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 class PlayListAPIView(APIView):
 	def get(self, request):
-		plays = Play.objects.filter(remote=True, is_finished=False, player_connected__lt=2, private=False)
+		plays = Play.objects.filter(remote=True, is_finished=False, private=False)
 		serializer = PlayListSerializer(plays, many=True)
 		return Response(serializer.data)

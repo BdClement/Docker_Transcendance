@@ -10,6 +10,7 @@ class User(AbstractUser):
 	nbDefaites = models.IntegerField(default=0, verbose_name='Nombre de parties perdues')
 	photoProfile = models.ImageField(verbose_name='Photo de profil', blank=True, null=True)
 	following = models.ManyToManyField('self', related_name='followers', symmetrical=False)
+	languageFav = models.IntegerField(choices=[(1, 'English'), (2, 'Français'), (3, 'Tiếng Việt')], default=2)
 	ALIAS_FIELDS = 'alias'
 	REQUIRED_FIELDS = ['email']
 	USERNAME_FIELD = 'username'

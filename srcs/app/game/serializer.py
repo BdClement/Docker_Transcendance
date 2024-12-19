@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from game.models import Play, Tournament
 from authentication.models import User
+import bleach
+from authentication.serializers import clean_user_data
 
 class PlayCreateSerializer(serializers.ModelSerializer):
 
@@ -14,6 +16,9 @@ class PlayCreateSerializer(serializers.ModelSerializer):
 		fields = ['id', 'remote', 'nb_players', 'private']
 
 	def validate(self, data):
+
+		data = clean_user_data(data)  # Protection contre les injections XSS
+
 		if not isinstance(data['remote'], bool):
 			raise serializers.ValidationError({'Remote must be a boolean value.'})
 		if data['nb_players'] not in [2, 4]:
@@ -54,7 +59,7 @@ class PlayDetailSerializer(serializers.ModelSerializer):
 			else:
 				transformed_results[key] = value
 		return transformed_results
-	
+
 	def get_player_name(self, obj):
 		player_names = []
 		if obj.player1:
@@ -88,6 +93,9 @@ class TournamentSerializer(serializers.ModelSerializer):
 
 	#Gerer la validation des alias_name dans validate
 	def validate(self, data):
+
+		data = clean_user_data(data)  # Protection contre les injections XSS
+
 		# print(f'{data}')
 		alias_name = data.get('alias_names', [])
 		if len(alias_name) !=  data['nb_players']:

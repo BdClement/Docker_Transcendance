@@ -5,6 +5,86 @@ const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
 
+function escapeHtmlTournois(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function showFullScreenTournamentModal() {
+
+    const existingModal = document.getElementById('tournamentFullScreenModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'tournamentFullScreenModal';
+    modal.className = 'modal show';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('role', 'dialog');
+    modal.style.cssText = `
+        display: block; 
+        background-color: rgba(13, 30, 41, 0.9); 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        z-index: 2;
+        overflow: hidden;
+    `;
+
+    modal.innerHTML = `
+        <div class="modal-dialog modal-fullscreen" role="document" style="max-width: 100%; margin: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center;">
+            <div class="modal-content" style="
+                height: auto; 
+                width: 100%; 
+                background: transparent; 
+                box-shadow: none; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center;
+                padding-bottom: 20vh;
+            ">
+                <div class="modal-body text-center" style="color: #ad996d; text-align: center; width: 100%;">
+                    <div class="spinner-border" role="status" style="
+                        width: 3rem; 
+                        height: 3rem; 
+                        color: #ad996d; 
+                        border-width: 0.25em;
+                        margin-bottom: 20px;
+                    ">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h2 class="mt-3" data-i18n="tournamentInProgress" style="
+                        color: #ad996d; 
+                        font-size: 2rem; 
+                        margin-bottom: 15px;
+                    ">Tournament in Progress</h2>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.style.zIndex = '2';
+
+    if (typeof applyTranslations === 'function') {
+        applyTranslations();
+    }
+
+    return function closeFullScreenModal() {
+        const modalToRemove = document.getElementById('tournamentFullScreenModal');
+        if (modalToRemove) {
+            modalToRemove.remove();
+        }
+    };
+}
+
 function openTournamentModal() {
     const modal = new bootstrap.Modal(tournamentModal);
     modal.show();
@@ -43,8 +123,8 @@ function updateAliasInputs() {
         const input = document.createElement('div');
         input.classList.add('mb-3');
         input.innerHTML = `
-            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${i}</p>
-            <input type="text" class="form-control" id="alias${i}" required>
+            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
+            <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
         `;
         aliasInputs.appendChild(input);
     }
@@ -60,6 +140,15 @@ tournamentForm.addEventListener('submit', async (e) => {
         const aliasInput = document.getElementById(`alias${i}`);
         if (aliasInput && aliasInput.value.trim() !== '') {
             aliasNames.push(aliasInput.value.trim());
+        }
+    }
+
+    for (let index = 0; index < playerCount; index++) {
+
+        const validAlias = validateInput(aliasNames[index], 'alias');
+
+        if (!validAlias || validAlias == "1") {
+            throw alert(t('invalidAliasFormat'));
         }
     }
 
@@ -87,7 +176,8 @@ tournamentForm.addEventListener('submit', async (e) => {
             startTournament(tournamentData.id);
         } else {
             const errorData = await response.json();
-            alert(t('tournamentCreationError') + `: ${errorData.message}`);
+            alert(t('tournamentCreationError'));
+            // alert(t('tournamentCreationError') + `: ${errorData.message}`);
         }
     } catch (error) {
         console.error('Erreur lors de la création du tournoi:', error);
@@ -96,6 +186,7 @@ tournamentForm.addEventListener('submit', async (e) => {
 });
 
 async function startTournament(tournamentId) {
+    const closeFullScreenModal = showFullScreenTournamentModal();
     let tournamentFinished = false;
 
     while (!tournamentFinished) {
@@ -119,16 +210,17 @@ async function startTournament(tournamentId) {
             } else if (response.status === 410) {
                 tournamentFinished = true;
                 showNotification(
-                    t('tournamentScoreStorageAttempt', { 
-                        tournamentId: tournamentId, 
-                        etherscanLink: etherscanLink, 
-                        contractAddress: contractAddress 
-                    }), 
+                    t('tournamentScoreStorageAttempt', {
+                        tournamentId: tournamentId,
+                        etherscanLink: etherscanLink,
+                        contractAddress: contractAddress
+                    }),
                     true
                 );
                 // Fonction pour le stockage de du tournoi dans la Blockchain
                 // startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
+                closeFullScreenModal();
             } else {
                 throw new Error('Erreur inattendue');
             }
@@ -136,6 +228,7 @@ async function startTournament(tournamentId) {
             console.error('Erreur lors du déroulement du tournoi:', error);
             alert('Une erreur est survenue lors du déroulement du tournoi.');
             tournamentFinished = true;
+            closeFullScreenModal();
         }
     }
 }
@@ -147,9 +240,9 @@ function showNextGameModal(data) {
         const nextGameInfoForm = document.createElement('form');
 
         nextGameInfoForm.innerHTML = `
-            <p>${t('nextGameVs', { 
-                player1: data.player_name[0], 
-                player2: data.player_name[1] 
+            <p>${t('nextGameVs', {
+                player1: escapeHtmlTournois(data.player_name[0]),
+                player2: escapeHtmlTournois(data.player_name[1])
             })}</p>
         `;
         nextGameForm.innerHTML = '';
@@ -187,7 +280,7 @@ function waitForGameCompletion(playId) {
                     clearInterval(checkInterval);
                     resolve();
                 });
-        }, 5000); // verifie toutes les 15 secondes pour etre sur que la websocket de la partie precedente est close
+        }, 10000); // verifie toutes les 15 secondes pour etre sur que la websocket de la partie precedente est close
     });
 }
 
