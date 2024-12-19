@@ -245,6 +245,10 @@ canvas {
     transition: none !important;
 }
 
+#gameModal {
+    z-index: 1150;
+}
+
 .modal-dialog gameModal {
     transition: none !important;
     transform: none !important;
@@ -887,4 +891,8 @@ input[type="radio"]:focus + label {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+#friendProfileModal {
+    z-index: 1150;
 }

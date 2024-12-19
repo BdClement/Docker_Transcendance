@@ -7,16 +7,19 @@ class PlayCreateSerializer(serializers.ModelSerializer):
 
 	remote = serializers.BooleanField(required=True)
 	nb_players = serializers.IntegerField(required=True)
+	private = serializers.BooleanField(required=True)
 
 	class Meta:
 		model = Play
-		fields = ['id', 'remote', 'nb_players']
+		fields = ['id', 'remote', 'nb_players', 'private']
 
 	def validate(self, data):
 		if not isinstance(data['remote'], bool):
 			raise serializers.ValidationError({'Remote must be a boolean value.'})
 		if data['nb_players'] not in [2, 4]:
 			raise serializers.ValidationError('nb_players must be 2 or 4')
+		if not isinstance(data['private'], bool):
+			raise serializers.ValidationError({'Private must be a boolean value.'})
 		return data
 
 class PlayDetailSerializer(serializers.ModelSerializer):

@@ -30,8 +30,8 @@ def index(request):
 class PlayCreateAPIView(APIView):
 	def post(self, request):
 		#Pre validation pour eviter des operations plus couteuses si les fields requis ne sont pas present
-		if 'remote' not in request.data or 'nb_players' not in request.data:
-			raise ValidationError('remote and nb_players are required')
+		if 'remote' not in request.data or 'nb_players' not in request.data or 'private' not in request.data:
+			raise ValidationError('remote and nb_players and private are required')
 
 		#[ Autre option ] Extraire manuellement les donnees de la requete pour pouvoir creer un objet puis le mettre dans un serializer
 		# remote = request.data.get('remote')
@@ -131,6 +131,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 class PlayListAPIView(APIView):
 	def get(self, request):
-		plays = Play.objects.filter(remote=True, is_finished=False, player_connected__lt=2)
+		plays = Play.objects.filter(remote=True, is_finished=False, player_connected__lt=2, private=False)
 		serializer = PlayListSerializer(plays, many=True)
 		return Response(serializer.data)

@@ -205,11 +205,12 @@ const PongGame = (function() {
         }, 2000);
     }
 
-    function createNewGame(remote, nbPlayers) {
+    function createNewGame(remote, nbPlayers, private) {
         console.log(`[createNewGame] Creating new game. Remote: ${remote}, Players: ${nbPlayers}`);
         const data = {
             remote: remote,
-            nb_players: nbPlayers
+            nb_players: nbPlayers,
+            private: private
         };
 
         console.log(`[createNewGame] Sending game creation request with data:`, data);
@@ -312,7 +313,7 @@ const PongGame = (function() {
             if (remote && nbPlayers === 2) {
                 fetchAvailableGames(remote, nbPlayers);
             } else {
-                createNewGame(remote, nbPlayers);
+                createNewGame(remote, nbPlayers, false);
             }
         });
 
@@ -340,12 +341,12 @@ const PongGame = (function() {
                         displayAvailableGames(games);
                     } else {
                         console.log(`[fetchAvailableGames] No games available, creating new game`);
-                        createNewGame(true, 2);
+                        createNewGame(true, 2, false);
                     }
                 })
                 .catch(error => {
                     console.error('[fetchAvailableGames] Error:', error);
-                    createNewGame(true, 2);
+                    createNewGame(true, 2, false);
                 });
         }
 
@@ -387,7 +388,7 @@ const PongGame = (function() {
             const newGameButton = document.createElement('button');
             newGameButton.textContent = 'Create New Game';
             newGameButton.addEventListener('click', () => {
-                createNewGame(true, 2);
+                createNewGame(true, 2, false);
                 container.style.display = 'none';
             });
             container.appendChild(newGameButton);

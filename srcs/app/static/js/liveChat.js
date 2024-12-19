@@ -29,11 +29,9 @@ function handleIncomingMessage(e) {
 	} else if (data.type === 'block_user') {
 		if (destinataireId == data.blocker_id)
 		{
-			console.log("changement d'etat de blocage");
 			HistoriqueMessages(data.blocker_id, data.blocker_username);
 		}
 	} else if (data.type === 'pong_invitation') {
-		console.log("invitation à jouer recu");
 		const messageContainer = document.getElementById('message-container');
 		if (!messageContainer) {
 			console.error("messageContainer introuvable !");
@@ -42,8 +40,6 @@ function handleIncomingMessage(e) {
 		invitationJeu(data.message);
 		messageContainer.scrollTop = messageContainer.scrollHeight;
 	} else if (data.type === 'connection_status') {
-		console.log(`${data.user_id} vient de se ${data.status}`);
-		
 		if (destinataireId === data.user_id) {
 			const onlineStatusElement = document.getElementsByClassName("liveChat-online-offline-Status")[0]; // Accéder au premier élément avec cette classe
 			
@@ -66,7 +62,6 @@ function handleWebSocketError(e) {
 
 function handleWebSocketClose() {
 	console.log('WebSocket fermé, tentez de reconnecter si nécessaire');
-	// Si tu souhaites ajouter une reconnexion automatique, tu peux l'implémenter ici
 }
 
 // gere les messages recu en rapport au partie via le liveCHat
@@ -136,19 +131,19 @@ function afficherInvitationJeu(message, messageElement) {
 			`;
 		}
 	} else if (message.message === "invitation acceptée") {
-		console.log("[afficherInvitationJeu] expediteur = '", message.expediteur_username, "', destinataire = '", message.destinataire_username, "'")
 		if (message.expediteur_id === destinataireId) {
 			messageElement.innerHTML = `
 				invitation acceptée, partie en cours...
 			`;
-			console.log("je suis la personne 1, j'envoie");
 		} else {
 			messageElement.innerHTML = `
 				invitation acceptée, partie en cours...
 			`;
-			console.log("je suis la personne 2, j'accepte");
-			PongGame.joinGame(message.gameId);
+	
+			// Appel de la fonction joinGame et vérification du succès
+			console.log(PongGame.joinGame(message.gameId));
 		}
+			
 	} else if (message.message === "resultats partie"){
 		if (message.winners.includes(parseInt(destinataireId)) && destinataireId === message.destinataire_id) {
 			messageElement.innerHTML = `
@@ -205,7 +200,7 @@ function inviterPartiePong(IdDestinataire) {
 
 // crée une partie en remote puis envoie un message via websocket si l'utilisateur accepte la partie
 function invitationAccepte(expediteur_id, message_id) {
-    PongGame.createNewGame(true, 2)
+    PongGame.createNewGame(true, 2, true)
         .then(gameId => {
             chatSocket.send(JSON.stringify({
                 'type': "pong_invitation_accepté",
