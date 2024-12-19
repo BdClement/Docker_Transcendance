@@ -190,7 +190,10 @@ const PongGame = (function() {
 
     function endGame(gameDetails) {
         let message;
-
+        isPlayer1 = false;
+        isPlayer2 = false;
+        isPlayer3 = false;
+        isPlayer4 = false;
         if (gameDetails && gameDetails.is_finished) {
             const { nb_players, results } = gameDetails;
 

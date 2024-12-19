@@ -167,11 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadFriendLists() {
-
-        //Ajoute par Clement Car en haut ce ne fonctionne plus puisque jai modifier index.html
-        updateFriendModalBody();
         const followingList = document.getElementById('followingList');
         const followersList = document.getElementById('followersList');
+        
         console.log('Appel apiFollowing');
         fetch('/api/following/', {
             headers: {
@@ -185,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             console.log('Lappel a lAPI fonctionne donc jaffiche le modalFriend');
-
+            
             followingList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -227,12 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-lock"></i>
                     <p data-i18n="loginToSeeFriends">Aucune information utilisateur disponible</p>
                 </div>`;
-            return; //Pas d'appel a la deuxieme API
+            return;
         });
-
-        //J'expose la fonction au contexte global pour ne pas trop modifier le front mais acceder a cette fonction pour la deconnexion
-        window.loadFriendLists = loadFriendLists;
-
+    
         fetch('/api/followers/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -245,10 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             if (data.length === 0) {
-                followersList.innerHTML = `<li class="custom-list-group-item text-muted" data-i18n="noFollowers">Aucun abonné</li>` ;
+                followersList.innerHTML = `<li class="custom-list-group-item text-muted">${t('noFollowers')}</li>`;
                 return;
             }
-
+    
             followersList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -334,6 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(`/api/userprofile/${userId}/`)
                 .then(response => response.json())
                 .then(data => {
+                    const onlineStatus = data.is_online 
+                        ? `<span class="text-success" data-i18n="onlineStatus">En ligne</span>` 
+                        : `<span class="text-muted" data-i18n="offlineStatus">Déconnecté</span>`;
+    
                     document.getElementById('friendProfileContent').innerHTML = `
                         <div class="text-center mb-3">
                             <div class="profile-picture-large mx-auto mb-2"
@@ -345,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <h4>${escapeHtmlUser(data.username)}</h4>
                             <p class="text-muted">${escapeHtmlUser(data.alias)}</p>
+                            <div class="mb-2">${onlineStatus}</div>
                         </div>
                         <div class="row text-center">
                             <div class="col-4">
@@ -380,6 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return cookieValue;
     }
+
+    friendModal.addEventListener('show.bs.modal', () => {  // Changé de 'shown.bs.modal' à 'show.bs.modal'
+        updateFriendModalBody();
+        loadFriendLists();
+    });  
 
     updateFriendModalBody();
     loadFriendLists();

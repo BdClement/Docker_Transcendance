@@ -101,6 +101,8 @@ const translations = {
         invalidUsernameFormat : "Your username is not valid, it can only contain letters, numbers and the special characters _ and -",
         invalidFriendName : "Your friend name is not valid, it can only contain letters, numbers and the special characters _ and -",
         invalidEmailFormat : "Your email is invalid",
+        onlineStatus : "Online",
+        offlineStatus : "Disconnected",
         invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
@@ -202,6 +204,8 @@ const translations = {
         invalidUsernameFormat : "Votre pseudo n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
         invalidFriendName : "Le pseudo de votre amis n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
         invalidEmailFormat : "Votre Email est invalide",
+        onlineStatus : "En ligne",
+        offlineStatus : "Déconnecté",
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
@@ -309,6 +313,8 @@ const translations = {
         noUpdateFieldsProvided: "Vui lòng bao gồm ít nhất một trường để sửa đổi",
         languageSetting : "Ngôn ngữ ưa thích",
         errorFriend : "Vui lòng nhập tên người dùng",
+        onlineStatus : "Trực tuyến",
+        offlineStatus : "Đã ngắt kết nối",
         tournamentInProgress: "Giải đấu đang diễn ra"
     }
 };

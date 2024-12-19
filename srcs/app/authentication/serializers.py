@@ -20,12 +20,12 @@ def clean_user_data(data):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'languageFav']
+		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'languageFav', 'is_online']
 
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile']
+		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'is_online']
 
 #Verification des données fournies lors de la connexions
 # class LoginSerializer(serializers.Serializer):
@@ -194,4 +194,3 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 		if password:
 			login(self.context['request'], instance)
 		return instance
-

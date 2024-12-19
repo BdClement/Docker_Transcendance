@@ -1,5 +1,24 @@
 // auth.js
 
+let onlineStatusSocket = null;
+
+function connectWebSocket() {
+    if (onlineStatusSocket === null || onlineStatusSocket.readyState === WebSocket.CLOSED) {
+        
+        onlineStatusSocket = new WebSocket(`wss://${window.location.host}/wss/online_status/`);
+
+        onlineStatusSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            updateUserOnlineStatus(data.user_id, data.status);
+        };
+
+        onlineStatusSocket.onclose = function(e) {
+            console.log('WebSocket connection closed');
+            setTimeout(connectWebSocket, 1000); // Tentative de reconnexion
+        };
+    }
+}
+
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")
@@ -119,6 +138,7 @@ function checkLoginStatus() {
                     applyTranslations();
                 }
             }
+            connectWebSocket();
         } else {
             updateUserInfo(null);
         }
@@ -221,6 +241,12 @@ function signup(formData) {
 }
 
 function logout() {
+    
+    if (onlineStatusSocket) {
+        onlineStatusSocket.close();
+        onlineStatusSocket = null;
+    }
+
     return fetchWithCsrf('/api/logout/', {
         method: 'GET',
         headers: {
@@ -237,6 +263,14 @@ function logout() {
             throw new Error(data.message);
         }
     });
+}
+
+function updateUserOnlineStatus(userId, isOnline) {
+    const statusElement = document.querySelector(`[data-user-status="${userId}"]`);
+    if (statusElement) {
+        statusElement.textContent = isOnline ? 'En ligne' : 'Hors ligne';
+        statusElement.className = isOnline ? 'text-success' : 'text-secondary';
+    }
 }
 
 // Cette variable va contenir les messages d'erreur en fonction de la langue

@@ -16,24 +16,23 @@ from channels.auth import AuthMiddlewareStack #(authentification de qui utilise 
 from django.urls import path
 # from game.consumers import GameConsumer
 # from game import routing.websocket_urlpatterns
-from game.routing import websocket_urlpatterns
+from game.routing import websocket_urlpatterns as game_websocket_urlpatterns
+from authentication.routing import websocket_urlpatterns as auth_websocket_urlpatterns
 
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Transcendance.settings')
-# django.setup()
+# Combiner les patterns
+all_websocket_urlpatterns = auth_websocket_urlpatterns + game_websocket_urlpatterns
 
-# application = get_asgi_application()
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),  # Traite les requêtes HTTP
-    "websocket": URLRouter(
-			websocket_urlpatterns
-        ),
-    # "websocket": URLRouter([
-    #         path('ws/game/<int:game_id>/', GameConsumer.as_asgi()),
-    #     ]),
+	"http": get_asgi_application(),
+	"websocket": AuthMiddlewareStack(
+		URLRouter(
+			all_websocket_urlpatterns
+		)
+	),
 })
 
 # application = ProtocolTypeRouter({
-#     "http": get_asgi_application(),  # Traite les requêtes HTTP
+#     "http": get_asgi_application(),  # Traite les requÃªtes HTTP
 #     "websocket": AuthMiddlewareStack(
 #         URLRouter([
 #             path('ws/game/<int:game_id>/', GameConsumer.as_asgi()),

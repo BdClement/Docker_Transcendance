@@ -14,6 +14,7 @@ class User(AbstractUser):
 	ALIAS_FIELDS = 'alias'
 	REQUIRED_FIELDS = ['email']
 	USERNAME_FIELD = 'username'
+	is_online = models.BooleanField(default=False)
 	def __str__(self):
 		return self.username
 	# pass
