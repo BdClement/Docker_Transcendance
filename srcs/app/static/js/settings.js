@@ -194,8 +194,27 @@ async function updateUserProfile(formData) {
             }
             checkLoginStatus();
         } else {
-            const error = await response.json();
-            throw new Error(escapeHtml(error.detail || t('profileUpdateError')));
+            // const error = await response.json();
+            // throw new Error(error.detail || t('profileUpdateError'));
+            // Traiter les erreurs spécifiques
+            if (response.status === 400 && responseBody) {
+                let errorMessages = [];
+                if (responseBody.username) {
+                    errorMessages.push(t('UsernameError'));
+                }
+                if (responseBody.alias) {
+                    errorMessages.push(t('AliasError'));
+                }
+                if (responseBody.email) {
+                    errorMessages.push(t('EmailError'));
+                }
+                console.log('errorMessages == ', errorMessages);
+                if (errorMessages.length > 0) {
+                    throw new Error(errorMessages.join(', '));
+                }
+            }
+            // Si aucune erreur spécifique n'est trouvée, message générique
+            throw new Error(t('profileUpdateError'));
         }
     } catch (error) {
         const alertDiv = document.createElement('div');
