@@ -26,7 +26,6 @@ const PongGame = (function() {
         };
 
         socket.onmessage = function(e) {
-            // console.log(`[WebSocket] Received message:`, e.data);
             const data = JSON.parse(e.data);
             if (data.message === 'end_game') {
                 fetchGameDetails(currentGameId);
@@ -37,34 +36,28 @@ const PongGame = (function() {
         };
 
         socket.onclose = function(e) {
-            console.error(`[WebSocket] Connection closed for game ${gameId}. Code: ${e.code}, Reason: ${e.reason}`);
             terminateGame();
         };
 
         socket.onerror = function(error) {
-            console.error(`[WebSocket] Error in game ${gameId}:`, error);
         };
 
         gameLoopInterval = setInterval(updatePaddlePositions, 1000 / 60);
     }
 
     function navigateTo(title, url, content, gameId = null) {
-        console.log(`[navigateTo] Navigating to: ${title}, URL: ${url}, Game ID: ${gameId}`);
         const state = { title, content, gameId };
         history.pushState(state, title, url);
         updateUI(state);
     }
 
     function updateUI(state) {
-        console.log(`[updateUI] Updating UI with state:`, state);
         const mainContent = document.querySelector('.main-content');
 
         if (state.gameId) {
-            console.log(`[updateUI] Setting up game UI for game ID: ${state.gameId}`);
             gameModal.show();
             currentGameId = state.gameId;
         } else {
-            console.log(`[updateUI] Resetting to home UI`);
             gameModal.hide();
             terminateGame();
         }
@@ -77,10 +70,8 @@ const PongGame = (function() {
     }
 
     function terminateGame() {
-        console.log(`[terminateGame] Terminating current game`);
         if (socket) {
             if (socket.readyState === WebSocket.OPEN) {
-                console.log(`[terminateGame] Sending disconnect message`);
                 socket.send(JSON.stringify({ 'action': 'disconnect', 'player': 'all' }));
             }
             socket.close();
@@ -156,7 +147,6 @@ const PongGame = (function() {
     function sendPaddleMovement(player, direction) {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ 'player': player, 'move': direction }));
-            console.log("Player:", player, "direction:", direction);
         }
     }
 
@@ -169,7 +159,6 @@ const PongGame = (function() {
                 return response.json();
             })
             .then(data => {
-                console.log('Affichage du retour API', data);
                 endGame(data);
             })
     }
@@ -234,21 +223,17 @@ const PongGame = (function() {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        console.log(`[DOMContentLoaded] Initializing PongGame`);
         gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
 
         document.getElementById('gameModal').addEventListener('hidden.bs.modal', function () {
-            console.log(`[gameModal] Modal hidden`);
             terminateGame();
             navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
         });
 
         document.getElementById('playForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            console.log(`[playForm] Form submitted`);
 
             const gameMode = document.querySelector('input[name="game_mode"]:checked').value;
-            console.log(`[playForm] Selected game mode: ${gameMode}`);
 
             let remote, nbPlayers;
 
@@ -272,7 +257,6 @@ const PongGame = (function() {
             }
 
             isLocalGame = !remote;
-            console.log(`[playForm] Game settings - Remote: ${remote}, Players: ${nbPlayers}`);
 
             if (remote) {
                 fetchAvailableGames(remote, nbPlayers);
@@ -296,22 +280,18 @@ const PongGame = (function() {
         initializeLanguageSelector();
 
         function fetchAvailableGames(remote, nbPlayers) {
-            console.log(`[fetchAvailableGames] Fetching available games. Remote: ${remote}, Players: ${nbPlayers}`);
             fetch('/api/play/list')
                 .then(response => response.json())
                 .then(games => {
-                    console.log(`[fetchAvailableGames] Received ${games.length} available games`);
                     const filteredGames = games.filter(game => game.nb_players === nbPlayers && game.player_connected > 0);
 
                     if (filteredGames.length > 0) {
                         displayAvailableGames(filteredGames, nbPlayers);
                     } else {
-                        console.log(`[fetchAvailableGames] No games available, creating new game`);
                         createNewGame(true, nbPlayers);
                     }
                 })
                 .catch(error => {
-                    console.error('[fetchAvailableGames] Error:', error);
                     createNewGame(true, nbPlayers);
                 });
         }
@@ -372,7 +352,6 @@ const PongGame = (function() {
         }
 
         function joinGame(gameId) {
-            console.log(`[joinGame] Attempting to join game: ${gameId}`);
 
             fetchWithCsrf(`/api/play/join/${gameId}`, {
                 method: 'PUT',
@@ -403,13 +382,11 @@ const PongGame = (function() {
         }
 
         function createNewGame(remote, nbPlayers) {
-            console.log(`[createNewGame] Creating new game. Remote: ${remote}, Players: ${nbPlayers}`);
             const data = {
                 remote: remote,
                 nb_players: nbPlayers
             };
 
-            console.log(`[createNewGame] Sending game creation request with data:`, data);
 
             return fetchWithCsrf(`api/play/create`, {
                 method: 'POST',

@@ -32,7 +32,6 @@ function loadMatchHistory() {
         })
         .then(data => {
             if (data) {
-                console.log("DATA HISTORIQUE :", data);
                 displayMatchHistory(data);
             }
         })

@@ -1,5 +1,3 @@
-// auth.js
-
 let onlineStatusSocket = null;
 
 function connectWebSocket() {
@@ -13,8 +11,7 @@ function connectWebSocket() {
         };
 
         onlineStatusSocket.onclose = function(e) {
-            console.log('WebSocket connection closed');
-            setTimeout(connectWebSocket, 1000); // Tentative de reconnexion
+            setTimeout(connectWebSocket, 1000);
         };
     }
 }
@@ -120,7 +117,6 @@ function checkLoginStatus() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("DATA :", data);
         if (data.username) {
             updateUserInfo(data.username, data.photoProfile, data.alias);
 
@@ -402,16 +398,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage += 'Erreur inconnue';
                     }
                 }
-            console.log('error message : ', errorMessage);
             setErrorMessages();
             // Affichage du message d'erreur
-            console.log('errorMessages[errorMessage] : ', errorMessages[errorMessage.trim()]);
             if (errorMessages[errorMessage.trim()]) {
-                console.log('rentre dans le if : ', errorMessages[errorMessage.trim()]);
                 alert(errorMessages[errorMessage.trim()]);
             } else {
                 alert(errorMessage);
-                console.log('rentre dans le else : ', errorMessages[errorMessage.trim()]);
             }
         });
     });

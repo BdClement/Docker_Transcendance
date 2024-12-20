@@ -177,7 +177,6 @@ tournamentForm.addEventListener('submit', async (e) => {
         } else {
             const errorData = await response.json();
             alert(t('tournamentCreationError'));
-            // alert(t('tournamentCreationError') + `: ${errorData.message}`);
         }
     } catch (error) {
         console.error('Erreur lors de la création du tournoi:', error);
@@ -217,8 +216,7 @@ async function startTournament(tournamentId) {
                     }),
                     true
                 );
-                // Fonction pour le stockage de du tournoi dans la Blockchain
-                // startLiseningToTournament(tournamentId);
+                startLiseningToTournament(tournamentId);
                 await displayTournamentResults(tournamentId);
                 closeFullScreenModal();
             } else {
@@ -280,7 +278,7 @@ function waitForGameCompletion(playId) {
                     clearInterval(checkInterval);
                     resolve();
                 });
-        }, 10000); // verifie toutes les 15 secondes pour etre sur que la websocket de la partie precedente est close
+        }, 15000);
     });
 }
 

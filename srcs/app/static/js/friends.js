@@ -98,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             throw alert(t('invalidFriendName'));
         }
 
-        console.log('Attempting to add friend:', friendUsername);
 
         fetch(`/api/users/${friendUsername}/`, {
             headers: {
@@ -107,12 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
             credentials: 'same-origin'
         })
         .then(response => {
-            console.log('User search response:', response);
             if (!response.ok) throw new Error('L\'utilisateur n\'existe pas');
             return response.json();
         })
         .then(data => {
-            console.log('User data:', data);
             if (!data.id) throw new Error('ID de l\'utilisateur n\'existe pas');
 
             return fetch(`/api/addfriend/${data.id}/`, {
@@ -125,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         })
         .then(response => {
-            console.log('Add friend response:', response);
             if (!response.ok) {
                 return response.json().then(data => {
                     console.error('Error response:', data);
@@ -158,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(styleSheet);
 
     window.addEventListener('userLoggedIn', () => {
-        console.log('User logged in event detected, loading friend lists...');
         loadFriendLists();
     });
 
@@ -170,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const followingList = document.getElementById('followingList');
         const followersList = document.getElementById('followersList');
         
-        console.log('Appel apiFollowing');
         fetch('/api/following/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -182,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            console.log('Lappel a lAPI fonctionne donc jaffiche le modalFriend');
             
             followingList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
@@ -324,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleViewProfile(e) {
         e.preventDefault();
         const userId = e.target.getAttribute('data-user-id');
-        console.log(userId);
         if (userId) {
             fetch(`/api/userprofile/${userId}/`)
                 .then(response => response.json())

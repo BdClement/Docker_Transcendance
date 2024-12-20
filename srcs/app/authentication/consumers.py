@@ -9,26 +9,20 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		await self.accept()
 		
-		# Ajouter l'utilisateur à un groupe spécifique
 		await self.channel_layer.group_add(
 			f"user_{self.scope['user'].id}",
 			self.channel_name
 		)
 		
-		# Mettre à jour le statut de l'utilisateur comme en ligne
 		await self.update_user_status(True)
 		
-		# Notifier les amis que l'utilisateur est en ligne
 		await self.notify_friends_status(True)
 
 	async def disconnect(self, close_code):
-		# Mettre à jour le statut de l'utilisateur comme hors ligne
 		await self.update_user_status(False)
 		
-		# Notifier les amis que l'utilisateur est hors ligne
 		await self.notify_friends_status(False)
 		
-		# Retirer l'utilisateur du groupe
 		await self.channel_layer.group_discard(
 			f"user_{self.scope['user'].id}",
 			self.channel_name

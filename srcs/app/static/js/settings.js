@@ -67,10 +67,8 @@ async function updateUserProfile(formData) {
         const sanitizedFormData = new FormData();
 
         for (let [key, value] of formData.entries()) {
-            // Sanitize file names and other inputs
             if (value instanceof File) {
                 if (value.size > 0) {
-                    // Sanitize file name
                     const sanitizedFileName = sanitizeAttribute(value.name);
                     const sanitizedFile = new File([value], sanitizedFileName, {
                         type: value.type,
@@ -86,7 +84,6 @@ async function updateUserProfile(formData) {
             }
         }
 
-        // Sanitize and validate password
         const newPassword = sanitizedFormData.get('password');
         const confirmPassword = sanitizeAttribute(settingsConfirmPassword.value);
         const languagePreference = sanitizeAttribute(document.getElementById('settingsLanguagePreference').value);
@@ -109,7 +106,6 @@ async function updateUserProfile(formData) {
             }
         }
 
-        //Je recupere les cles initiales de FormData
         const keys = [];
         for (let [key, value] of sanitizedFormData.entries()) {
             keys.push(key);
@@ -147,12 +143,10 @@ async function updateUserProfile(formData) {
                 i--;
             }
 
-            // Suppression des clés vides ou des fichiers vides
             if (value instanceof File && value.size === 0) {
                 console.log('Key supprimee (fichier vide) = ', key);
                 sanitizedFormData.delete(key);
-                // Si vous supprimez l'élément, ne passez pas à l'élément suivant
-                i--;  // Décrémente l'index pour vérifier à nouveau la même position après la suppression (donc element suivant)
+                i--;
             } else if (value === '') {
                 console.log('Key supprimee (valeur vide) = ', key);
                 sanitizedFormData.delete(key);
@@ -223,12 +217,10 @@ function opensettingsModal() {
     })
     .then(response => {
         if (response.ok) {
-            console.log('opensettingsModal: l\'utilisateur est connecte, on affiche le formulaire');
             settingsForm.style.display = 'block';
             errorMessage.style.display = 'none';
             setInitialLanguagePreference();
         } else if (response.status === 401) {
-            console.log('opensettingsModal: l\'utilisateur n\'est pas connecte, on affiche le message d\'erreur');
             settingsForm.style.display = 'none';
             errorMessage.style.display = 'block';
         } else {

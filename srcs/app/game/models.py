@@ -110,7 +110,7 @@ class Tournament(models.Model):
 				#Stockage Blockchain
 				# print("\nTEST Avant Thread\n", flush=True)
 
-				# threading.Thread(target=async_to_sync(self.store_score_on_blockchain)).start() # Stokage Blockchain
+				threading.Thread(target=async_to_sync(self.store_score_on_blockchain)).start() # Stokage Blockchain
 
 
 			else :#Creation de toutes les parties du prochain round
