@@ -238,58 +238,135 @@ async function login(username, password) {
     })
 }
 
-function signup(formData) {
+async function signup(formData) {
 
-    const username = formData.get('username');
-    const email = formData.get('email');
-    const alias = formData.get('alias');
-    const password = formData.get('password');
+    // const username = formData.get('username');
+    // const email = formData.get('email');
+    // const alias = formData.get('alias');
+    // const password = formData.get('password');
 
-    const validAlias = validateInput(alias, 'alias');
-    const validUsername = validateInput(username, 'username');
-    const validEmail = validateInput(email, 'email');
-    const validPassword = validateInput(password, 'password');
+    // const validAlias = validateInput(alias, 'alias');
+    // const validUsername = validateInput(username, 'username');
+    // const validEmail = validateInput(email, 'email');
+    // const validPassword = validateInput(password, 'password');
 
-    if (!validUsername || validUsername == "1") {
-        throw alert(t('invalidUsernameFormat'));
-    }else if (!validEmail || validEmail == "1") {
-        throw alert(t('invalidEmailFormat'));
-    }else if (!validAlias || validAlias == "1") {
-        throw alert(t('invalidAliasFormat'));
-    }else if (!validPassword || validPassword == "1") {
-        throw alert(t('invalidPasswordFormat'));
-    }
+    // if (!validUsername || validUsername == "1") {
+    //     throw alert(t('invalidUsernameFormat'));
+    // }else if (!validEmail || validEmail == "1") {
+    //     throw alert(t('invalidEmailFormat'));
+    // }else if (!validAlias || validAlias == "1") {
+    //     throw alert(t('invalidAliasFormat'));
+    // }else if (!validPassword || validPassword == "1") {
+    //     throw alert(t('invalidPasswordFormat'));
+    // }
 
-    const secureFormData = new FormData();
-    secureFormData.append('username', validAlias);
-    secureFormData.append('username', validUsername);
-    secureFormData.append('email', validEmail);
-    secureFormData.append('password', validPassword);
+    // const secureFormData = new FormData();
+    // secureFormData.append('username', validAlias);
+    // secureFormData.append('username', validUsername);
+    // secureFormData.append('email', validEmail);
+    // secureFormData.append('password', validPassword);
 
-    for (let [key, value] of formData.entries()) {
-        if (!['username', 'email', 'password'].includes(key)) {
-            secureFormData.append(key, value);
+    // for (let [key, value] of formData.entries()) {
+    //     if (!['username', 'email', 'password'].includes(key)) {
+    //         secureFormData.append(key, value);
+    //     }
+    // }
+
+    // return fetchWithCsrf('/api/signup/', {
+    //     method: 'POST',
+    //     body: secureFormData
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     if (data.message === "Inscription réussie") {
+    //         const safeUser = {
+    //             username: escapeHtml(data.user.username),
+    //             photoProfile: data.user.photoProfile,
+    //             alias: data.user.alias ? escapeHtml(data.user.alias) : null
+    //         };
+    //         updateUserInfo(safeUser.username, safeUser.photoProfile);
+    //         checkLoginStatus();
+    //         return safeUser;
+    //     } else {
+    //         throw new Error(JSON.stringify(data.errors));
+    //     }
+    // });
+
+    return new Promise((resolve, reject) => {
+        const username = formData.get('username');
+        const email = formData.get('email');
+        const alias = formData.get('alias');
+        const password = formData.get('password');
+
+        // Validation des entrées utilisateur
+        const validAlias = validateInput(alias, 'alias');
+        const validUsername = validateInput(username, 'username');
+        const validEmail = validateInput(email, 'email');
+        const validPassword = validateInput(password, 'password');
+
+        if (!validUsername || validUsername === "1") {
+            alert(t('invalidUsernameFormat'));
+            return reject(new Error('Invalid username format'));
         }
-    }
-
-    return fetchWithCsrf('/api/signup/', {
-        method: 'POST',
-        body: secureFormData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === "Inscription réussie") {
-            const safeUser = {
-                username: escapeHtml(data.user.username),
-                photoProfile: data.user.photoProfile,
-                alias: data.user.alias ? escapeHtml(data.user.alias) : null
-            };
-            updateUserInfo(safeUser.username, safeUser.photoProfile);
-            checkLoginStatus();
-            return safeUser;
-        } else {
-            throw new Error(JSON.stringify(data.errors));
+        if (!validEmail || validEmail === "1") {
+            alert(t('invalidEmailFormat'));
+            return reject(new Error('Invalid email format'));
         }
+        if (!validAlias || validAlias === "1") {
+            alert(t('invalidAliasFormat'));
+            return reject(new Error('Invalid alias format'));
+        }
+        if (!validPassword || validPassword === "1") {
+            alert(t('invalidPasswordFormat'));
+            return reject(new Error('Invalid password format'));
+        }
+
+        // Préparation des données sécurisées pour l'inscription
+        const secureFormData = new FormData();
+        secureFormData.append('username', validUsername);
+        secureFormData.append('email', validEmail);
+        secureFormData.append('alias', validAlias);
+        secureFormData.append('password', validPassword);
+
+        // Ajout des autres champs du formulaire qui ne sont pas sensibles
+        for (let [key, value] of formData.entries()) {
+            if (!['username', 'email', 'alias', 'password'].includes(key)) {
+                secureFormData.append(key, value);
+            }
+        }
+
+        // Appel réseau pour l'inscription
+        fetchWithCsrf('/api/signup/', {
+            method: 'POST',
+            body: secureFormData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        alert(t('invalidPasswordFormat')); // a modifier
+                        reject(new Error(error.message || 'Signup failed' ))
+                    })
+                }
+                return response.json()
+            })
+            .then(data => {
+                if (data.message === "Inscription réussie") {
+                    const safeUser = {
+                        username: escapeHtml(data.user.username),
+                        photoProfile: data.user.photoProfile,
+                        alias: data.user.alias ? escapeHtml(data.user.alias) : null
+                    };
+                    updateUserInfo(safeUser.username, safeUser.photoProfile);
+                    checkLoginStatus();
+                    resolve(safeUser);
+                } else {
+                    reject(new Error(JSON.stringify(data.errors)));
+                }
+            })
+            .catch(error => {
+                //console.error('Error during signup:', error);
+                reject(new Error(error));
+            });
     });
 }
 
@@ -432,10 +509,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 authModal.hide();
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.log('Error:', error.message);
                 let errorMessage = '';
                 // On vérifie si l'erreur est un objet Error et contient un message
-                if (error.message) {
+                if (error.message && error.message !== "Invalid username format" && error.message !== "Invalid email format"
+                    && error.message !== "Invalid alias format" && error.message !== "Invalid password format") {
                     try {
                         const errorData = JSON.parse(error.message);
 
@@ -454,16 +532,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         // }
                     } catch (e) {
                         // Si le parsing échoue (le format n'est pas du JSON), on ajoute un message générique
-                        errorMessage += 'Erreur inconnue';
+                        console.log(e);
+                    }
+                    setErrorMessages();
+                    if (errorMessages[errorMessage.trim()]) {
+                        alert(errorMessages[errorMessage.trim()]);
+                    } else {
+                        alert(errorMessage);
                     }
                 }
-            setErrorMessages();
             // Affichage du message d'erreur
-            if (errorMessages[errorMessage.trim()]) {
-                alert(errorMessages[errorMessage.trim()]);
-            } else {
-                alert(errorMessage);
-            }
         });
     });
 
