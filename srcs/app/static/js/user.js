@@ -113,9 +113,16 @@ function updateUserInfo2(user) {
                 userForm.innerHTML = '';
                 userForm.appendChild(userInfoForm);
                 applyTranslations();
+            })
+            .catch(error => {
+                console.log(error.message);
             });
+    })
+    .catch(error => {
+        console.log(error.message);
     });
 }
+
 function clearUserInfo() {
     userForm.innerHTML = `
         <div class="auth-message">

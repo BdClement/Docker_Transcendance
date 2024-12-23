@@ -2,7 +2,7 @@ let onlineStatusSocket = null;
 
 function connectWebSocket() {
     if (onlineStatusSocket === null || onlineStatusSocket.readyState === WebSocket.CLOSED) {
-        
+
         onlineStatusSocket = new WebSocket(`wss://${window.location.host}/wss/online_status/`);
 
         onlineStatusSocket.onmessage = function(e) {
@@ -10,9 +10,9 @@ function connectWebSocket() {
             updateUserOnlineStatus(data.user_id, data.status);
         };
 
-        onlineStatusSocket.onclose = function(e) {
-            setTimeout(connectWebSocket, 1000);
-        };
+        // onlineStatusSocket.onclose = function(e) {
+        //     setTimeout(connectWebSocket, 1000);
+        // };
     }
 }
 
@@ -145,40 +145,97 @@ function checkLoginStatus() {
     });
 }
 
-function login(username, password) {
-    const validUsername = validateInput(username, 'username');
-    const validPassword = validateInput(password, 'password');
+async function login(username, password) {
+    // const validUsername = validateInput(username, 'username');
+    // const validPassword = validateInput(password, 'password');
 
-    if (!validUsername || validUsername == "1") {
-        throw alert(t('invalidUsernameFormat'));
-    }else if (!validPassword || validPassword == "1") {
-        throw alert(t('invalidPasswordFormat'));
-    }
+    // try {
+    //     if (!validUsername || validUsername == "1") {
+    //         alert(t('invalidUsernameFormat'));
+    //     }else if (!validPassword || validPassword == "1") {
+    //         alert(t('invalidPasswordFormat'));
+    //     }
+    // } catch (error) {
+    //     throw new Error('fail user input');
+    // }
 
-    return fetchWithCsrf('/api/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            username: validUsername,
-            password: validPassword
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === "Connexion réussie") {
-            const safeUser = {
-                username: escapeHtml(data.user.username),
-                photoProfile: data.user.photoProfile
-            };
-            updateUserInfo(safeUser.username, safeUser.photoProfile);
-            checkLoginStatus();
-            return safeUser;
-        } else {
-            throw new Error(data.message);
+    // return fetchWithCsrf('/api/login/', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({
+    //         username: validUsername,
+    //         password: validPassword
+    //     })
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     if (data.message === "Connexion réussie") {
+    //         const safeUser = {
+    //             username: escapeHtml(data.user.username),
+    //             photoProfile: data.user.photoProfile
+    //         };
+    //         updateUserInfo(safeUser.username, safeUser.photoProfile);
+    //         checkLoginStatus();
+    //         return safeUser;
+    //     } else {
+    //         throw new Error(data.message);
+    //     }
+    // });
+
+    return new Promise((resolve, reject) => {
+        const validUsername = validateInput(username, 'username');
+        const validPassword = validateInput(password, 'password');
+
+        if (!validUsername || validUsername === "1") {
+            alert(t('invalidUsernameFormat'));
+            reject(new Error('Invalid username format'));
+            return; // Arrête l'exécution si username invalide
         }
-    });
+
+        if (!validPassword || validPassword === "1") {
+            alert(t('invalidPasswordFormat'));
+            reject(new Error('Invalid password format'));
+            return; // Arrête l'exécution si password invalide
+        }
+
+        fetchWithCsrf('/api/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: validUsername,
+                password: validPassword
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => {
+                    reject(new Error(error.message || 'Authentification failed' ))
+                })
+            }
+            return response.json();
+            })
+        .then(data => {
+            if (data.message === "Connexion réussie") {
+                const safeUser = {
+                    username: escapeHtml(data.user.username),
+                    photoProfile: data.user.photoProfile
+                };
+                updateUserInfo(safeUser.username, safeUser.photoProfile);
+                checkLoginStatus();
+                resolve(safeUser);
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(error => {
+            reject(new Error('Network error occurred'));
+        })
+
+    })
 }
 
 function signup(formData) {
@@ -237,7 +294,7 @@ function signup(formData) {
 }
 
 function logout() {
-    
+
     if (onlineStatusSocket) {
         onlineStatusSocket.close();
         onlineStatusSocket = null;
@@ -350,14 +407,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 authModal.hide();
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.log('Error:', error);
                 const userLanguage = localStorage.getItem('language') || 'fr';
-                if (userLanguage === 'fr') {
-                    alert('Erreur de connexion: ' + 'L\'identifiant ou mot de passe est incorrect. Veuillez réessayer');
-                } else if (userLanguage === 'en') {
-                    alert('Error: ' + 'Login or password is incorrect. Please try again');
-                } else if (userLanguage === 'viet') {
-                    alert('Lỗi kết nối: Tên người dùng hoặc mật khẩu không chính xác. Vui lòng thử lại');
+                if (error.message && error.message === "Authentification failed") {
+                    if (userLanguage === 'fr') {
+                        alert('Erreur de connexion: ' + 'L\'identifiant ou mot de passe est incorrect. Veuillez réessayer');
+                    } else if (userLanguage === 'en') {
+                        alert('Error: ' + 'Login or password is incorrect. Please try again');
+                    } else if (userLanguage === 'viet') {
+                        alert('Lỗi kết nối: Tên người dùng hoặc mật khẩu không chính xác. Vui lòng thử lại');
+                    }
                 }
             });
     });

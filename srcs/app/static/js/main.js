@@ -131,7 +131,7 @@ const PongGame = (function() {
             else if (isPlayer2){
                 if (keyState.w) sendPaddleMovement(2, 'up');
                 if (keyState.s) sendPaddleMovement(2, 'down');
-            }        
+            }
         } else {
             if (keyState.w) sendPaddleMovement(1, 'up');
             if (keyState.s) sendPaddleMovement(1, 'down');
@@ -160,6 +160,9 @@ const PongGame = (function() {
             })
             .then(data => {
                 endGame(data);
+            })
+            .catch(error => {
+                console.log(error);
             })
     }
 

@@ -94,10 +94,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const validFriendUsername = validateInput(friendUsername, 'username');
 
-        if (!validFriendUsername || validFriendUsername == "1") {
-            throw alert(t('invalidFriendName'));
-        }
+        // if (!validFriendUsername || validFriendUsername == "1") {
+        //     throw alert(t('invalidFriendName'));
+        // }
 
+        try {
+            if (!validFriendUsername || validFriendUsername == "1") {
+                alert(t('invalidFriendName'));
+                throw new Error('invalid friend name!');
+            }
+        }
+        catch(error) {
+            // /console.log(error);
+            return ;
+        }
 
         fetch(`/api/users/${friendUsername}/`, {
             headers: {
@@ -164,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadFriendLists() {
         const followingList = document.getElementById('followingList');
         const followersList = document.getElementById('followersList');
-        
+
         fetch('/api/following/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -176,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            
+
             followingList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -220,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             return;
         });
-    
+
         fetch('/api/followers/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -236,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 followersList.innerHTML = `<li class="custom-list-group-item text-muted">${t('noFollowers')}</li>`;
                 return;
             }
-    
+
             followersList.innerHTML = data.map(user => `
                 <li class="custom-list-group-item p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -319,12 +329,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const userId = e.target.getAttribute('data-user-id');
         if (userId) {
             fetch(`/api/userprofile/${userId}/`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('L\'utilisateur n\'existe pas');
+                        return response.json();
+                })
                 .then(data => {
-                    const onlineStatus = data.is_online 
-                        ? `<span class="text-success" data-i18n="onlineStatus">En ligne</span>` 
+                    const onlineStatus = data.is_online
+                        ? `<span class="text-success" data-i18n="onlineStatus">En ligne</span>`
                         : `<span class="text-muted" data-i18n="offlineStatus">Déconnecté</span>`;
-    
+
                     document.getElementById('friendProfileContent').innerHTML = `
                         <div class="text-center mb-3">
                             <div class="profile-picture-large mx-auto mb-2"
@@ -376,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     friendModal.addEventListener('show.bs.modal', () => {  // Changé de 'shown.bs.modal' à 'show.bs.modal'
         updateFriendModalBody();
         loadFriendLists();
-    });  
+    });
 
     updateFriendModalBody();
     loadFriendLists();

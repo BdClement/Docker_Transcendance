@@ -217,11 +217,14 @@ async function updateUserProfile(formData) {
             throw new Error(t('profileUpdateError'));
         }
     } catch (error) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger';
-        alertDiv.textContent = escapeHtml(error.message);
-        settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
-        setTimeout(() => alertDiv.remove(), 3000);
+        if (error && error.message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger';
+            // alertDiv.textContent = escapeHtml(error.message);
+            alertDiv.textContent = error.message;
+            settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
     }
 }
 

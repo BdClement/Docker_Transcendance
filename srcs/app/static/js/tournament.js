@@ -27,13 +27,13 @@ function showFullScreenTournamentModal() {
     modal.setAttribute('tabindex', '-1');
     modal.setAttribute('role', 'dialog');
     modal.style.cssText = `
-        display: block; 
-        background-color: rgba(13, 30, 41, 0.9); 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
+        display: block;
+        background-color: rgba(13, 30, 41, 0.9);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         z-index: 2;
         overflow: hidden;
     `;
@@ -41,28 +41,28 @@ function showFullScreenTournamentModal() {
     modal.innerHTML = `
         <div class="modal-dialog modal-fullscreen" role="document" style="max-width: 100%; margin: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center;">
             <div class="modal-content" style="
-                height: auto; 
-                width: 100%; 
-                background: transparent; 
-                box-shadow: none; 
-                display: flex; 
-                flex-direction: column; 
+                height: auto;
+                width: 100%;
+                background: transparent;
+                box-shadow: none;
+                display: flex;
+                flex-direction: column;
                 align-items: center;
                 padding-bottom: 20vh;
             ">
                 <div class="modal-body text-center" style="color: #ad996d; text-align: center; width: 100%;">
                     <div class="spinner-border" role="status" style="
-                        width: 3rem; 
-                        height: 3rem; 
-                        color: #ad996d; 
+                        width: 3rem;
+                        height: 3rem;
+                        color: #ad996d;
                         border-width: 0.25em;
                         margin-bottom: 20px;
                     ">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <h2 class="mt-3" data-i18n="tournamentInProgress" style="
-                        color: #ad996d; 
-                        font-size: 2rem; 
+                        color: #ad996d;
+                        font-size: 2rem;
                         margin-bottom: 15px;
                     ">Tournament in Progress</h2>
                 </div>
@@ -147,8 +147,13 @@ tournamentForm.addEventListener('submit', async (e) => {
 
         const validAlias = validateInput(aliasNames[index], 'alias');
 
-        if (!validAlias || validAlias == "1") {
-            throw alert(t('invalidAliasFormat'));
+        try {
+            if (!validAlias || validAlias == "1") {
+                alert(t('invalidAliasFormat'));
+                throw new Error('invalidAliasFormat')
+            }
+        } catch (error) {
+            return ;
         }
     }
 
@@ -282,13 +287,16 @@ function waitForGameCompletion(playId) {
     });
 }
 
-PongGame.fetchGameDetails = function(gameId) {
+PongGame.fetchGameDetails = async function(gameId) {
     return fetch(`/api/play/detail/${gameId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
+        })
+        .catch(error => {
+            console.log(error);
         });
 };
 
