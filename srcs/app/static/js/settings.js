@@ -115,12 +115,6 @@ async function updateUserProfile(formData) {
             let key = keys[i];
             let value = sanitizedFormData.get(key);
 
-            console.log('[avant delete] key == ', key);
-            console.log(`Type de valeur pour ${key}:`, typeof value);
-
-            if (value instanceof File) {
-                console.log(`C'est un fichier: ${key}, taille: ${value.size}, nom: ${value.name}`);
-            }
             if ((key === 'languagePreference' && value)) {
                 const languageMap = {
                     '1': 'en',
@@ -128,11 +122,7 @@ async function updateUserProfile(formData) {
                     '3': 'viet'
                 };
                 const lang = localStorage.getItem('language');
-                console.log('value === ', value);
-                console.log('languageMap[value] == ', languageMap[value]);
-                console.log('lang == ', lang);
                 if (languageMap[value] === lang) {
-                    console.log('Key supprimee (valeur vide) = ', key);
                     sanitizedFormData.delete(key);
                     languageFavIsSame = true;
                     i--;
@@ -144,11 +134,9 @@ async function updateUserProfile(formData) {
             }
 
             if (value instanceof File && value.size === 0) {
-                console.log('Key supprimee (fichier vide) = ', key);
                 sanitizedFormData.delete(key);
                 i--;
             } else if (value === '') {
-                console.log('Key supprimee (valeur vide) = ', key);
                 sanitizedFormData.delete(key);
                 i--;
             }
@@ -164,16 +152,12 @@ async function updateUserProfile(formData) {
             credentials: 'include',
         });
 
-        // Escape HTML for logging to prevent XSS in console
-        console.log("Réponse du serveur :", escapeHtml(response.status.toString()));
 
         const responseBody = await response.clone().json();
-        console.log("Corps de la réponse :", escapeHtml(JSON.stringify(responseBody)));
 
         if (response.ok) {
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-success';
-            // Escape HTML for alert text
             alertDiv.textContent = escapeHtml(t('profileUpdateSuccess'));
             settingsForm.insertBefore(alertDiv, settingsForm.firstChild);
             setTimeout(() => alertDiv.remove(), 3000);
@@ -194,9 +178,6 @@ async function updateUserProfile(formData) {
             }
             checkLoginStatus();
         } else {
-            // const error = await response.json();
-            // throw new Error(error.detail || t('profileUpdateError'));
-            // Traiter les erreurs spécifiques
             if (response.status === 400 && responseBody) {
                 let errorMessages = [];
                 if (responseBody.username) {
@@ -208,12 +189,10 @@ async function updateUserProfile(formData) {
                 if (responseBody.email) {
                     errorMessages.push(t('EmailError'));
                 }
-                console.log('errorMessages == ', errorMessages);
                 if (errorMessages.length > 0) {
                     throw new Error(errorMessages.join(', '));
                 }
             }
-            // Si aucune erreur spécifique n'est trouvée, message générique
             throw new Error(t('profileUpdateError'));
         }
     } catch (error) {
@@ -247,7 +226,6 @@ function opensettingsModal() {
         }
     })
     .catch(error => {
-        console.error('Erreur lors de la vérification de l\'état de connexion :', escapeHtml(error.toString()));
         settingsForm.style.display = 'none';
         errorMessage.style.display = 'block';
     });
@@ -258,18 +236,6 @@ function opensettingsModal() {
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(settingsForm);
-
-    console.log("Contenu détaillé de formData :");
-    for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-            console.log(`Détails du fichier ${escapeHtml(key)}:`, {
-                name: escapeHtml(value.name),
-                type: escapeHtml(value.type),
-                size: escapeHtml(value.size.toString())
-            });
-        }
-    }
-
     await updateUserProfile(formData);
 });
 
@@ -291,29 +257,102 @@ if (photoInput) {
     });
 }
 
+// settingsLink.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     history.pushState(
+//         { modal: 'settings' },
+//         '', 
+//         '/settings'
+//     );
+//     opensettingsModal();
+// });
+
+// window.addEventListener('popstate', (event) => {
+//     if (event.state && event.state.modal === 'settings') {
+//         opensettingsModal();
+//     } else {
+//         const modal = bootstrap.Modal.getInstance(settingsModal);
+//         if (modal) {
+//             modal.hide();
+//         }
+//     }
+// });
+
+// settingsModal.addEventListener('hidden.bs.modal', () => {
+//     if (window.location.pathname === '/settings') {
+//         history.back();
+//     }
+// });
+
+// if (window.location.pathname === '/settings') {
+//     history.replaceState({ modal: 'settings' }, '', '/settings');
+//     opensettingsModal();
+// }
+
+// let previousPath = null;
+
+function pushModalState1() {
+    // Sauvegarde le chemin actuel avant de le modifier
+    previousPath = window.location.pathname;
+    // Ajoute le nouvel état dans l'historique
+    history.pushState(
+        { 
+            modal: 'settings',
+            previousPath: previousPath 
+        },
+        '',
+        '/settings'
+    );
+}
+
+function closeModal1() {
+    const modal = bootstrap.Modal.getInstance(settingsModal);
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Gestionnaire pour le clic sur le lien utilisateur
 settingsLink.addEventListener('click', (e) => {
     e.preventDefault();
-    history.pushState({ page: 'settings' }, '', '/settings');
+    pushModalState1();
     opensettingsModal();
 });
 
+// Gestionnaire pour la navigation dans l'historique
 window.addEventListener('popstate', (event) => {
-    const modal = bootstrap.Modal.getInstance(settingsModal);
-    if (window.location.pathname === '/settings') {
+    if (event.state && event.state.modal === 'settings') {
         opensettingsModal();
     } else {
-        if (modal) {
-            modal.hide();
-        }
+        closeModal1();
     }
 });
 
+// Gestionnaire pour la fermeture du modal
 settingsModal.addEventListener('hidden.bs.modal', () => {
     if (window.location.pathname === '/settings') {
-        history.pushState(null, '', '/');
+        // Au lieu de history.back(), on push un nouvel état
+        const targetPath = previousPath || '/';
+        history.pushState(
+            { 
+                modal: null,
+                previousPath: '/settings' 
+            },
+            '',
+            targetPath
+        );
     }
 });
 
+// Gestion de l'état initial
 if (window.location.pathname === '/settings') {
+    history.replaceState(
+        { 
+            modal: 'settings',
+            previousPath: '/' 
+        }, 
+        '', 
+        '/settings'
+    );
     opensettingsModal();
 }

@@ -1,5 +1,13 @@
 let onlineStatusSocket = null;
 
+function resetAuthForms() {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm) loginForm.reset();
+    if (signupForm) signupForm.reset();
+}
+
 function connectWebSocket() {
     if (onlineStatusSocket === null || onlineStatusSocket.readyState === WebSocket.CLOSED) {
         
@@ -10,9 +18,9 @@ function connectWebSocket() {
             updateUserOnlineStatus(data.user_id, data.status);
         };
 
-        onlineStatusSocket.onclose = function(e) {
-            setTimeout(connectWebSocket, 1000);
-        };
+        // onlineStatusSocket.onclose = function(e) {
+        //     setTimeout(connectWebSocket, 1000);
+        // };
     }
 }
 
@@ -174,6 +182,7 @@ function login(username, password) {
             };
             updateUserInfo(safeUser.username, safeUser.photoProfile);
             checkLoginStatus();
+            resetAuthForms();
             return safeUser;
         } else {
             throw new Error(data.message);
@@ -229,6 +238,7 @@ function signup(formData) {
             };
             updateUserInfo(safeUser.username, safeUser.photoProfile);
             checkLoginStatus();
+            resetAuthForms();
             return safeUser;
         } else {
             throw new Error(JSON.stringify(data.errors));
@@ -254,7 +264,7 @@ function logout() {
         if (data.message === "Déconnexion réussie") {
             updateUserInfo(null);
             window.dispatchEvent(new Event('userLoggedOut'));
-
+            resetAuthForms();
         } else {
             throw new Error(data.message);
         }
@@ -324,13 +334,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutButton = document.getElementById('logoutButton');
     const authModal = document.getElementById('authModal');
 
-    document.querySelector('.auth-button').addEventListener('click', function() {
-        history.pushState({}, '', '/connexion');
-    });
+    // document.querySelector('.auth-button').addEventListener('click', function() {
+    //     history.pushState({}, '', '/connexion');
+    // });
 
-    authModal.addEventListener('hidden.bs.modal', function() {
-        history.pushState({}, '', '/');
-    });
+    // authModal.addEventListener('hidden.bs.modal', function() {
+    //     history.pushState({}, '', '/');
+    // });
 
     window.addEventListener('popstate', function() {
         const modal = bootstrap.Modal.getInstance(authModal);

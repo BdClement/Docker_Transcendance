@@ -10,11 +10,21 @@ const PongGame = (function() {
     let isPlayer2 = false;
     let isPlayer3 = false;
     let isPlayer4 = false;
+    let isTournamentGame = false;
     let keyState = { w: false, s: false, ArrowUp: false, ArrowDown: false, t: false, g: false, i: false, k: false };
 
     function initializeGame(gameId, nbPlayers,isCreator = false) {
 
         console.log(`[initializeGame] Initializing game with ID: ${gameId}, Number of Players: ${nbPlayers}`);
+        isTournamentGame = checkIfTournamentGame();
+        
+        if (isTournamentGame) {
+            const closeButton = document.querySelector('#gameModal .btn-close');
+            if (closeButton) {
+                closeButton.style.display = 'none';
+            }
+        }
+
         isPlayer1 = isCreator;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -45,9 +55,13 @@ const PongGame = (function() {
         gameLoopInterval = setInterval(updatePaddlePositions, 1000 / 60);
     }
 
+    function checkIfTournamentGame() {
+        return !!document.getElementById('tournamentFullScreenModal');
+    }
+
     function navigateTo(title, url, content, gameId = null) {
         const state = { title, content, gameId };
-        history.pushState(state, title, url);
+        // history.replaceState(state, title, url);
         updateUI(state);
     }
 
@@ -83,7 +97,7 @@ const PongGame = (function() {
         }
         currentGameId = null;
         isLocalGame = true;
-
+        isTournamentGame = false;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -215,11 +229,23 @@ const PongGame = (function() {
             if (modalBackdrop) {
                 modalBackdrop.remove();
             }
-            const playForm = document.getElementById('playForm');
-            playForm.classList.remove('d-none');
+
+            if (!isTournamentGame) {
+                const playForm = document.getElementById('playForm');
+                if (playForm) {
+                    playForm.classList.remove('d-none');
+                }
+                navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
-        }, 2000);
+            isTournamentGame = false;
+
+            const closeButton = document.querySelector('#gameModal .btn-close');
+            if (closeButton) {
+                closeButton.style.display = '';
+            }
+        }, 1000);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -428,6 +454,13 @@ const PongGame = (function() {
         }
 
         window.addEventListener('popstate', (e) => {
+            const tournamentModalPresent = document.getElementById('tournamentFullScreenModal');
+            
+            if (tournamentModalPresent) {
+                e.preventDefault();
+                return;
+            }
+        
             if (isLocalGame) {
                 e.preventDefault();
                 terminateGame();
@@ -448,7 +481,8 @@ const PongGame = (function() {
 
     return {
         navigateTo: navigateTo,
-        initializeGame: initializeGame
+        initializeGame: initializeGame,
+        fetchGameDetails: fetchGameDetails
     };
 })();
 

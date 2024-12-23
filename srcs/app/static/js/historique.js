@@ -108,29 +108,102 @@ function openHistoriqueModal() {
     modal.show();
 }
 
+// historiqueLink.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     history.pushState(
+//         { modal: 'historique' },
+//         '', 
+//         '/historique'
+//     );
+//     openHistoriqueModal();
+// });
+
+// window.addEventListener('popstate', (event) => {
+//     if (event.state && event.state.modal === 'historique') {
+//         openHistoriqueModal();
+//     } else {
+//         const modal = bootstrap.Modal.getInstance(historiqueModal);
+//         if (modal) {
+//             modal.hide();
+//         }
+//     }
+// });
+
+// historiqueModal.addEventListener('hidden.bs.modal', () => {
+//     if (window.location.pathname === '/historique') {
+//         history.back();
+//     }
+// });
+
+// if (window.location.pathname === '/historique') {
+//     history.replaceState({ modal: 'historique' }, '', '/historique');
+//     openHistoriqueModal();
+// }
+
+// let previousPath = null;
+
+function pushModalState2() {
+    // Sauvegarde le chemin actuel avant de le modifier
+    previousPath = window.location.pathname;
+    // Ajoute le nouvel état dans l'historique
+    history.pushState(
+        { 
+            modal: 'historique',
+            previousPath: previousPath 
+        },
+        '',
+        '/historique'
+    );
+}
+
+function closeModal2() {
+    const modal = bootstrap.Modal.getInstance(historiqueModal);
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Gestionnaire pour le clic sur le lien utilisateur
 historiqueLink.addEventListener('click', (e) => {
     e.preventDefault();
-    history.pushState(null, '', '/historique');
+    pushModalState2();
     openHistoriqueModal();
 });
 
+// Gestionnaire pour la navigation dans l'historique
 window.addEventListener('popstate', (event) => {
-    if (window.location.pathname === '/historique') {
+    if (event.state && event.state.modal === 'historique') {
         openHistoriqueModal();
     } else {
-        const modal = bootstrap.Modal.getInstance(historiqueModal);
-        if (modal) {
-            modal.hide();
-        }
+        closeModal2();
     }
 });
 
+// Gestionnaire pour la fermeture du modal
 historiqueModal.addEventListener('hidden.bs.modal', () => {
     if (window.location.pathname === '/historique') {
-        history.pushState(null, '', '/');
+        // Au lieu de history.back(), on push un nouvel état
+        const targetPath = previousPath || '/';
+        history.pushState(
+            { 
+                modal: null,
+                previousPath: '/historique' 
+            },
+            '',
+            targetPath
+        );
     }
 });
 
+// Gestion de l'état initial
 if (window.location.pathname === '/historique') {
+    history.replaceState(
+        { 
+            modal: 'historique',
+            previousPath: '/' 
+        }, 
+        '', 
+        '/historique'
+    );
     openHistoriqueModal();
 }

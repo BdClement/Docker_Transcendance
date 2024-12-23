@@ -146,36 +146,111 @@ function openuserModal() {
 
 window.addEventListener('userLoggedOut', function() {
     clearUserInfo();
-    loadFriendLists();//Ajoute par Clement
+    loadFriendLists();
     const modal = bootstrap.Modal.getInstance(userModal);
     if (modal) {
         modal.hide();
     }
 });
 
+
+// userLink.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     history.pushState(
+//         { modal: 'user' },
+//         '', 
+//         '/user'
+//     );
+//     openuserModal();
+// });
+
+// window.addEventListener('popstate', (event) => {
+//     if (event.state && event.state.modal === 'user') {
+//         openuserModal();
+//     } else {
+//         const modal = bootstrap.Modal.getInstance(userModal);
+//         if (modal) {
+//             modal.hide();
+//         }
+//     }
+// });
+
+// userModal.addEventListener('hidden.bs.modal', () => {
+//     if (window.location.pathname === '/user') {
+//         history.back();
+//     }
+// });
+
+// if (window.location.pathname === '/user') {
+//     history.replaceState({ modal: 'user' }, '', '/user');
+//     openuserModal();
+// }
+
+
+// let previousPath = null;
+
+function pushModalState() {
+    // Sauvegarde le chemin actuel avant de le modifier
+    previousPath = window.location.pathname;
+    // Ajoute le nouvel état dans l'historique
+    history.pushState(
+        { 
+            modal: 'user',
+            previousPath: previousPath 
+        },
+        '',
+        '/user'
+    );
+}
+
+function closeModal() {
+    const modal = bootstrap.Modal.getInstance(userModal);
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Gestionnaire pour le clic sur le lien utilisateur
 userLink.addEventListener('click', (e) => {
     e.preventDefault();
-    history.pushState(null, '', '/user');
+    pushModalState();
     openuserModal();
 });
 
+// Gestionnaire pour la navigation dans l'historique
 window.addEventListener('popstate', (event) => {
-    if (window.location.pathname === '/user') {
+    if (event.state && event.state.modal === 'user') {
         openuserModal();
     } else {
-        const modal = bootstrap.Modal.getInstance(userModal);
-        if (modal) {
-            modal.hide();
-        }
+        closeModal();
     }
 });
 
+// Gestionnaire pour la fermeture du modal
 userModal.addEventListener('hidden.bs.modal', () => {
     if (window.location.pathname === '/user') {
-        history.pushState(null, '', '/');
+        // Au lieu de history.back(), on push un nouvel état
+        const targetPath = previousPath || '/';
+        history.pushState(
+            { 
+                modal: null,
+                previousPath: '/user' 
+            },
+            '',
+            targetPath
+        );
     }
 });
 
+// Gestion de l'état initial
 if (window.location.pathname === '/user') {
+    history.replaceState(
+        { 
+            modal: 'user',
+            previousPath: '/' 
+        }, 
+        '', 
+        '/user'
+    );
     openuserModal();
 }

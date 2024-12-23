@@ -1,3 +1,4 @@
+// tournament.js
 const tournamentModal = document.getElementById('tournamentModal');
 const tournamentForm = document.getElementById('tournamentForm');
 const playerCountSelect = document.getElementById('playerCount');
@@ -85,33 +86,6 @@ function showFullScreenTournamentModal() {
     };
 }
 
-function openTournamentModal() {
-    const modal = new bootstrap.Modal(tournamentModal);
-    modal.show();
-}
-
-tournamentLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    history.pushState(null, '', '/tournaments');
-    openTournamentModal();
-});
-
-window.addEventListener('popstate', (event) => {
-    if (window.location.pathname === '/tournaments') {
-        openTournamentModal();
-    } else {
-        const modal = bootstrap.Modal.getInstance(tournamentModal);
-        if (modal) {
-            modal.hide();
-        }
-    }
-});
-
-tournamentModal.addEventListener('hidden.bs.modal', () => {
-    if (window.location.pathname === '/tournaments') {
-        history.pushState(null, '', '/');
-    }
-});
 
 playerCountSelect.addEventListener('change', updateAliasInputs);
 
@@ -123,8 +97,8 @@ function updateAliasInputs() {
         const input = document.createElement('div');
         input.classList.add('mb-3');
         input.innerHTML = `
-            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
-            <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
+        <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
+        <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
         `;
         aliasInputs.appendChild(input);
     }
@@ -187,8 +161,15 @@ tournamentForm.addEventListener('submit', async (e) => {
 async function startTournament(tournamentId) {
     const closeFullScreenModal = showFullScreenTournamentModal();
     let tournamentFinished = false;
+    let navigationInterrupted = false;
 
-    while (!tournamentFinished) {
+    const navigationHandler = () => {
+        navigationInterrupted = true;
+        closeFullScreenModal();
+    };
+    window.addEventListener('popstate', navigationHandler);
+
+    while (!tournamentFinished && !navigationInterrupted) {
         try {
             const response = await fetch(`/api/tournaments/${tournamentId}/next-play/`);
             const data = await response.json();
@@ -229,6 +210,7 @@ async function startTournament(tournamentId) {
             closeFullScreenModal();
         }
     }
+    window.removeEventListener('popstate', navigationHandler);
 }
 
 function showNextGameModal(data) {
@@ -267,29 +249,29 @@ function waitForGameCompletion(playId) {
     return new Promise((resolve) => {
         const checkInterval = setInterval(() => {
             PongGame.fetchGameDetails(playId)
-                .then(gameDetails => {
-                    if (gameDetails.is_finished) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la vérification de l\'état du jeu:', error);
+            .then(gameDetails => {
+                if (gameDetails.is_finished) {
                     clearInterval(checkInterval);
                     resolve();
-                });
-        }, 15000);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la vérification de l\'état du jeu:', error);
+                clearInterval(checkInterval);
+                resolve();
+            });
+        }, 5000);
     });
 }
 
 PongGame.fetchGameDetails = function(gameId) {
     return fetch(`/api/play/detail/${gameId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        });
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    });
 };
 
 async function displayTournamentResults(tournamentId) {
@@ -310,6 +292,76 @@ async function displayTournamentResults(tournamentId) {
 
 updateAliasInputs();
 
+function openTournamentModal() {
+    const modal = new bootstrap.Modal(tournamentModal);
+    modal.show();
+}
+
+function pushModalState3() {
+    previousPath = window.location.pathname;
+    history.pushState(
+        { 
+            modal: 'tournaments',
+            previousPath: previousPath 
+        },
+        '',
+        '/tournaments'
+    );
+}
+
+function closeModal3() {
+    const modal = bootstrap.Modal.getInstance(tournamentModal);
+    if (modal) {
+        modal.hide();
+    }
+}
+
+tournamentLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    pushModalState3();
+    openTournamentModal();
+});
+
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.modal === 'tournaments') {
+        openTournamentModal();
+    } else {
+        closeModal3();
+    }
+
+    const fullScreenModal = document.getElementById('tournamentFullScreenModal');
+    if (fullScreenModal && (!event.state || event.state.modal !== 'tournamentFullScreen')) {
+        fullScreenModal.remove();
+    }
+
+    const nextGameModal = bootstrap.Modal.getInstance(document.getElementById('nextGameModal'));
+    if (nextGameModal && (!event.state || event.state.modal !== 'nextGame')) {
+        nextGameModal.hide();
+    }
+});
+
+tournamentModal.addEventListener('hidden.bs.modal', () => {
+    if (window.location.pathname === '/tournaments') {
+        const targetPath = previousPath || '/';
+        history.pushState(
+            { 
+                modal: null,
+                previousPath: '/tournaments' 
+            },
+            '',
+            targetPath
+        );
+    }
+});
+
 if (window.location.pathname === '/tournaments') {
+    history.replaceState(
+        { 
+            modal: 'tournaments',
+            previousPath: '/' 
+        }, 
+        '', 
+        '/tournaments'
+    );
     openTournamentModal();
 }

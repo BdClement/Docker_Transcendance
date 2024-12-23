@@ -1,5 +1,6 @@
 const translations = {
     en: {
+        PONG : "Pong game",
         play: "Play",
         local_1v1: "Local 1v1",
         local_2v2: "Local 2v2",
@@ -106,6 +107,7 @@ const translations = {
         invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
+        PONG : "Jeu Pong",
         play: "Jouer",
         local_1v1: "Local 1c1",
         local_2v2: "Local 2c2",
@@ -159,7 +161,7 @@ const translations = {
         games: "Parties",
         victories: "Victoires",
         defeats: "Défaites",
-        username: "Nom d'utilisateur",
+        username: "Nom d\'utilisateur",
         alias: "Alias",
         email: "Email",
         noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
@@ -174,7 +176,7 @@ const translations = {
         nextGameVs: "{player1} VS {player2}",
         noFollowers: "Aucun abonné",
         settingsModalTitle: "Mettre a jour le profil",
-        settingsUsername: "Nom d'utilisateur",
+        settingsUsername: "Nom d\'utilisateur",
         settingsEmail: "Email",
         settingsAlias: "Alias",
         settingsProfilePhoto: "Photo de profil",
@@ -194,11 +196,11 @@ const translations = {
         seeProfile: "Voir profil",
         PasswordLengthError: "Ce mot de passe est trop court. Il doit conetenir au moins 8 caracteres.",
         EmailError: "Email déjà utlisé",
-        UsernameError: "Nom d'utilisateur déjà utlisé",
+        UsernameError: "Nom d\'utilisateur déjà utlisé",
         AliasError: "Alias name déjà utlisé",
         noUpdateFieldsProvided: "Veuillez inclure au moins un champs a modifier",
         languageSetting : "Langue préférée",
-        errorFriend : "Veuillez entrer un nom d'utilisateur",
+        errorFriend : "Veuillez entrer un nom d\'utilisateur",
         tournamentInProgress: "Tournoi en cours",      
         invalidAliasFormat : "Votre alias n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
         invalidUsernameFormat : "Votre pseudo n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
@@ -209,6 +211,7 @@ const translations = {
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
+        PONG : "trò chơi bóng bàn",
         play: "Chơi",
         local_1v1: "ở gần 1t1",
         local_2v2: "ở gần 2t2",
