@@ -5,6 +5,8 @@ const playerCountSelect = document.getElementById('playerCount');
 const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
+let activeModalPromise = null;
+let activeModalResolver = null;
 
 function escapeHtmlTournois(unsafe) {
     return unsafe
@@ -165,6 +167,9 @@ async function startTournament(tournamentId) {
 
     const navigationHandler = () => {
         navigationInterrupted = true;
+        if (activeModalResolver) {
+            activeModalResolver();
+        }
         closeFullScreenModal();
     };
     window.addEventListener('popstate', navigationHandler);
@@ -181,6 +186,9 @@ async function startTournament(tournamentId) {
                 console.log('Lancer la partie:', data.play_id);
                 console.log('Joueurs:', data.players);
                 await showNextGameModal(data2);
+                if (navigationInterrupted) {
+                    break;
+                }
                 const newUrl = `/game/${data.play_id}`;
                 const newTitle = `Pong Game ${data.play_id}`;
                 const newContent = `Playing Pong Game ${data.play_id}`;
@@ -214,7 +222,12 @@ async function startTournament(tournamentId) {
 }
 
 function showNextGameModal(data) {
-    return new Promise((resolve) => {
+    if (activeModalResolver) {
+        activeModalResolver();
+        activeModalResolver = null;
+    }
+
+    return new Promise((resolve, reject) => {
         const nextGameModal = document.getElementById('nextGameModal');
         const startNextGameButton = document.getElementById('startNextGameButton');
         const nextGameInfoForm = document.createElement('form');
@@ -235,7 +248,22 @@ function showNextGameModal(data) {
 
         const handleNextGame = () => {
             startNextGameButton.removeEventListener('click', handleNextGame);
+            cleanup();
             modal.hide();
+            resolve();
+        };
+
+        const cleanup = () => {
+            if (modal) {
+                modal.hide();
+            }
+            startNextGameButton.removeEventListener('click', handleNextGame);
+            activeModalPromise = null;
+            activeModalResolver = null;
+        };
+
+        activeModalResolver = () => {
+            cleanup();
             resolve();
         };
 
