@@ -6,6 +6,7 @@ const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
 let activeModalPromise = null;
+let activeCheckInterval = null;
 let activeModalResolver = null;
 
 function escapeHtmlTournois(unsafe) {
@@ -164,9 +165,15 @@ async function startTournament(tournamentId) {
     const closeFullScreenModal = showFullScreenTournamentModal();
     let tournamentFinished = false;
     let navigationInterrupted = false;
+    let isNavigatingBack = false;
 
     const navigationHandler = () => {
         navigationInterrupted = true;
+        isNavigatingBack = true;
+        if (activeCheckInterval) {
+            clearInterval(activeCheckInterval);
+            activeCheckInterval = null;
+        }
         if (activeModalResolver) {
             activeModalResolver();
         }
@@ -176,6 +183,9 @@ async function startTournament(tournamentId) {
 
     while (!tournamentFinished && !navigationInterrupted) {
         try {
+            if (isNavigatingBack) {
+                break;
+            }
             const response = await fetch(`/api/tournaments/${tournamentId}/next-play/`);
             const data = await response.json();
             const test = await fetch(`/api/play/detail/${data.play_id}`);
@@ -194,7 +204,9 @@ async function startTournament(tournamentId) {
                 const newContent = `Playing Pong Game ${data.play_id}`;
                 PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
                 PongGame.initializeGame(data.play_id, 2, true);
-                await waitForGameCompletion(data.play_id);
+                if (!navigationInterrupted) {
+                    await waitForGameCompletion(data.play_id);
+                }
             } else if (response.status === 410) {
                 tournamentFinished = true;
                 showNotification(
@@ -219,6 +231,10 @@ async function startTournament(tournamentId) {
         }
     }
     window.removeEventListener('popstate', navigationHandler);
+    if (activeCheckInterval) {
+        clearInterval(activeCheckInterval);
+        activeCheckInterval = null;
+    }
 }
 
 function showNextGameModal(data) {
@@ -274,20 +290,28 @@ function showNextGameModal(data) {
 }
 
 function waitForGameCompletion(playId) {
+    
+    if (activeCheckInterval) {
+        clearInterval(activeCheckInterval);
+        activeCheckInterval = null;
+    }
+
     return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
+        activeCheckInterval = setInterval(() => {
             PongGame.fetchGameDetails(playId)
-            .then(gameDetails => {
-                if (gameDetails.is_finished) {
-                    clearInterval(checkInterval);
+                .then(gameDetails => {
+                    if (gameDetails.is_finished) {
+                        clearInterval(activeCheckInterval);
+                        activeCheckInterval = null;
+                        resolve();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la vérification de l\'état du jeu:', error);
+                    clearInterval(activeCheckInterval);
+                    activeCheckInterval = null;
                     resolve();
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la vérification de l\'état du jeu:', error);
-                clearInterval(checkInterval);
-                resolve();
-            });
+                });
         }, 5000);
     });
 }
@@ -359,6 +383,7 @@ window.addEventListener('popstate', (event) => {
 
     const fullScreenModal = document.getElementById('tournamentFullScreenModal');
     if (fullScreenModal && (!event.state || event.state.modal !== 'tournamentFullScreen')) {
+        isTournamentGame = false;
         fullScreenModal.remove();
     }
 
