@@ -105,7 +105,7 @@ class SignupSerializer(serializers.ModelSerializer):
 		password = data.get('password')
 		language_fav = data.get('languageFav')
 		user = get_user_model()
-		print(f"Username: {username}, Email: {email}, Password: {password}")
+		# print(f"Username: {username}, Email: {email}, Password: {password}")
 		if user.objects.filter(email=email).exists():
 			raise serializers.ValidationError("Cet email est deja utilisé.")
 		if user.objects.filter(username=username).exists():
