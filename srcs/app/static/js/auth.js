@@ -1,5 +1,14 @@
 let onlineStatusSocket = null;
 
+//Ajoute post Merge
+function resetAuthForms() {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+
+    if (loginForm) loginForm.reset();
+    if (signupForm) signupForm.reset();
+}
+
 function connectWebSocket() {
     if (onlineStatusSocket === null || onlineStatusSocket.readyState === WebSocket.CLOSED) {
 
@@ -226,6 +235,7 @@ async function login(username, password) {
                 };
                 updateUserInfo(safeUser.username, safeUser.photoProfile);
                 checkLoginStatus();
+                resetAuthForms();//Ajoute Post Merge
                 resolve(safeUser);
             } else {
                 throw new Error(data.message);
@@ -350,6 +360,7 @@ async function signup(formData) {
                     };
                     updateUserInfo(safeUser.username, safeUser.photoProfile);
                     checkLoginStatus();
+                    resetAuthForms();//Ajoute post Merge
                     resolve(safeUser);
                 } else {
                     reject(new Error(JSON.stringify(data.errors)));
@@ -380,7 +391,7 @@ async function logout() {
         if (data.message === "Déconnexion réussie") {
             updateUserInfo(null);
             window.dispatchEvent(new Event('userLoggedOut'));
-
+            resetAuthForms();//Ajoute Post Merge
         } else {
             throw new Error(data.message);
         }

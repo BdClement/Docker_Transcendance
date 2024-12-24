@@ -274,6 +274,7 @@ const PongGame = (function() {
         gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
 
         document.getElementById('gameModal').addEventListener('hidden.bs.modal', function () {
+            // isPlayer1 = false; //rajouter apres le merge
             terminateGame();
             navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
         });
@@ -364,22 +365,36 @@ const PongGame = (function() {
                 games.forEach(game => {
                     const listItem = document.createElement('li');
                     listItem.textContent = `Game ${game.id} (${game.player_connected}/${game.nb_players} players)`;
-                    if (game.player_connected == 1)
-                    {
-                        isPlayer2 = true;
-                    }
-                    else if(game.player_connected == 2)
-                    {
-                        isPlayer3 = true;
-                    }
-                    else if(game.player_connected == 3)
-                    {
-                        isPlayer4 = true;
-                    }
+                    // if (game.player_connected == 1)
+                    // {
+                    //     isPlayer2 = true;
+                    // }
+                    // else if(game.player_connected == 2)
+                    // {
+                    //     isPlayer3 = true;
+                    // }
+                    // else if(game.player_connected == 3)
+                    // {
+                    //     isPlayer4 = true;
+                    // }
+                    //Ajoute Post Merge
                     listItem.addEventListener('click', () => {
+                        if (game.player_connected == 1) {
+                            isPlayer2 = true;
+                        }
+                        else if (game.player_connected == 2) {
+                            isPlayer3 = true;
+                        }
+                        else if (game.player_connected == 3) {
+                            isPlayer4 = true;
+                        }
                         joinGame(game.id);
                         container.style.display = 'none';
                     });
+                    // listItem.addEventListener('click', () => {
+                    //     joinGame(game.id);
+                    //     container.style.display = 'none';
+                    // });
                     gameList.appendChild(listItem);
                 });
                 container.appendChild(gameList);
@@ -476,13 +491,13 @@ const PongGame = (function() {
 
         window.addEventListener('popstate', (e) => {
             const tournamentModalPresent = document.getElementById('tournamentFullScreenModal');
-            
+
             if (tournamentModalPresent) {
                 e.preventDefault();
                 handleTournamentBackNavigation();
                 return;
             }
-        
+
             if (isLocalGame) {
                 e.preventDefault();
                 terminateGame();

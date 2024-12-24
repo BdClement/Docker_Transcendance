@@ -67,8 +67,8 @@ class LoginAPI(APIView):
 # /!\ ajouter verification (par exemple verifier si on m'envoie bien un username)
 class SignupAPI(APIView):
 	def post(self, request):
-		logger.debug(f"Received data: {request.data}")
-		logger.debug(f"Received files: {request.FILES}")
+		# logger.debug(f"Received data: {request.data}")
+		# logger.debug(f"Received files: {request.FILES}")
 		serializer = SignupSerializer(data=request.data)
 		if serializer.is_valid():
 			user = get_user_model()(

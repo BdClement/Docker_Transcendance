@@ -72,7 +72,7 @@ def get_local_ips():
 CSRF_TRUSTED_ORIGINS = get_local_ips() + [
     'https://localhost:8443',
     'https://127.0.0.1:8443',
-	'https://10.25.1.1:8443',
+	'https://10.25.1.3:8443',
 ]
 
 ROOT_URLCONF = 'Transcendance.urls'
