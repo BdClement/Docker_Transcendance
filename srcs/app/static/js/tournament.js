@@ -191,21 +191,34 @@ async function startTournament(tournamentId) {
             const test = await fetch(`/api/play/detail/${data.play_id}`);
             const data2 = await test.json();
 
-            if (response.status === 200) {
-                console.log(data2);
-                console.log('Lancer la partie:', data.play_id);
-                console.log('Joueurs:', data.players);
-                await showNextGameModal(data2);
-                if (navigationInterrupted) {
-                    break;
-                }
-                const newUrl = `/game/${data.play_id}`;
-                const newTitle = `Pong Game ${data.play_id}`;
-                const newContent = `Playing Pong Game ${data.play_id}`;
-                PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
-                PongGame.initializeGame(data.play_id, 2, true);
-                if (!navigationInterrupted) {
-                    await waitForGameCompletion(data.play_id);
+            if (response.status === 200 && !navigationInterrupted) {
+
+                try {
+                    await showNextGameModal(data2);
+                    
+                    if (navigationInterrupted || isNavigatingBack) {  // Vérification ajoutée
+                        logger.warn('Navigation interrupted during game modal');
+                        break;
+                    }
+                    
+                    const newUrl = `/game/${data.play_id}`;
+                    const newTitle = `Pong Game ${data.play_id}`;
+                    const newContent = `Playing Pong Game ${data.play_id}`;
+                    
+                    if (!navigationInterrupted && !isNavigatingBack) {  // Vérification ajoutée
+                        PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
+                        PongGame.initializeGame(data.play_id, 2, true);
+                        
+                        if (!navigationInterrupted && !isNavigatingBack) {  // Vérification finale
+                            await waitForGameCompletion(data.play_id);
+                        }
+                    }
+                } catch (error) {
+                    if (navigationInterrupted || isNavigatingBack) {
+                        break;
+                    }
+                    throw error;
+                    // continue;
                 }
             } else if (response.status === 410) {
                 tournamentFinished = true;
@@ -224,8 +237,8 @@ async function startTournament(tournamentId) {
                 throw new Error('Erreur inattendue');
             }
         } catch (error) {
-            console.error('Erreur lors du déroulement du tournoi:', error);
-            alert('Une erreur est survenue lors du déroulement du tournoi.');
+            // console.error('Erreur lors du déroulement du tournoi:', error);
+            // alert('Une erreur est survenue lors du déroulement du tournoi.');
             tournamentFinished = true;
             closeFullScreenModal();
         }
@@ -264,9 +277,19 @@ function showNextGameModal(data) {
 
         const handleNextGame = () => {
             startNextGameButton.removeEventListener('click', handleNextGame);
-            cleanup();
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
             modal.hide();
             resolve();
+        };
+
+        const handleModalHidden = (event) => {
+            startNextGameButton.removeEventListener('click', handleNextGame);
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
+            activeModalPromise = null;
+            activeModalResolver = null;
+            if (!event.clickedButton) {
+                reject(new Error('Modal closed without starting game'));
+            }
         };
 
         const cleanup = () => {
@@ -274,16 +297,18 @@ function showNextGameModal(data) {
                 modal.hide();
             }
             startNextGameButton.removeEventListener('click', handleNextGame);
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
             activeModalPromise = null;
             activeModalResolver = null;
         };
 
         activeModalResolver = () => {
             cleanup();
-            resolve();
+            reject(new Error('Modal navigation interrupted'));
         };
 
         startNextGameButton.addEventListener('click', handleNextGame);
+        nextGameModal.addEventListener('hidden.bs.modal', handleModalHidden);
         modal.show();
         applyTranslations();
     });
