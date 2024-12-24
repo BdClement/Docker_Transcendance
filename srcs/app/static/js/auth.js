@@ -340,15 +340,7 @@ async function signup(formData) {
             method: 'POST',
             body: secureFormData
         })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(error => {
-                        alert(t('invalidPasswordFormat')); // a modifier
-                        reject(new Error(error.message || 'Signup failed' ))
-                    })
-                }
-                return response.json()
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.message === "Inscription réussie") {
                     const safeUser = {
@@ -370,7 +362,7 @@ async function signup(formData) {
     });
 }
 
-function logout() {
+async function logout() {
 
     if (onlineStatusSocket) {
         onlineStatusSocket.close();
@@ -392,6 +384,9 @@ function logout() {
         } else {
             throw new Error(data.message);
         }
+    })
+    .catch(error => {
+        throw new Error(error.message);
     });
 }
 
@@ -515,8 +510,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (error.message && error.message !== "Invalid username format" && error.message !== "Invalid email format"
                     && error.message !== "Invalid alias format" && error.message !== "Invalid password format") {
                     try {
-                        const errorData = JSON.parse(error.message);
 
+                        const errorData = JSON.parse(error.message);
                         // Si l'objet contient des erreurs (data.errors), on les parcourt
                         if (errorData) {
                             for (let field in errorData) {
@@ -526,10 +521,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                             }
                         }
-                        // else {
-                        //     // Si pas d'erreurs spécifiques, affiche le message directement
-                        //     errorMessage += 'Détails de l\'erreur inconnus.';
-                        // }
+                        else {
+                            // Si pas d'erreurs spécifiques, affiche le message directement
+                            errorMessage += 'Détails de l\'erreur inconnus.';
+                        }
                     } catch (e) {
                         // Si le parsing échoue (le format n'est pas du JSON), on ajoute un message générique
                         console.log(e);
