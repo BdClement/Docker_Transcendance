@@ -10,11 +10,14 @@ const PongGame = (function() {
     let isPlayer2 = false;
     let isPlayer3 = false;
     let isPlayer4 = false;
+    let isTournamentGame = false;
     let keyState = { w: false, s: false, ArrowUp: false, ArrowDown: false, t: false, g: false, i: false, k: false };
 
     function initializeGame(gameId, nbPlayers,isCreator = false) {
 
         console.log(`[initializeGame] Initializing game with ID: ${gameId}, Number of Players: ${nbPlayers}`);
+        isTournamentGame = checkIfTournamentGame();
+        updateCloseButton();
         isPlayer1 = isCreator;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -45,9 +48,22 @@ const PongGame = (function() {
         gameLoopInterval = setInterval(updatePaddlePositions, 1000 / 60);
     }
 
+    function checkIfTournamentGame() {
+        const tournamentModal = document.getElementById('tournamentFullScreenModal');
+        return !!tournamentModal && window.getComputedStyle(tournamentModal).display !== 'none';
+    }
+
+    function updateCloseButton() {
+        const closeButton = document.querySelector('#gameModal .btn-close');
+        if (closeButton) {
+            closeButton.style.display = isTournamentGame ? 'none' : '';
+        }
+    }
+
     function navigateTo(title, url, content, gameId = null) {
+        isTournamentGame = false;
         const state = { title, content, gameId };
-        history.pushState(state, title, url);
+        // history.replaceState(state, title, url);
         updateUI(state);
     }
 
@@ -83,10 +99,27 @@ const PongGame = (function() {
         }
         currentGameId = null;
         isLocalGame = true;
-
+        isTournamentGame = false;
+        isPlayer1 = false;
+        isPlayer2 = false;
+        isPlayer3 = false;
+        isPlayer4 = false;
+        updateCloseButton();
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function handleTournamentBackNavigation() {
+        terminateGame();
+        const tournamentModal = document.getElementById('tournamentFullScreenModal');
+        if (tournamentModal) {
+            tournamentModal.remove();
+        }
+        isTournamentGame = false;
+        updateCloseButton();
     }
 
     function draw(ctx) {
@@ -218,11 +251,23 @@ const PongGame = (function() {
             if (modalBackdrop) {
                 modalBackdrop.remove();
             }
-            const playForm = document.getElementById('playForm');
-            playForm.classList.remove('d-none');
+
+            if (!isTournamentGame) {
+                const playForm = document.getElementById('playForm');
+                if (playForm) {
+                    playForm.classList.remove('d-none');
+                }
+                navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            navigateTo('Jeu de Pong', '/', 'The game has been terminated.');
-        }, 2000);
+            isTournamentGame = false;
+
+            const closeButton = document.querySelector('#gameModal .btn-close');
+            if (closeButton) {
+                closeButton.style.display = '';
+            }
+        }, 1000);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -422,7 +467,6 @@ const PongGame = (function() {
                 languageSelector.addEventListener('change', function() {
                     const selectedLanguage = this.value;
                     localStorage.setItem('language', selectedLanguage);
-                    // location.reload();
                 });
 
                 const currentLanguage = localStorage.getItem('language') || 'fr';
@@ -431,6 +475,14 @@ const PongGame = (function() {
         }
 
         window.addEventListener('popstate', (e) => {
+            const tournamentModalPresent = document.getElementById('tournamentFullScreenModal');
+            
+            if (tournamentModalPresent) {
+                e.preventDefault();
+                handleTournamentBackNavigation();
+                return;
+            }
+        
             if (isLocalGame) {
                 e.preventDefault();
                 terminateGame();
@@ -451,7 +503,9 @@ const PongGame = (function() {
 
     return {
         navigateTo: navigateTo,
-        initializeGame: initializeGame
+        initializeGame: initializeGame,
+        fetchGameDetails: fetchGameDetails,
+        handleTournamentBackNavigation: handleTournamentBackNavigation
     };
 })();
 

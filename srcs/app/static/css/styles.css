@@ -386,7 +386,7 @@ button:focus {
     position: fixed;
     bottom: 10px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1;
     font-size: 12px;
     padding: 5px 10px;
     width: auto;

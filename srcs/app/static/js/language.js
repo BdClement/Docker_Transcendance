@@ -1,5 +1,6 @@
 const translations = {
     en: {
+        PONG : "Pong game",
         play: "Play",
         local_1v1: "Local 1v1",
         local_2v2: "Local 2v2",
@@ -106,6 +107,7 @@ const translations = {
         invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
+        PONG : "Jeu Pong",
         play: "Jouer",
         local_1v1: "Local 1c1",
         local_2v2: "Local 2c2",
@@ -209,6 +211,7 @@ const translations = {
         invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
+        PONG : "trò chơi bóng bàn",
         play: "Chơi",
         local_1v1: "ở gần 1t1",
         local_2v2: "ở gần 2t2",

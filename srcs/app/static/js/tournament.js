@@ -1,9 +1,13 @@
+// tournament.js
 const tournamentModal = document.getElementById('tournamentModal');
 const tournamentForm = document.getElementById('tournamentForm');
 const playerCountSelect = document.getElementById('playerCount');
 const aliasInputs = document.getElementById('aliasInputs');
 const tournamentLink = document.getElementById('tournamentLink');
 const nextGameForm = document.getElementById('nextGameForm');
+let activeModalPromise = null;
+let activeCheckInterval = null;
+let activeModalResolver = null;
 
 function escapeHtmlTournois(unsafe) {
     return unsafe
@@ -85,33 +89,6 @@ function showFullScreenTournamentModal() {
     };
 }
 
-function openTournamentModal() {
-    const modal = new bootstrap.Modal(tournamentModal);
-    modal.show();
-}
-
-tournamentLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    history.pushState(null, '', '/tournaments');
-    openTournamentModal();
-});
-
-window.addEventListener('popstate', (event) => {
-    if (window.location.pathname === '/tournaments') {
-        openTournamentModal();
-    } else {
-        const modal = bootstrap.Modal.getInstance(tournamentModal);
-        if (modal) {
-            modal.hide();
-        }
-    }
-});
-
-tournamentModal.addEventListener('hidden.bs.modal', () => {
-    if (window.location.pathname === '/tournaments') {
-        history.pushState(null, '', '/');
-    }
-});
 
 playerCountSelect.addEventListener('change', updateAliasInputs);
 
@@ -123,8 +100,8 @@ function updateAliasInputs() {
         const input = document.createElement('div');
         input.classList.add('mb-3');
         input.innerHTML = `
-            <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
-            <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
+        <p for="alias${i}" class="form-label" data-i18n="playerAlias" data-i18n-params='{"number":${i}}'>Alias du joueur ${escapeHtmlTournois(i.toString())}</p>
+        <input type="text" class="form-control" id="alias${escapeHtmlTournois(i.toString())}" required>
         `;
         aliasInputs.appendChild(input);
     }
@@ -192,25 +169,62 @@ tournamentForm.addEventListener('submit', async (e) => {
 async function startTournament(tournamentId) {
     const closeFullScreenModal = showFullScreenTournamentModal();
     let tournamentFinished = false;
+    let navigationInterrupted = false;
+    let isNavigatingBack = false;
 
-    while (!tournamentFinished) {
+    const navigationHandler = () => {
+        navigationInterrupted = true;
+        isNavigatingBack = true;
+        if (activeCheckInterval) {
+            clearInterval(activeCheckInterval);
+            activeCheckInterval = null;
+        }
+        if (activeModalResolver) {
+            activeModalResolver();
+        }
+        closeFullScreenModal();
+    };
+    window.addEventListener('popstate', navigationHandler);
+
+    while (!tournamentFinished && !navigationInterrupted) {
         try {
+            if (isNavigatingBack) {
+                break;
+            }
             const response = await fetch(`/api/tournaments/${tournamentId}/next-play/`);
             const data = await response.json();
             const test = await fetch(`/api/play/detail/${data.play_id}`);
             const data2 = await test.json();
 
-            if (response.status === 200) {
-                console.log(data2);
-                console.log('Lancer la partie:', data.play_id);
-                console.log('Joueurs:', data.players);
-                await showNextGameModal(data2);
-                const newUrl = `/game/${data.play_id}`;
-                const newTitle = `Pong Game ${data.play_id}`;
-                const newContent = `Playing Pong Game ${data.play_id}`;
-                PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
-                PongGame.initializeGame(data.play_id, 2, true);
-                await waitForGameCompletion(data.play_id);
+            if (response.status === 200 && !navigationInterrupted) {
+
+                try {
+                    await showNextGameModal(data2);
+
+                    if (navigationInterrupted || isNavigatingBack) {  // Vérification ajoutée
+                        logger.warn('Navigation interrupted during game modal');
+                        break;
+                    }
+
+                    const newUrl = `/game/${data.play_id}`;
+                    const newTitle = `Pong Game ${data.play_id}`;
+                    const newContent = `Playing Pong Game ${data.play_id}`;
+
+                    if (!navigationInterrupted && !isNavigatingBack) {  // Vérification ajoutée
+                        PongGame.navigateTo(newTitle, newUrl, newContent, data.play_id);
+                        PongGame.initializeGame(data.play_id, 2, true);
+
+                        if (!navigationInterrupted && !isNavigatingBack) {  // Vérification finale
+                            await waitForGameCompletion(data.play_id);
+                        }
+                    }
+                } catch (error) {
+                    if (navigationInterrupted || isNavigatingBack) {
+                        break;
+                    }
+                    throw error;
+                    // continue;
+                }
             } else if (response.status === 410) {
                 tournamentFinished = true;
                 showNotification(
@@ -228,16 +242,26 @@ async function startTournament(tournamentId) {
                 throw new Error('Erreur inattendue');
             }
         } catch (error) {
-            console.error('Erreur lors du déroulement du tournoi:', error);
-            alert('Une erreur est survenue lors du déroulement du tournoi.');
+            // console.error('Erreur lors du déroulement du tournoi:', error);
+            // alert('Une erreur est survenue lors du déroulement du tournoi.');
             tournamentFinished = true;
             closeFullScreenModal();
         }
     }
+    window.removeEventListener('popstate', navigationHandler);
+    if (activeCheckInterval) {
+        clearInterval(activeCheckInterval);
+        activeCheckInterval = null;
+    }
 }
 
 function showNextGameModal(data) {
-    return new Promise((resolve) => {
+    if (activeModalResolver) {
+        activeModalResolver();
+        activeModalResolver = null;
+    }
+
+    return new Promise((resolve, reject) => {
         const nextGameModal = document.getElementById('nextGameModal');
         const startNextGameButton = document.getElementById('startNextGameButton');
         const nextGameInfoForm = document.createElement('form');
@@ -258,32 +282,67 @@ function showNextGameModal(data) {
 
         const handleNextGame = () => {
             startNextGameButton.removeEventListener('click', handleNextGame);
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
             modal.hide();
             resolve();
         };
 
+        const handleModalHidden = (event) => {
+            startNextGameButton.removeEventListener('click', handleNextGame);
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
+            activeModalPromise = null;
+            activeModalResolver = null;
+            if (!event.clickedButton) {
+                reject(new Error('Modal closed without starting game'));
+            }
+        };
+
+        const cleanup = () => {
+            if (modal) {
+                modal.hide();
+            }
+            startNextGameButton.removeEventListener('click', handleNextGame);
+            nextGameModal.removeEventListener('hidden.bs.modal', handleModalHidden);
+            activeModalPromise = null;
+            activeModalResolver = null;
+        };
+
+        activeModalResolver = () => {
+            cleanup();
+            reject(new Error('Modal navigation interrupted'));
+        };
+
         startNextGameButton.addEventListener('click', handleNextGame);
+        nextGameModal.addEventListener('hidden.bs.modal', handleModalHidden);
         modal.show();
         applyTranslations();
     });
 }
 
 function waitForGameCompletion(playId) {
+
+    if (activeCheckInterval) {
+        clearInterval(activeCheckInterval);
+        activeCheckInterval = null;
+    }
+
     return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
+        activeCheckInterval = setInterval(() => {
             PongGame.fetchGameDetails(playId)
                 .then(gameDetails => {
                     if (gameDetails.is_finished) {
-                        clearInterval(checkInterval);
+                        clearInterval(activeCheckInterval);
+                        activeCheckInterval = null;
                         resolve();
                     }
                 })
                 .catch(error => {
                     console.error('Erreur lors de la vérification de l\'état du jeu:', error);
-                    clearInterval(checkInterval);
+                    clearInterval(activeCheckInterval);
+                    activeCheckInterval = null;
                     resolve();
                 });
-        }, 15000);
+        }, 5000);
     });
 }
 
@@ -318,6 +377,77 @@ async function displayTournamentResults(tournamentId) {
 
 updateAliasInputs();
 
+function openTournamentModal() {
+    const modal = new bootstrap.Modal(tournamentModal);
+    modal.show();
+}
+
+function pushModalState3() {
+    previousPath = window.location.pathname;
+    history.pushState(
+        {
+            modal: 'tournaments',
+            previousPath: previousPath
+        },
+        '',
+        '/tournaments'
+    );
+}
+
+function closeModal3() {
+    const modal = bootstrap.Modal.getInstance(tournamentModal);
+    if (modal) {
+        modal.hide();
+    }
+}
+
+tournamentLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    pushModalState3();
+    openTournamentModal();
+});
+
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.modal === 'tournaments') {
+        openTournamentModal();
+    } else {
+        closeModal3();
+    }
+
+    const fullScreenModal = document.getElementById('tournamentFullScreenModal');
+    if (fullScreenModal && (!event.state || event.state.modal !== 'tournamentFullScreen')) {
+        isTournamentGame = false;
+        fullScreenModal.remove();
+    }
+
+    const nextGameModal = bootstrap.Modal.getInstance(document.getElementById('nextGameModal'));
+    if (nextGameModal && (!event.state || event.state.modal !== 'nextGame')) {
+        nextGameModal.hide();
+    }
+});
+
+tournamentModal.addEventListener('hidden.bs.modal', () => {
+    if (window.location.pathname === '/tournaments') {
+        const targetPath = previousPath || '/';
+        history.pushState(
+            {
+                modal: null,
+                previousPath: '/tournaments'
+            },
+            '',
+            targetPath
+        );
+    }
+});
+
 if (window.location.pathname === '/tournaments') {
+    history.replaceState(
+        {
+            modal: 'tournaments',
+            previousPath: '/'
+        },
+        '',
+        '/tournaments'
+    );
     openTournamentModal();
 }

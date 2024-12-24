@@ -453,13 +453,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutButton = document.getElementById('logoutButton');
     const authModal = document.getElementById('authModal');
 
-    document.querySelector('.auth-button').addEventListener('click', function() {
-        history.pushState({}, '', '/connexion');
-    });
+    // document.querySelector('.auth-button').addEventListener('click', function() {
+    //     history.pushState({}, '', '/connexion');
+    // });
 
-    authModal.addEventListener('hidden.bs.modal', function() {
-        history.pushState({}, '', '/');
-    });
+    // authModal.addEventListener('hidden.bs.modal', function() {
+    //     history.pushState({}, '', '/');
+    // });
 
     window.addEventListener('popstate', function() {
         const modal = bootstrap.Modal.getInstance(authModal);
