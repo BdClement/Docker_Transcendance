@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from game.models import Play, Tournament
-from game.serializer import PlayCreateSerializer, PlayDetailSerializer
+from game.serializer import PlayCreateSerializer, PlayDetailSerializer, PlayListSerializer
 from game.serializer import TournamentSerializer
 # Create your views here.
 
@@ -104,7 +104,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
 	#url_name specifier dans les urls via la methode reverse()
 	@action(detail=True, methods=['get'], url_path='next-play', url_name='next_play')
 	def next_play(self, request, pk=None):
-		# print("\n\n\n TESTT NEXT PLAY API\n\n\n", flush=True)
 		try:
 			tournament = self.get_object()#methode de ViewSet qui recupere l'objet
 		except Tournament.DoesNotExist:
@@ -130,7 +129,8 @@ class TournamentViewSet(viewsets.ModelViewSet):
 			else:
 				return Response({'message': 'Tournament is finished'}, status=status.HTTP_410_GONE)
 
-
-
-
-
+class PlayListAPIView(APIView):
+	def get(self, request):
+		plays = Play.objects.filter(remote=True, is_finished=False)
+		serializer = PlayListSerializer(plays, many=True)
+		return Response(serializer.data)

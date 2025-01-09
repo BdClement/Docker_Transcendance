@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from rest_framework import routers
 from game import views
-from game.views import PlayCreateAPIView, PlayDetailAPIView, PlaySubscribeAPIView
+from game.views import PlayCreateAPIView, PlayDetailAPIView, PlaySubscribeAPIView, PlayListAPIView
 from game.views import TournamentViewSet
 from authentication.views import LoginAPI, SignupAPI, Logout, UserInfoAPI, UserProfileView, UserProfileUpdateView, UserDeleteView
 from authentication.views import AddFriendView, SuppFriendView, FollowingListView, FollowersListView, UserDetailView, MatchHistoryView
@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/following/', FollowingListView.as_view()),
     path('api/followers/', FollowersListView.as_view()),
 	path('api/get-csrf-token/', get_csrf_token, name='get_csrf_token'),
+    path('api/play/list', PlayListAPIView.as_view(), name='play-list'),
 	re_path(r'^.*$', views.index, name='index'),
 ]
 

@@ -1,14 +1,14 @@
 const translations = {
     en: {
+        PONG : "Pong game",
         play: "Play",
         local_1v1: "Local 1v1",
         local_2v2: "Local 2v2",
         remote_1v1: "Remote 1v1",
+        remote_2v2: "Remote 2v2",
         language: "Language",
-        player1Wins: "Player 1 Wins!",
-        player2Wins: "Player 2 Wins!",
-        team1Wins: "Team 1 Wins!",
-        team2Wins: "Team 2 Wins!",
+        PlayerWin: "The winner is : ",
+        TeamWins: "Team winning is : ",
         gameEndedUnexpectedly: "The game ended unexpectedly.",
         gameEnded: "The game has ended.",
         gameTerminated: "The game has been terminated by the server.",
@@ -18,22 +18,104 @@ const translations = {
         loginTab: "Login",
         signupTab: "Sign Up",
         username: "Username",
+        alias: "Alias",
         email: "Email",
         password: "Password",
         profilePhoto: "Profile Photo",
         loginButton: "Log In",
-        signupButton: "Sign Up"
+        signupButton: "Sign Up",
+        friendModalTitle: "Friend Management",
+        friendListTab: "Friend List",
+        addFriendTab: "Add Friend",
+        yourFollowing: "Your Following :",
+        yourFollowers: "Your Followers :",
+        addFriendUsername: "Friend\'s Username",
+        addFriendButton: "Add",
+        friendProfileTitle: "Friend\'s Profile",
+        unfollowButton: "Unfollow",
+        closeButton: "Close",
+        tournamentModalTitle: "Create a Tournament",
+        playerCount: "Number of Players",
+        createTournament: "Create Tournament",
+        playerAlias: "Player {number} Alias",
+        tournamentCreationError: "Tournament creation failed. Check aliases provided",
+        pleaseEnterValidAliases: "Please enter {count} valid aliases",
+        playerCountOption4: "4 players",
+        playerCountOption8: "8 players",
+        historiqueModalTitle: "Match History",
+        authRequired: "Please login to access your match history",
+        date: "Date",
+        gameType: "Type",
+        winners: "Winners",
+        losers: "Losers",
+        score: "Score",
+        playersCount: "{count} players",
+        userModalTitle: "User Profile",
+        games: "Games",
+        victories: "Victories",
+        defeats: "Defeats",
+        username: "Username",
+        alias: "Alias",
+        email: "Email",
+        noUserInfo: "Unavailable. You must be connected to see your profile",
+        userNotFound: "User not found",
+        userIdNotFound: "User ID not found",
+        notificationModalTitle: "Notification",
+        tournamentScoreStorageAttempt: "Attempting to store the tournament {tournamentId} score. This may take a few moments...\nYou can access on-chain data at the contract address via Etherscan: \n<a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        unexpectedTournamentError: "An unexpected error occurred during the tournament.",
+        tournamentResultsError: "An error occurred while displaying the tournament results.",
+        nextGameModalTitle: "Next Match",
+        startNextGame: "Play",
+        nextGameVs: "{player1} VS {player2}",
+        noFollowers: "No followers",
+        settingsModalTitle: "Update profile",
+        settingsUsername: "Username",
+        settingsEmail: "Email",
+        settingsAlias: "Alias",
+        settingsProfilePhoto: "Profile Photo",
+        settingsSaveChanges: "Save Changes",
+        profileUpdateSuccess: "Profile updated successfully!",
+        profileUpdateError: "Failed to update profile",
+        chooseFile: "Choose File",
+        noFileChosen: "No file chosen",
+        loginToSeeFriends: "Please log in to see your friends!",
+        tournamentUnexpectedError: "An unexpected error occurred during the tournament flow.",
+        tournamentStored: "The score for tournament {tournamentId} has been stored on the contract at address: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        errorFetchingUser: "An error occurred while fetching user information",
+        loginToUpdateProfile: "Please log in to access update profile section !",
+        passwordsDoNotMatch: "Passwords do not match",
+        settingsNewPassword: "New Password",
+        settingsConfirmPassword: "Password confirmation",
+        seeProfile: "See profile",
+        EmailError: "Email already used",
+        UsernameError: "Username already used",
+        AliasError: "Alias name already used",
+        PasswordLowercaseError: "Password must contain at least a lowercase letter",
+        PasswordUppercaseError: "Password must contain at least a capital letter",
+        PasswordNumber: "Password must contain at least a number",
+        PasswordSpecialCharError: "Password must contain at least a special character (@, #, $, %, etc.)",
+        noUpdateFieldsProvided: "No update fields provided",
+        languageSetting : "Preferred Language",
+        errorFriend : "Please enter a username",
+        tournamentInProgress: "Tournament in Progress",
+        invalidAliasFormat : "Your alias is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidUsernameFormat : "Your username is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidFriendName : "Your friend name is not valid, it can only contain letters, numbers and the special characters _ and -",
+        invalidEmailFormat : "Your email is invalid",
+        onlineStatus : "Online",
+        offlineStatus : "Disconnected",
+        invalidPasswordFormat: "Your password must be 8 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 character [.@,#$%^&+=!_\-]"
     },
     fr: {
+        PONG : "Jeu Pong",
         play: "Jouer",
         local_1v1: "Local 1c1",
         local_2v2: "Local 2c2",
         remote_1v1: "Distant 1c1",
+        remote_2v2: "Distant 2c2",
         language: "Langue",
-        player1Wins: "Joueur 1 gagne !",
-        player2Wins: "Joueur 2 gagne !",
-        team1Wins: "L'équipe 1 gagne !",
-        team2Wins: "L'équipe 2 gagne !",
+        PlayerWin: "Le gagnant est : ",
+        TeamWins: "L'équipe gagnante est : ",
         gameEndedUnexpectedly: "La partie s'est terminée de manière inattendue.",
         gameEnded: "La partie est terminée.",
         gameTerminated: "La partie a été interrompue par le serveur.",
@@ -42,23 +124,102 @@ const translations = {
         authModalTitle: "Authentification",
         loginTab: "Connexion",
         signupTab: "Inscription",
-        username: "Nom d'utilisateur",
+        username: "Nom d\'utilisateur",
+        alias: "Alias",
         email: "Email",
         password: "Mot de passe",
         profilePhoto: "Photo de profil",
         loginButton: "Se connecter",
-        signupButton: "S'inscrire"
+        signupButton: "S'inscrire",
+        friendModalTitle: "Gestion des amis",
+        friendListTab: "Liste d\'amis",
+        addFriendTab: "Ajouter un ami",
+        yourFollowing: "Vos abonnements :",
+        yourFollowers: "Vos abonnés :",
+        addFriendUsername: "Nom de l'ami",
+        addFriendButton: "Ajouter",
+        friendProfileTitle: "Profil de l'ami",
+        unfollowButton: "Ne plus suivre",
+        closeButton: "Fermer",
+        tournamentModalTitle: "Créer un tournoi",
+        playerCount: "Nombre de joueurs",
+        createTournament: "Créer le tournoi",
+        playerAlias: "Alias du joueur {number}",
+        tournamentCreationError: "Creation de tournoi impossible. Verifiez les alias fournis",
+        pleaseEnterValidAliases: "Veuillez entrer {count} alias valides",
+        playerCountOption4: "4 joueurs",
+        playerCountOption8: "8 joueurs",
+        historiqueModalTitle: "Historique des parties",
+        authRequired: "Connectez-vous pour accéder à votre historique de parties",
+        date: "Date",
+        gameType: "Type",
+        winners: "Gagnants",
+        losers: "Perdants",
+        score: "Score",
+        playersCount: "{count}j",
+        userModalTitle: "Profil Utilisateur",
+        games: "Parties",
+        victories: "Victoires",
+        defeats: "Défaites",
+        username: "Nom d\'utilisateur",
+        alias: "Alias",
+        email: "Email",
+        noUserInfo: "Indisponible. Vous devez vous connecter pour voir votre profil",
+        userNotFound: "L\'utilisateur n'existe pas",
+        userIdNotFound: "ID de l'utilisateur non trouvé",
+        notificationModalTitle: "Notification",
+        tournamentScoreStorageAttempt: "Tentative de stockage du score du tournoi {tournamentId}. Cela peut prendre quelques instants...\nVous pouvez accéder aux données on-chain à l'adresse du contrat via Etherscan : \n<a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        unexpectedTournamentError: "Une erreur inattendue est survenue lors du tournoi.",
+        tournamentResultsError: "Une erreur est survenue lors de l'affichage des résultats du tournoi.",
+        nextGameModalTitle: "Prochaine partie",
+        startNextGame: "Jouer",
+        nextGameVs: "{player1} VS {player2}",
+        noFollowers: "Aucun abonné",
+        settingsModalTitle: "Mettre a jour le profil",
+        settingsUsername: "Nom d\'utilisateur",
+        settingsEmail: "Email",
+        settingsAlias: "Alias",
+        settingsProfilePhoto: "Photo de profil",
+        settingsSaveChanges: "Enregistrer les modifications",
+        profileUpdateSuccess: "Profil mis à jour avec succès !",
+        profileUpdateError: "Échec de la mise à jour du profil",
+        chooseFile: "Choisir un fichier",
+        noFileChosen: "Aucun fichier sélectionné",
+        loginToSeeFriends: "Connectez-vous pour voir vos amis !",
+        tournamentUnexpectedError: "Une erreur est survenue lors du déroulement du tournoi.",
+        tournamentStored: "Le score du tournoi {tournamentId} a bien été stocké sur le contrat à l'adresse : <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        errorFetchingUser: "Une erreur est survenue lors de la récupération des informations utilisateur",
+        loginToUpdateProfile: "Connectez-vous pour acceder a la mise a jour de votre profil !",
+        passwordsDoNotMatch: "Les mots de passe ne correspondent pas",
+        settingsNewPassword: "Nouveau mot de passe",
+        settingsConfirmPassword: "Confirmation mot de passe",
+        seeProfile: "Voir profil",
+        PasswordLengthError: "Ce mot de passe est trop court. Il doit conetenir au moins 8 caracteres.",
+        EmailError: "Email déjà utlisé",
+        UsernameError: "Nom d\'utilisateur déjà utlisé",
+        AliasError: "Alias name déjà utlisé",
+        noUpdateFieldsProvided: "Veuillez inclure au moins un champs a modifier",
+        languageSetting : "Langue préférée",
+        errorFriend : "Veuillez entrer un nom d\'utilisateur",
+        tournamentInProgress: "Tournoi en cours",
+        invalidAliasFormat : "Votre alias n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidUsernameFormat : "Votre pseudo n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidFriendName : "Le pseudo de votre amis n'est pas valide, il ne peut contenir que des lettres, des chiffres et les caractères spéciaux _ et -",
+        invalidEmailFormat : "Votre Email est invalide",
+        onlineStatus : "En ligne",
+        offlineStatus : "Déconnecté",
+        invalidPasswordFormat: "Votre mot de passe doit comporter 8 caractères dont au moins 1 lettre majuscule et minuscule, 1 chiffre et 1 caractère [.@,#$%^&+=!_\-]"
     },
     viet: {
+        PONG : "trò chơi bóng bàn",
         play: "Chơi",
         local_1v1: "ở gần 1t1",
         local_2v2: "ở gần 2t2",
         remote_1v1: "Khoảng 1t1",
+        remote_2v2: "Khoảng 2t2",
         language: "Ngôn ngữ",
-        player1Wins: "Người chơi 1 thắng!",
-        player2Wins: "Người chơi 2 thắng!",
-        team1Wins: "Đội 1 thắng!",
-        team2Wins: "Đội 2 thắng!",
+        PlayerWin: "Người chiến thắng là : ",
+        TeamWins: "Đội chiến thắng là : ",
         gameEndedUnexpectedly: "Trò chơi kết thúc bất ngờ.",
         gameEnded: "Trò chơi đã kết thúc.",
         gameTerminated: "Trò chơi đã bị máy chủ chấm dứt.",
@@ -68,66 +229,162 @@ const translations = {
         loginTab: "Đăng nhập",
         signupTab: "Đăng ký",
         username: "Tên người dùng",
+        alias: "Biệt danh",
         email: "Email",
         password: "Mật khẩu",
         profilePhoto: "Ảnh hồ sơ",
         loginButton: "Đăng nhập",
-        signupButton: "Đăng ký"
+        signupButton: "Đăng ký",
+        friendModalTitle: "Quản lý bạn bè",
+        friendListTab: "Danh sách bạn bè",
+        addFriendTab: "Thêm bạn",
+        yourFollowing: "Bạn đang theo dõi :",
+        yourFollowers: "Người theo dõi bạn :",
+        addFriendUsername: "Tên người dùng của bạn bè",
+        addFriendButton: "Thêm",
+        friendProfileTitle: "Hồ sơ bạn bè",
+        unfollowButton: "Bỏ theo dõi",
+        closeButton: "Đóng",
+        tournamentModalTitle: "Tạo Giải Đấu",
+        playerCount: "Số Lượng Người Chơi",
+        createTournament: "Tạo Giải Đấu",
+        playerAlias: "Biệt Danh Người Chơi {number}",
+        tournamentCreationError: "Đã xảy ra lỗi khi tạo giải đấu",
+        pleaseEnterValidAliases: "Vui lòng nhập {count} bí danh hợp lệ",
+        playerCountOption4: "4 người chơi",
+        playerCountOption8: "8 người chơi",
+        historiqueModalTitle: "Lịch Sử Trận Đấu",
+        authRequired: "Vui lòng đăng nhập để xem lịch sử trận đấu của bạn",
+        date: "Ngày",
+        gameType: "Loại",
+        winners: "Người Thắng",
+        losers: "Người Thua",
+        score: "Điểm Số",
+        playersCount: "{count} người",
+        userModalTitle: "Hồ Sơ Người Dùng",
+        games: "Trận đấu",
+        victories: "Chiến thắng",
+        defeats: "Thất bại",
+        username: "Tên người dùng",
+        alias: "Biệt danh",
+        email: "Email",
+        noUserInfo: "Không có thông tin người dùng",
+        userNotFound: "Không tìm thấy người dùng",
+        userIdNotFound: "Không tìm thấy ID người dùng",
+        notificationModalTitle: "Thông báo",
+        tournamentScoreStorageAttempt: "Đang thử lưu điểm giải đấu {tournamentId}. Điều này có thể mất một vài giây...\nBạn có thể truy cập dữ liệu on-chain tại địa chỉ hợp đồng qua Etherscan: \n<a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        unexpectedTournamentError: "Đã xảy ra lỗi bất ngờ trong giải đấu.",
+        tournamentResultsError: "Đã xảy ra lỗi khi hiển thị kết quả giải đấu.",
+        nextGameModalTitle: "Trận Tiếp Theo",
+        startNextGame: "Chơi",
+        nextGameVs: "{player1} VS {player2}",
+        noFollowers: "Không có người theo dõi",
+        settingsModalTitle: "Chỉnh sửa hồ sơ",
+        settingsUsername: "Tên người dùng",
+        settingsEmail: "Email",
+        settingsAlias: "Biệt danh",
+        settingsProfilePhoto: "Ảnh hồ sơ",
+        settingsSaveChanges: "Lưu Thay Đổi",
+        profileUpdateSuccess: "Cập nhật hồ sơ thành công!",
+        profileUpdateError: "Không thể cập nhật hồ sơ",
+        chooseFile: "Chọn Tệp",
+        noFileChosen: "Chưa chọn tệp",
+        loginToSeeFriends: "Vui lòng đăng nhập để xem bạn bè của bạn!",
+        tournamentUnexpectedError: "Đã xảy ra lỗi bất ngờ trong quá trình diễn ra giải đấu.",
+        tournamentStored: "Điểm số của giải đấu {tournamentId} đã được lưu trữ trên hợp đồng tại địa chỉ: <a href='{etherscanLink}' target='_blank'>{contractAddress}</a>",
+        errorFetchingUser: "Đã xảy ra lỗi khi tải thông tin người dùng",
+        loginToUpdateProfile: "Vui lòng đăng nhập để xem bạn bè của bạn!",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        passwordsDoNotMatch: "Mật khẩu không khớp",
+        settingsNewPassword: "Mật khẩu mới",
+        settingsConfirmPassword: "Xác nhận mật khẩu",
+        seeProfile: "Xem hồ sơ",
+        invalidAliasFormat : "Bí danh của bạn không hợp lệ, nó chỉ có thể chứa các chữ cái, số và ký tự đặc biệt _ và -",
+        invalidUsernameFormat : "Biệt hiệu của bạn không hợp lệ, chỉ được chứa chữ cái, số và ký tự đặc biệt _ và -",
+        invalidFriendName : "Biệt danh của bạn bè bạn không hợp lệ, chỉ được chứa chữ cái, số và ký tự đặc biệt _ và -",
+        invalidEmailFormat : "Email của bạn không hợp lệ",
+        invalidPasswordFormat: "Mật khẩu của bạn phải dài ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt [.@,#$%^&+=!_\-]",
+        EmailError: "Email này đã được sử dụng",
+        UsernameError: "Tên người dùng này đã được sử dụng",
+        AliasError: "Tên bí danh này đã được sử dụng",
+        PasswordLowercaseError: "Mật khẩu phải chứa ít nhất một chữ cái thường",
+        PasswordUppercaseError: "Mật khẩu phải chứa ít nhất một chữ cái in hoa",
+        PasswordSpecialCharError: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@, #, $, %, v.v.)",
+        PasswordLengthError: "Mật khẩu này quá ngắn. Nó phải chứa ít nhất 8 ký tự.",
+        noUpdateFieldsProvided: "Vui lòng bao gồm ít nhất một trường để sửa đổi",
+        languageSetting : "Ngôn ngữ ưa thích",
+        errorFriend : "Vui lòng nhập tên người dùng",
+        onlineStatus : "Trực tuyến",
+        offlineStatus : "Đã ngắt kết nối",
+        tournamentInProgress: "Giải đấu đang diễn ra"
     }
 };
 
-function applyTranslations(language) {
-    document.querySelector('button[type="submit"] .gradient-text').textContent = translations[language].play;
-    document.querySelector('label[for="local_1v1"] .gradient-text').textContent = translations[language].local_1v1;
-    document.querySelector('label[for="local_2v2"] .gradient-text').textContent = translations[language].local_2v2;
-    document.querySelector('label[for="remote_1v1"] .gradient-text').textContent = translations[language].remote_1v1;
+const t = (key, params = {}) => {
+    const lang = localStorage.getItem('language') || 'fr';
+    let translation = translations[lang][key] || key;
 
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.textContent = translations[language].logout;
-    }
+    Object.keys(params).forEach(param => {
+        translation = translation.replace(`{${param}}`, params[param]);
+    });
 
-    const authButton = document.querySelector('.auth-button');
-    if (authButton) {
-        authButton.textContent = translations[language].authButton;
-    }
+    return translation;
+};
 
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-        authModal.querySelector('.modal-title').textContent = translations[language].authModalTitle;
-        authModal.querySelector('#login-tab').textContent = translations[language].loginTab;
-        authModal.querySelector('#signup-tab').textContent = translations[language].signupTab;
+function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const paramsAttr = element.getAttribute('data-i18n-params');
+        const params = paramsAttr ? JSON.parse(paramsAttr) : {};
 
-        const loginForm = authModal.querySelector('#loginForm');
-        if (loginForm) {
-            loginForm.querySelector('label[for="loginUsername"]').textContent = translations[language].username;
-            loginForm.querySelector('label[for="loginPassword"]').textContent = translations[language].password;
-            loginForm.querySelector('button[type="submit"]').textContent = translations[language].loginButton;
+        const translation = t(key, params);
+        if (element.tagName === 'LI') {
+            element.style.setProperty('--pseudo-content', `"${translation}"`);
+        } else {
+            if (element.tagName === 'INPUT') {
+                if (element.type === 'submit') {
+                    element.value = t(key, params);
+                } else if (element.type === 'file') {
+                    element.setAttribute('title', t(key, params));
+                }
+            } else {
+                element.textContent = t(key, params);
+            }
         }
-
-        const signupForm = authModal.querySelector('#signupForm');
-        if (signupForm) {
-            signupForm.querySelector('label[for="signupUsername"]').textContent = translations[language].username;
-            signupForm.querySelector('label[for="signupEmail"]').textContent = translations[language].email;
-            signupForm.querySelector('label[for="signupPassword"]').textContent = translations[language].password;
-            signupForm.querySelector('label[for="profilePhoto"]').textContent = translations[language].profilePhoto;
-            signupForm.querySelector('button[type="submit"]').textContent = translations[language].signupButton;
-        }
-    }
+    });
 }
 
 function changeLanguage(language) {
-    applyTranslations(language);
     localStorage.setItem('language', language);
+    applyTranslations();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedLanguage = localStorage.getItem('language') || 'fr';
     document.getElementById('language').value = savedLanguage;
-    applyTranslations(savedLanguage);
+    applyTranslations();
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                applyTranslations();
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 });
 
 document.getElementById('language').addEventListener('change', function() {
-    const selectedLanguage = this.value;
-    changeLanguage(selectedLanguage);
+    changeLanguage(this.value);
 });
+
+function updateContent(elementId, content) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = content;
+        applyTranslations();
+    }
+}

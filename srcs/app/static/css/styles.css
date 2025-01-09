@@ -15,7 +15,7 @@ html, body {
 body {
     background-image:
         linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.7) 100%),
-        url('../images/wallpaper.png'); /* Ajustez le chemin selon votre structure de fichiers */
+        url('../images/wallpaper.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -45,8 +45,8 @@ body {
     position: fixed;
     top: 24.4%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Légère mise à l'échelle pour couvrir les bords */
-    max-width: 275px; /* Légèrement plus grand que le conteneur */
+    transform: translate(-50%, -50%);
+    max-width: 275px;
     max-height: 275px;
     object-fit: cover;
     z-index: 1;
@@ -57,8 +57,8 @@ body {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 640px; /* Ajustez cette valeur selon la largeur souhaitée */
-    height: 80%; /* Ajustez cette valeur selon la hauteur souhaitée */
+    width: 640px;
+    height: 80%;
     background-image: url('../images/Banner.png');
     background-size: 100% 100%;
     background-position: center;
@@ -70,17 +70,17 @@ body {
 
 #usernameDisplay {
     position: absolute;
-    top: 37%; /* Ajustez cette valeur selon vos besoins */
+    top: 37%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 3; /* Assurez-vous que c'est au-dessus de la bannière */
-    color: #ad996d; /* Couleur dorée pour le texte */
+    z-index: 1;
+    color: #ad996d;
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 1.5em;
     font-weight: bold;
     text-align: center;
-    max-width: 80%; /* Pour éviter que le texte ne dépasse trop */
+    max-width: 80%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -109,16 +109,136 @@ canvas {
 .modal-content {
     background-color: #0D1E29;
     border: 2px solid #7f5f20;
-    border-radius: 0; /* Remove rounded corners */
+    border-radius: 0;
+    box-shadow: 0 0 20px rgba(127, 95, 32, 0.5);
 }
 
 .modal-header {
     border-bottom: 1px solid #7f5f20;
-    border-radius: 0; /* Remove rounded corners */
+    padding: 1rem 1.5rem;
 }
 
-.modal-title, .btn-close {
+.nav-pills {
+    border-bottom: 1px solid #7f5f20;
+}
+
+.nav-pills .nav-link.custom-tab-button {
+    border-radius: 0;
     color: #ad996d;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-pills .nav-link.custom-tab-button:hover,
+.nav-pills .nav-link.custom-tab-button.active {
+    background-color: rgba(127, 95, 32, 0.2);
+}
+
+.custom-tab-content {
+    padding: 1.5rem 0;
+}
+
+.modal-title {
+    color: #ad996d;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-close {
+    color: #ad996d;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.custom-tabs-container {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #7f5f20;
+    margin-bottom: 1rem;
+}
+
+.custom-tab-button {
+    flex: 1;
+    color: #ad996d;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.custom-tab-button:hover,
+.custom-tab-button.active {
+    color: #fff;
+    background-color: rgba(127, 95, 32, 0.2);
+    border-bottom-color: #ad996d;
+}
+
+.custom-tab-content {
+    padding: 1.5rem 0;
+}
+
+.friend-list-title {
+    color: #ad996d;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.custom-list-group {
+    background-color: transparent;
+}
+
+.custom-list-group-item {
+    background-color: rgba(173, 153, 109, 0.1);
+    border: 1px solid #7f5f20;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.custom-list-group-item:hover {
+    background-color: rgba(173, 153, 109, 0.2);
+}
+
+.custom-input {
+    background-color: rgba(173, 153, 109, 0.1);
+    border: 1px solid #7f5f20;
+    color: #fff;
+}
+
+.custom-input:focus {
+    /* background-color: rgba(173, 153, 109, 0.2); */ /* Commente par Clement */
+    border-color: #ad996d;
+    box-shadow: 0 0 0 0.2rem rgba(173, 153, 109, 0.25);
+}
+
+.custom-btn {
+    background-color: #7f5f20;
+    border: none;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 1.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.custom-btn:hover {
+    background-color: #ad996d;
 }
 
 .modal gameModal {
@@ -181,23 +301,22 @@ canvas {
 
 .play-button {
     margin-top: 50%;
-    background-color: #194452; /* Nouvelle couleur de fond */
-    border: 2px solid #7f5f20; /* Garde la bordure dorée */
+    background-color: #194452;
+    border: 2px solid #7f5f20;
     transition: background-color 0.3s ease;
 }
 
 .play-button:hover {
-    background-color: #256579; /* Nouvelle couleur au survol */
+    background-color: #256579;
 }
 
 .play-button .gradient-text {
-    background: none; /* Supprime le dégradé précédent */
-    color: #ffffff; /* Texte en blanc */
+    background: none;
+    color: #ffffff;
     -webkit-background-clip: unset;
     background-clip: unset;
 }
 
-/* Assurez-vous que le focus est cohérent avec le survol */
 .play-button:focus {
     background-color: #256579;
     color: white;
@@ -213,7 +332,7 @@ canvas {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1;
 }
 
 .language-selector select {
@@ -267,7 +386,7 @@ button:focus {
     position: fixed;
     bottom: 10px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1;
     font-size: 12px;
     padding: 5px 10px;
     width: auto;
@@ -289,25 +408,23 @@ button:focus {
 
 .main-content {
     position: absolute;
-    top: 60%; /* Ajustez cette valeur selon vos besoins */
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 3; /* Assurez-vous que c'est supérieur au z-index de la bannière */
-    background-color: rgba(25, 68, 82, 0.8); /* Fond semi-transparent */
+    z-index: 3;
+    background-color: rgba(25, 68, 82, 0.8);
     padding: 20px;
     border-radius: 10px;
-    width: 80%; /* Ou la largeur que vous préférez */
-    max-width: 600px; /* Pour éviter que ça devienne trop large sur les grands écrans */
-    color: #ffffff; /* Texte en blanc pour une meilleure lisibilité */
+    width: 80%;
+    max-width: 600px;
+    color: #ffffff;
 }
 
-/* Style pour le titre */
 .main-content h1 {
-    color: #ad996d; /* Couleur dorée pour le titre */
+    color: #ad996d;
     text-align: center;
 }
 
-/* Style pour la liste des jeux */
 .main-content ul {
     list-style-type: none;
     padding: 0;
@@ -326,7 +443,6 @@ button:focus {
     background-color: #194452;
 }
 
-/* Style pour le bouton "Create New Game" */
 .main-content button {
     background-color: #194452;
     color: #ffffff;
@@ -352,12 +468,40 @@ fieldset {
     width: 100%;
 }
 
-.row {
+.remote-buttons {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+    gap: 8px;
     width: 48%;
+}
+
+.remote-buttons input[type="radio"] {
+    margin-bottom: 25px;/* Ajoute par Clement */
+    width: 48%;
+}
+
+/* === Ajoute par Clement pour le UserModal ===*/
+.UserInfoForm h5, .UserInfoForm small.text-muted, .UserInfoForm p{
+    /* color: #7f5f20 !important; */
+    color: #ad996d !important;
+}
+
+.UserInfoForm input {
+    /* color: #194452; */
+    color: black
+}
+
+#friendProfileModal .modal-body, #friendProfileModal .modal-body .text-muted {
+    color: #ad996d !important;
+}
+
+#nextGameModal .modal-body p {
+    color: #ad996d;
+    text-align: center;
+    font-size: 1.5rem;
 }
 
 .row input[type="radio"] {
@@ -367,18 +511,18 @@ fieldset {
     height: 0;
 }
 
-.row label {
-    flex: 0 0 auto; /* Empêche les labels de s'étirer */
+.remote-buttons label {
+    flex: 0 0 auto;
     margin: 0;
 }
 
 .local-buttons {
     display: flex;
-    flex-direction: row; /* Force l'alignement horizontal */
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     margin-top: 400px;
-    gap: 8px; /* Espace entre les boutons locaux */
+    gap: 8px;
     width: 100%;
 }
 
@@ -390,8 +534,8 @@ fieldset {
 }
 
 .local-buttons label {
-    flex: 0 0 auto; /* Empêche les labels de s'étirer */
-    margin: 0; /* Supprime les marges qui pourraient causer des problèmes d'alignement */
+    flex: 0 0 auto;
+    margin: 0;
 }
 
 /* === Style des labels et input radio === */
@@ -450,7 +594,7 @@ input[type="radio"]:focus + label {
     width: 80px;
     height: 100%;
     background-color: #0D1E29;
-    z-index: 1000;
+    z-index: 1;
 }
 
 .left-navbar {
@@ -460,7 +604,7 @@ input[type="radio"]:focus + label {
     margin: 0;
 }
 
-.left-navbar li {
+.left-navbar li, .pseudo-content{
     width: 80px;
     height: 80px;
     display: flex;
@@ -471,13 +615,39 @@ input[type="radio"]:focus + label {
     background-color: transparent;
     border-bottom: 2px solid #785E2C;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;/*Ajoute pour UX*/
 }
 
 .left-navbar li:hover {
     background-color: #0d2132;
 }
 
-.icon-tournoi, .icon-parametre, .icon-friend {
+/* pseudo-element ajoute pour UX */
+.left-navbar li::after {
+    content: var(--pseudo-content, '');
+    position: absolute;
+    top:0;
+    left:-80px;
+    width: 160px;
+    height: 80px;
+    background-color: #0d2132;
+    border-bottom: 2px solid #785E2C;
+    opacity:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #785E2C;
+    font-size: 14px;
+    font-weight: bold;
+    transition: opacity 0.25s ease-in-out, transform 0.3s ease;
+}
+
+.left-navbar li:hover::after {
+    opacity:1;
+    transform: translateX(160px);
+}
+
+.icon-tournoi, .icon-parametre, .icon-friend, .icon-historique, .icon-user {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -485,7 +655,7 @@ input[type="radio"]:focus + label {
     height: 40px;
 }
 
-.icon-tournoi img, .icon-parametre img, .icon-friend img {
+.icon-tournoi img, .icon-parametre img, .icon-friend img, .icon-historique img, .icon-user img {
     width: 36px;
     height: 36px;
     object-fit: contain;
@@ -494,7 +664,178 @@ input[type="radio"]:focus + label {
 }
 
 .left-navbar li:hover .icon-tournoi img,
+.left-navbar li:hover .icon-historique img,
 .left-navbar li:hover .icon-parametre img,
-.left-navbar li:hover .icon-friend img {
+.left-navbar li:hover .icon-friend img,
+.left-navbar li:hover .icon-user img
+{
     filter: brightness(0) invert(1);
+}
+
+/* === Style pour la modal User profile === */
+
+
+/* === Style pour la modal d'historique === */
+.modal-dialog {
+    max-width: 800px;
+    margin: 1.75rem auto;
+}
+
+.table-wrapper {
+    max-height: 60vh;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.match-history-table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.match-history-table th {
+    background-color: #194452;
+    color: #ad996d;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.5rem;
+    border-bottom: 2px solid #7f5f20;
+}
+
+.match-history-table td {
+    padding: 0.5rem;
+    vertical-align: middle;
+    color: #ad996d !important;
+    border-bottom: 1px solid #7f5f20;
+}
+
+.date-cell {
+    min-width: 100px;
+    width: 15%;
+}
+
+.type-cell {
+    min-width: 60px;
+    width: 10%;
+}
+
+.players-cell {
+    min-width: 120px;
+    width: 30%;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.score-cell {
+    min-width: 80px;
+    width: 15%;
+}
+
+.pagination-container {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination .page-link {
+    background-color: #194452;
+    border-color: #7f5f20;
+    color: #ad996d;
+    padding: 0.5rem 1rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #256579;
+    border-color: #7f5f20;
+    color: #ffffff;
+}
+
+.pagination .page-link:hover {
+    background-color: #256579;
+    border-color: #7f5f20;
+}
+
+.auth-message {
+    text-align: center;
+    padding: 2rem;
+    color: #ad996d;
+}
+
+.auth-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #7f5f20;
+}
+
+.auth-message p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.auth-message .btn {
+    background-color: #194452;
+    border-color: #7f5f20;
+    color: #ad996d;
+}
+
+.auth-message .btn:hover {
+    background-color: #256579;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #0D1E29;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #7f5f20;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #ad996d;
+}
+
+.table-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #7f5f20 #0D1E29;
+}
+
+.match-history-table tr:hover {
+    background-color: #194452;
+}
+
+#notificationModal {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    top: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    z-index: 1100 !important;
+    pointer-events: none;
+}
+
+#notificationModal .modal-dialog {
+    position: absolute !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+    max-width: 300px !important;
+    width: 100% !important;
+}
+
+#notificationModal .modal {
+    position: absolute !important;
+    display: block !important;
+    pointer-events: none;
+}
+
+#notificationModal .modal-content {
+    pointer-events: auto;
 }

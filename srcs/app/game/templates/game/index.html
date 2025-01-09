@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="Jeu de Pong">Jeu de Pong</title>
-	<!-- Balise Script ajoutee par Clement pour donne les variables d'environnement au front-end (module Blockchain) -->
-	<script type="text/javascript">
+    <script type="text/javascript">
         window.env = {
             CONTRACT_ADDRESS: "{{ contract_adress }}",
             ALCHEMY_RPC: "{{ alchemy_rpc }}"
@@ -23,18 +22,28 @@
     <div class="page-sidebar left">
         <ul class="left-navbar">
             <div class="_">
-                <li>
-                    <a href="#" class="icon-friend" data-bs-toggle="modal" data-bs-target="#friendModal">
+                <li data-i18n="userModalTitle">
+                    <a href="/user" class="icon-user" id="userLink">
+                        <img src="/static/images/user.png" alt="Icone User">
+                    </a>
+                </li>
+                <li data-i18n="friendModalTitle">
+                    <a href="/friend" class="icon-friend" id="friendLink">
                         <img src="/static/images/Friend.png" alt="Icone Friend">
                     </a>
                 </li>
-                <li>
+                <li data-i18n="tournamentModalTitle">
                     <a href="/tournament" class="icon-tournoi" id="tournamentLink">
                         <img src="/static/images/podium.png" alt="Icone Tournoi">
                     </a>
                 </li>
-                <li>
-                    <a href= "/settings" class="icon-parametre">
+                <li data-i18n="historiqueModalTitle">
+                    <a href="/historique" class="icon-historique" id="historiqueLink">
+                        <img src="/static/images/historique.png" alt="Icone Historique">
+                    </a>
+                </li>
+                <li data-i18n="settingsModalTitle">
+                    <a href= "/settings" class="icon-parametre" id="settingsLink">
                         <img src="/static/images/parametre.png" alt="Icone Option">
                     </a>
                 </li>
@@ -62,9 +71,13 @@
                 <label for="local_2v2"><span class="gradient-text" data-i18n="local_2v2">Local 2v2</span></label>
             </div>
 
-            <div class="row">
+            <div class="remote-buttons">
                 <input type="radio" name="game_mode" id="remote_1v1" value="remote_1v1">
                 <label for="remote_1v1"><span class="gradient-text" data-i18n="remote_1v1">Distant 1v1</span></label>
+
+                <input type="radio" name="game_mode" id="remote_2v2" value="remote_2v2">
+                <label for="remote_2v2"><span class="gradient-text" data-i18n="remote_2v2">Distant 2v2</span></label>
+                
             </div>
             <br>
             <button type="submit" class="play-button"><span class="gradient-text" data-i18n="play">Jouer</span></button>
@@ -138,7 +151,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <p for="profilePhoto" class="form-label" data-i18n="profilePhoto">Photo de profil</p>
-                                    <input type="file" class="form-control" id="profilePhoto" name="photoProfile">
+                                    <input type="file" class="form-control" id="profilePhoto" name="photoProfile" accept="image/*" data-i18n="chooseFile" title="Choisir un fichier">
                                 </div>
                                 <button type="submit" class="btn btn-success" data-i18n="signupButton">S'inscrire</button>
                             </form>
@@ -155,36 +168,7 @@
                     <h5 class="modal-title" id="friendModalLabel" data-i18n="friendModalTitle">Gestion des amis</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="custom-tabs-container">
-                        <ul class="nav nav-pills nav-fill" id="friendTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active custom-tab-button" id="friend-list-tab" data-bs-toggle="pill" data-bs-target="#friend-list" type="button" role="tab" aria-controls="friend-list" aria-selected="true" data-i18n="friendListTab">Liste d'amis</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link custom-tab-button" id="add-friend-tab" data-bs-toggle="pill" data-bs-target="#add-friend" type="button" role="tab" aria-controls="add-friend" aria-selected="false" data-i18n="addFriendTab">Ajouter un ami</button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="tab-content custom-tab-content" id="friendTabsContent">
-                        <div class="tab-pane fade show active" id="friend-list" role="tabpanel" aria-labelledby="friend-list-tab">
-                            <h6 class="friend-list-title" data-i18n="yourFollowing">Vos abonnements</h6>
-                            <ul id="followingList" class="list-group custom-list-group">
-                            </ul>
-                            <h6 class="friend-list-title" data-i18n="yourFollowers">Vos abonnés</h6>
-                            <ul id="followersList" class="list-group custom-list-group">
-                            </ul>
-                        </div>
-                        <div class="tab-pane fade" id="add-friend" role="tabpanel" aria-labelledby="add-friend-tab">
-                            <form id="addFriendForm" class="mt-3">
-                                <div class="mb-3">
-                                    <p for="friendUsername" class="form-label" data-i18n="addFriendUsername">Nom d'utilisateur de l'ami</p>
-                                    <input type="text" class="form-control custom-input" id="friendUsername" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary custom-btn" data-i18n="addFriendButton">Ajouter</button>
-                            </form>
-                        </div>
-                    </div>
+                <div class="modal-body" id="friendModalBody">
                 </div>
             </div>
         </div>
@@ -199,7 +183,6 @@
                 <div class="modal-body" id="friendProfileContent">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="unfollowButton" data-i18n="unfollowButton">Se désabonner</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="closeButton">Fermer</button>
                 </div>
             </div>
@@ -217,8 +200,8 @@
                         <div class="mb-3">
                             <p for="playerCount" class="form-label" data-i18n="playerCount">Nombre de joueurs</p>
                             <select class="form-select" id="playerCount" required>
-                                <option value="4">4 joueurs</option>
-                                <option value="8">8 joueurs</option>
+                                <option value="4">4</option>
+                                <option value="8">8</option>
                             </select>
                         </div>
                         <div id="aliasInputs">
@@ -229,31 +212,138 @@
             </div>
         </div>
     </div>
-    <!-- Modal Ajoute par Clement (module Blockchain) -->
-	<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="notificationModalLabel">Notification</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body" id="notificationModalMessage">
-					Votre message de notification ici.
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal fade" id="historiqueModal" tabindex="-1" aria-labelledby="historiqueModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="historiqueModalLabel" data-i18n="historiqueModalTitle">Historique des parties</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="historiqueForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="settingsModalTitle">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsUsername">Username</p>
+                            <input type="text" class="form-control" id="settingsUsername" name="username">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsEmail">Email</p>
+                            <input type="email" class="form-control" id="settingsEmail" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsAlias">Alias</p>
+                            <input type="text" class="form-control" id="settingsAlias" name="alias">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="languageSetting">Preferred Language</p>
+                            <select class="form-control" id="settingsLanguagePreference" name="languagePreference">
+                                <option value="1">English</option>
+                                <option value="2">Français</option>
+                                <option value="3">Tiếng Việt</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsProfilePhoto">Profile Photo</p>
+                            <input type="file"
+                                   class="form-control"
+                                   id="settingsPhoto"
+                                   name="photoProfile"
+                                   accept="image/*"
+                                   data-i18n="chooseFile"
+                                   title="Choisir un fichier">
+                            <img id="photoPreview" class="mt-2" style="max-width: 200px; display: none;">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsNewPassword">New Password</p>
+                            <input type="password" class="form-control" id="settingsNewPassword" name="password">
+                        </div>
+                        <div class="mb-3">
+                            <p class="form-label" data-i18n="settingsConfirmPassword">Confirm New Password</p>
+                            <input type="password" class="form-control" id="settingsConfirmPassword">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" data-i18n="settingsSaveChanges">Save Changes</button>
+                    </form>
+                    <!-- Ajoute par clement  -->
+                    <div id="errorMessage" style="display: none;">
+                        <div class="auth-message">
+                            <i class="fas fa-lock"></i>
+                            <p data-i18n="loginToUpdateProfile">Aucune information utilisateur disponible</p>
+                        </div>;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel" data-i18n="userModalTitle">Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="nextGameModal" tabindex="-1" aria-labelledby="nextGameModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nextGameModalLabel" data-i18n="nextGameModalTitle">Prochaine partie</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <button type="button" class="btn btn-primary" id="startNextGameButton" data-i18n="startNextGame">Jouer</button>
+                </div>
+                <div class="modal-body">
+                    <form id="nextGameForm">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel" data-i18n="notificationModalTitle">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="color: #ad996d" id="notificationModalMessage"
+                     data-i18n="tournamentScoreStorageAttempt"
+                     data-i18n-params='{"tournamentId": "", "etherscanLink": "", "contractAddress": ""}'>
+                    Tentative de stockage du score du tournoi. Cela peut prendre quelques instants...
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Ligne ajoutee par Clement pour ajoute la bibliotheque ethers.js (module Blockchain) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script> -->
-	<script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
     <script src="/static/js/csrf_utils.js"></script>
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/friends.js"></script>
     <script src="/static/js/main.js"></script>
-    <!-- Fichier js ajoute par Clement (module Blockchain) -->
-    <script src="/static/js/blockchain.js"></script>
     <script src="/static/js/language.js"></script>
+    <script src="/static/js/blockchain.js"></script>
     <script src="/static/js/tournament.js"></script>
+    <script src="/static/js/historique.js"></script>
+    <script src="/static/js/settings.js"></script>
+    <script src="/static/js/user.js"></script>
 </body>
 </html>

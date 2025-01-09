@@ -5,16 +5,27 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth.password_validation import validate_password
 from authentication.models import User
+import bleach
+
+def clean_user_data(data):
+
+	cleaned_data = {}
+	for key, value in data.items():
+		if isinstance(value, str):
+			cleaned_data[key] = bleach.clean(value, tags=[], attributes=[], strip=True)
+		else:
+			cleaned_data[key] = value
+	return cleaned_data
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile']
+		fields = ['id', 'username', 'alias', 'email', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'languageFav', 'is_online']
 
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile']
+		fields = ['username', 'alias', 'nbPartiesJouees', 'nbVictoires', 'nbDefaites', 'photoProfile', 'is_online']
 
 #Verification des données fournies lors de la connexions
 # class LoginSerializer(serializers.Serializer):
@@ -41,25 +52,29 @@ class PublicUserSerializer(serializers.ModelSerializer):
 # 		}
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
 
-    def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
+	username = serializers.CharField(required=True)
+	password = serializers.CharField(write_only=True, required=True)
 
-        User = get_user_model()
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Identifiant invalide.")
+	def validate(self, data):
 
-        if not user.check_password(password):
-            raise serializers.ValidationError("Mot de passe invalide.")
+		data = clean_user_data(data)  # Protection contre les injections XSS
 
-        return {
-            'user': user
-        }
+		username = data.get('username')
+		password = data.get('password')
+
+		User = get_user_model()
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			raise serializers.ValidationError("Identifiant invalide.")
+
+		if not user.check_password(password):
+			raise serializers.ValidationError("Mot de passe invalide.")
+
+		return {
+			'user': user
+		}
 
 # verification des données fournies lors de l'inscription
 # /!\ ajouter la photo de profil
@@ -69,34 +84,58 @@ class SignupSerializer(serializers.ModelSerializer):
 	email = serializers.EmailField(required=True)
 	password = serializers.CharField(write_only=True, required=True)
 	photoProfile = serializers.ImageField(required=False)
+	# languageFav = serializers.IntegerField(required=False)
+	languageFav = serializers.IntegerField(required=False)
 
 	class Meta:
 		model = get_user_model()
-		fields = ['username', 'alias', 'email', 'password', 'photoProfile']
+		fields = ['username', 'alias', 'email', 'password', 'photoProfile', 'languageFav']
 
 	def validate_password(self, value):
 		validate_password(value)
 		return value
 
 	def validate(self, data):
+
+		data = clean_user_data(data)  # Protection contre les injections XSS
+
 		username = data.get('username')
 		alias = data.get('alias')
 		email = data.get('email')
 		password = data.get('password')
+		language_fav = data.get('languageFav')
 		user = get_user_model()
-		print(f"Username: {username}, Email: {email}, Password: {password}")
+		# print(f"Username: {username}, Email: {email}, Password: {password}")
 		if user.objects.filter(email=email).exists():
 			raise serializers.ValidationError("Cet email est deja utilisé.")
 		if user.objects.filter(username=username).exists():
 			raise serializers.ValidationError("Ce nom d'utilisateur est deja utilisé.")
 		if user.objects.filter(alias=alias).exists():
 			raise serializers.ValidationError("Cet alias est deja utilisé.")
-		if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[@#$%^&+=!]", password):
-			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
+		# if len(password) < 8 or not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or not re.search("[.@,#$%^&+=!_\-]", password):
+		# 	raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
+		# Ajoute par Clement
+		if len(password) < 8:
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+		if not re.search("[a-z]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins une lettre minuscule.")
+		if not re.search("[A-Z]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins une lettre majuscule.")
+		if not re.search("[0-9]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+		if not re.search("[.@,#$%^&+=!_\-]", password):
+			raise serializers.ValidationError("Le mot de passe doit contenir au moins un caractère spécial (par exemple @, #, $, %, etc.).")
+		valid_choices = [1, 2, 3]
+		if language_fav not in [None, ""] and language_fav not in valid_choices:
+			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
+
 		return data
 
 	def create(self, validated_data):
 		password = validated_data.pop('password')
+		# Ajoute par Clement
+		if validated_data.get('languageFav') in [None, ""]:
+			validated_data.pop('languageFav', None)
 		user = get_user_model().objects.create(**validated_data)
 		user.set_password(password)
 		user.save()
@@ -104,19 +143,48 @@ class SignupSerializer(serializers.ModelSerializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
+	languageFav = serializers.CharField(required=False)
+
+	# photoProfile = serializers.ImageField(required=False, allow_null=True)
 
 	class Meta:
 		model = User
-		fields = ['username', 'alias', 'email', 'photoProfile', 'password']
-		extra_kwargs = {'password' : {'write_only': True, 'required': False},}
+		fields = ['username', 'alias', 'email', 'photoProfile', 'password', 'languageFav']
+		extra_kwargs = {
+            'username': {'required': False},
+            'alias': {'required': False},
+            'email': {'required': False},
+            'password': {'write_only': True, 'required': False},
+			'languageFav': {'required': False},
+		}
+
+	def validate(self, data):
+		data = clean_user_data(data)  # Protection contre les injections XSS
+		return data
 
 	def validate_password(self, value):
-		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[@#$%^&+=!]", value)):
+		if value and (len(value) < 8 or not re.search("[a-z]", value) or not re.search("[A-Z]", value) or not re.search("[0-9]", value) or not re.search("[.@,#$%^&+=!_\-]", value)):
 			raise serializers.ValidationError("Le mot de passe ne répond pas aux critères.")
 		return value
 
+	# Ajoute par Clement
+	def validate_languageFav(self, value):
+		language_map = {
+			"English": 1,
+			"Français": 2,
+			"Tiếng Việt": 3,
+		}
+		valid_choices = [1, 2, 3]
+		# if value not in [None, ""] and value not in valid_choices:
+		if value not in [None, ""] and value not in language_map:
+			raise serializers.ValidationError("La langue sélectionnée n'est pas valide.")
+		return language_map[value]#Retourne la langue sous forme de texte
+
+
 	def update(self, instance, validated_data):
+		validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		password = validated_data.pop('password', None)
+		# validated_data = {key: value for key, value in validated_data.items() if value not in ["", None]}
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
 		if password:
