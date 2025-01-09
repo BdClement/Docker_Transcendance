@@ -57,7 +57,6 @@ A FAIRE !!
 
 ## 🏗 Architecture
 Ajouter le schéma au projet pour pouvoir l'afficher  
-Schéma Transcendance Architecture.png
 ![Schema Architecture](Schéma Transcendance Architecture.png)
 
 
