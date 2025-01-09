@@ -57,7 +57,7 @@ A FAIRE !!
 
 ## 🏗 Architecture
 Ajouter le schéma au projet pour pouvoir l'afficher  
-![Schema Architecture](Schéma Transcendance Architecture.png)
+![Schema Architecture](Schema_Transcendance_Architecture.png)
 
 
 We used NGINX as a proxy. It has been configured to redirect every incoming conneciton to HTTPS port.  
