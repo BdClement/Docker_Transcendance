@@ -4,10 +4,10 @@
 Transcendance project is our first Web project. It aims to develop a single page application (SPA) inspired by the famous Pong game.
 
 ## 📋 Contents
-- [Technical Stack](#technical-stack)
+- [Technical Stack](#-technical-stack)
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
-- [Tests](#tests)
+- [Tests](#-tests)
 - [Architecture](#-architecture)
 - [Contributors](#-contributors)
 
@@ -86,7 +86,7 @@ Once a message is routed by Redis to the relevant group, Daphne retrieves it and
 
 This architecture ensures efficient communication between players in the game, with Redis allowing for scalable message routing and Daphne ensuring real-time delivery.
 
-## 🧪 Test  
+## 🧪 Tests  
 The project has been tested using Django's built-in testing framework.  
 To run the tests, use the command: (A TESTER !!)
 
