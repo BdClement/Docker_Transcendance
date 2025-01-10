@@ -6,17 +6,17 @@ Transcendance project is our first Web project. It aims to develop a single page
 ## 📋 Contents
 - [Technical Stack](#technical-stack)
 - [Key Features](#-key-features)
-- [Installation/Configuration](#installation-configuration)
-- [Test](#test)
+- [Installation Configuration](#installation-configuration)
+- [Tests](#tests)
+- [Architecture ](#architecture)
 - [Contributors](#contributors)
 
 
-## 🛢️ Technical Stack
+## 🛢️ Technical Stack  
 Back-end  : Python / Django / Django REST Framework  
 Front-end : Javascript / Bootstrap / HTML / CSS
 
-Blockchain feature : Solidity / Node.js / Hardhat / Alchemy  
-=> [MyFirstHardhatProject](https://github.com/BdClement/MyFirstHardhatProject)
+Blockchain feature : Solidity / Node.js / Hardhat / Alchemy  => [MyFirstHardhatProject](https://github.com/BdClement/MyFirstHardhatProject)
  
 Database : SQLite (Django default's Database)
 
@@ -51,7 +51,7 @@ Back-end side game and API :
 The game logic has been developped in Python on server side. An API has allowed the game initialization, player controls, and game state updates. 
 
 
-## 🔧 Installation/Configuration
+## 🔧 Installation Configuration  
 A Tester a 42 !!  
 To launch the project, you will need a .env file similar as this example : (A rechecker avec original)
 ```plaintext
@@ -86,7 +86,7 @@ Once a message is routed by Redis to the relevant group, Daphne retrieves it and
 
 This architecture ensures efficient communication between players in the game, with Redis allowing for scalable message routing and Daphne ensuring real-time delivery.
 
-## 🧪 Test (Explication de l'utilisation de pytest)
+## 🧪 Test  
 The project has been tested using Django's built-in testing framework.  
 To run the tests, use the command: (A TESTER !!)
 
