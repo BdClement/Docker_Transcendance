@@ -6,7 +6,6 @@ Transcendance project is our first Web project. It aims to develop a single page
 ## 📋 Contents
 
 - [Technical Stack](#-technical-stack)
-- [Technical Stack](#%f0%9f%9b%a2%ef%b8%8f-technical-stack)
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
 - [Tests](#-tests)
@@ -14,8 +13,8 @@ Transcendance project is our first Web project. It aims to develop a single page
 - [Contributors](#-contributors)
 
 
-<!-- Separator -->
 ## 🛢️ Technical Stack  
+
 Back-end  : Python / Django / Django REST Framework  
 Front-end : Javascript / Bootstrap / HTML / CSS
 
