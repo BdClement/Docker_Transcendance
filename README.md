@@ -4,7 +4,8 @@
 Transcendance project is our first Web project. It aims to develop a single page application (SPA) inspired by the famous Pong game.
 
 ## 📋 Contents
-- [Technical Stack](#technical-stack)
+
+- [Technical Stack](#-technical-stack)
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
 - [Tests](#-tests)
