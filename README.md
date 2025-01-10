@@ -4,10 +4,10 @@
 Transcendance project is our first Web project. It aims to develop a single page application (SPA) inspired by the famous Pong game.
 
 ## 📋 Contents
-- [Technical Stack](#-technical-stack)
+- [Technical Stack](#technical-stack)
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
-- [Tests](#-tests)
+- [Tests](#tests)
 - [Architecture ](#-architecture)
 - [Contributors](#-contributors)
 
@@ -23,7 +23,7 @@ Database : SQLite (Django default's Database)
 Django REST Framework is used to build an API REST to allow communication between back-end and front-end. This API enables CRUD operations and JSON data transfer in a fluid way.
 
 
-## 👨‍💻 Key Features 
+## 👨‍💻 Key Features  
 Screens à ajouter  
 
 Tournament :  
