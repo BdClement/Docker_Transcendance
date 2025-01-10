@@ -8,7 +8,7 @@ Transcendance project is our first Web project. It aims to develop a single page
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
 - [Tests](#tests)
-- [Architecture ](#-architecture)
+- [Architecture](#-architecture)
 - [Contributors](#-contributors)
 
 
