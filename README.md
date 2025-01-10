@@ -4,12 +4,12 @@
 Transcendance project is our first Web project. It aims to develop a single page application (SPA) inspired by the famous Pong game.
 
 ## 📋 Contents
-- [Technical Stack](#technical-stack)
+- [Technical Stack](#-technical-stack)
 - [Key Features](#-key-features)
-- [Installation Configuration](#installation-configuration)
-- [Tests](#tests)
-- [Architecture ](#architecture)
-- [Contributors](#contributors)
+- [Installation Configuration](#-installation-configuration)
+- [Tests](#-tests)
+- [Architecture ](#-architecture)
+- [Contributors](#-contributors)
 
 
 ## 🛢️ Technical Stack  
@@ -95,7 +95,7 @@ docker exec -it django-app bash
 python manage.py test
 ```
 
-## Contributors  
+## 💼 Contributors  
 - [Julien Degluaire](https://github.com/Juliendeg)
 - [Ilona Selbonne](https://github.com/slbilona)
 - [Bastien Mirlicourtois](https://github.com/bmirlico)
