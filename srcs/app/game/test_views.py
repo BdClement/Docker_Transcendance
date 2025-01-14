@@ -179,7 +179,7 @@ class MatchHistoryViewTest(APITestCase):
 			date='2024-10-20',
 			results={'winners': [self.user.id], 'losers': ['player2']}
 		)
-		self.play1 = Play.objects.create(
+		self.play2 = Play.objects.create(
 			player2=self.user,
 			is_finished=True,
 			date='2024-10-21',
@@ -192,9 +192,9 @@ class MatchHistoryViewTest(APITestCase):
 			date='2024-10-20',
 			results={'winners': [self.user.id], 'losers': []}
 		)
-		self.play1 = Play.objects.create(
+		self.play3 = Play.objects.create(
 			player2=self.user,
-			is_finished=False,
+			is_finished=True,
 			date='2023-10-20',
 			results={}
 		)
@@ -209,7 +209,7 @@ class MatchHistoryViewTest(APITestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, 'testuser')
 		self.assertContains(response, '2024-10-20')
-		self.assertContains(response, '2023-10-20')
+		# self.assertContains(response, '2023-10-20')//Obsolete car modification 5 item par page apr ordre de date
 		self.assertEqual(response.data['count'], 13)
 		self.assertEqual(len(response.data['results']), 5)
 		self.assertNotEqual(response.data['next'], None)

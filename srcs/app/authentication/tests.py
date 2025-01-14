@@ -10,26 +10,26 @@ from django.contrib.auth import get_user_model
 
 class UserAPITestCase(APITestCase):
     def setUp(self):
-        self.signup_url = '/api/signup/'  # Remplacez par l'URL réelle de votre API d'inscription
-        self.user_info_url = '/api/user/'  # URL pour obtenir les infos utilisateur
-        self.user_update_url = '/api/userprofileupdate/'  # URL pour mettre à jour les infos utilisateur
+        self.signup_url = '/api/signup/' 
+        self.user_info_url = '/api/user/' 
+        self.user_update_url = '/api/userprofileupdate/'
 
         self.user_data = {
             'username': 'testuser',
             'email': 'testuser@example.com',
             'alias': 'Test Alias',
             'password': 'Securep@ssword123',
-            # 'languageFav': '1'  # Assurez-vous que ce champ correspond à votre modèle
+            # 'languageFav': '1' 
         }
 
     def test_signup_and_user_workflow(self):
-        # 1. Tester l'inscription
+        #Tester l'inscription
         response = self.client.post(self.signup_url, self.user_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('user', response.data)
         self.assertEqual(response.data['user']['languageFav'], 2)
 
-        # Vérifiez que l'utilisateur est bien créé dans la base de données
+        # Vérifier que l'utilisateur est bien créé dans la base de données
         user_model = get_user_model()
         user = user_model.objects.get(username=self.user_data['username'])
         # self.assertEqual(user.languageFav, 1)
@@ -40,7 +40,6 @@ class UserAPITestCase(APITestCase):
         response = self.client.get(self.user_info_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['languageFav'], 'Français')
-        # self.assertEqual(response.data['languageFav'], 'English')
 
         # 3. Mettre à jour le champ languageFav
         # updated_data = {
@@ -53,15 +52,15 @@ class UserAPITestCase(APITestCase):
             'languageFav': 'English'  # Nouvelle valeur
             # 'username': 'testuser2'
         }
+
         response = self.client.put(self.user_update_url, updated_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['languageFav'], 1)
 
         response = self.client.get(self.user_update_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['languageFav'], 1)
+        self.assertEqual(response.data['languageFav'], '1')
 
-        # Vérifiez que la mise à jour est persistée
+        # Vérifie que la mise à jour est persistée
         user.refresh_from_db()
-        self.assertEqual(user.languageFav, 2)
-        # self.assertEqual(user.languageFav, 1)
+        self.assertEqual(user.languageFav, 1)

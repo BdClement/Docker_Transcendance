@@ -9,6 +9,8 @@ from Transcendance.asgi import application
 from game.models import Play
 from game.consumers import PlayConsumer
 
+import asyncio
+
 class TestPlayConsumer(LiveServerTestCase):
 
 	def setUp(self):
@@ -20,7 +22,12 @@ class TestPlayConsumer(LiveServerTestCase):
 		communicator = WebsocketCommunicator(application, f"/wss/game/{self.play_remote.id}/")
 		connected = await communicator.connect()
 		self.assertTrue(connected)
+
+		#Oblige car latence ne permettait pas de voir la connexion du consumer dans l'objet Play (surement du a Redis)
+		await asyncio.sleep(0.5)
 		#A faire dans un test absolument pour etre sur de recuperer le dernier etat en stock dans la base de donnee
+		#Autre solution utiliser InMemoryChannelLayer pour la config specifique au test pour eviter de dependre de Redis dans le test
+		#Creuser utilisation de Mock egalement 
 		await database_sync_to_async(self.play_remote.refresh_from_db)()
 		self.assertEqual(self.play_remote.player_connected, 1)
 		await communicator.disconnect()

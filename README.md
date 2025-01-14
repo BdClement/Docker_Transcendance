@@ -16,7 +16,7 @@ Transcendance project is our first Web project. It aims to develop a single page
 ## 🛢️ Technical Stack  
 
 Back-end  : Python / Django / Django REST Framework  
-Front-end : Javascript / Bootstrap / HTML / CSS
+Front-end : HTML / CSS / Bootstrap / Javascript
 
 Blockchain feature : Solidity / Node.js / Hardhat / Alchemy  => [MyFirstHardhatProject](https://github.com/BdClement/MyFirstHardhatProject)
  
@@ -28,16 +28,19 @@ Django REST Framework is used to build an API REST to allow communication betwee
 ## 👨‍💻 Key Features  
 Screens à ajouter  
 
+Authentification and user management :  
+A user can register, login and logout in a secure way. A user can update his information and upload an avatar. A friend system has been developed allowing users to follow/unfollow users.
+
+Multi-languages :  
+A language selector is available to change it anytime. A user has a favorite language (French by default) and can change it whenever they  want. The 3 languages available are French, English and Viet.
+
 Tournament :  
 A user can create a tournament with a registration system with alias_names related to subscribed users.  
 A clear display shows which players will play next. 
 
-Authentification and user management :  
-A user can register, login and logout in a secure way. A user can update his information and upload an avatar. A friend system has been developed allowing users to follow/unfollow users.
-
-
 Blockchain :  
 At the end of a tournament, the score is stored on Sepolia Ethereum Testnet from the server. A display informs the user with a link to Etherscan to check the transaction when it is completed.
+
 
 Remote player :  
 A user can create or join a distant play. It starts when all the players are connected.
@@ -46,23 +49,21 @@ Multi-player :
 A user can create a remote or local 2v2 play. This play is fluid and in real-time for both players.
 
 
-Multi-languages :  
-A language selector is available to change it anytime. A user has a favorite language (French by default) and can change it whenever they  want. The 3 languages available are French, English and Viet.
-
 Back-end side game and API :  
 The game logic has been developped in Python on server side. An API has allowed the game initialization, player controls, and game state updates. 
 
+![game_gif](readme_media/game.gif)
 
 ## 🔧 Installation Configuration  
-A Tester a 42 !!  
-To launch the project, you will need a .env file similar as this example : (A rechecker avec original)
-```plaintext
-    ALCHEMY_RPC=
-    PRIVATE_KEY=your_private_key
-    CONTRACT_ADDRESS
 
+To launch the project, you will need a .env file similar to this example : 
+```plaintext
+    ALCHEMY_RPC=your_alchemy_rpc
+    PUBLIC_KEY=your_public_key
+    PRIVATE_KEY=your_private_key
+    CONTRACT_ADDRESS=your_contract_address
 ```
-This env file allows blockchain functionnality. For security, reasons, you won't have access to those variables and won't be abble to make blockchain functionnality works.
+This env file which must be stored in srcs/ folder, allows blockchain functionnality. For security, reasons, you won't have access to those variables and won't be abble to make blockchain functionnality works.
 
 You will need to place SSL certificate and private_key to nginx folder. To do so, you can run this command :  
 ```bash
@@ -73,7 +74,7 @@ mv certificate.crt srcs/nginx/
 
 
 ## 🏗 Architecture  
-![Schema Architecture](Schema_Transcendance_Architecture.png)
+![Schema Architecture](readme_media/Schema_Transcendance_Architecture.png)
 
 
 We used NGINX as a proxy. It has been configured to redirect every incoming conneciton to HTTPS port.  
@@ -89,11 +90,14 @@ Once a message is routed by Redis to the relevant group, Daphne retrieves it and
 This architecture ensures efficient communication between players in the game, with Redis allowing for scalable message routing and Daphne ensuring real-time delivery.
 
 ## 🧪 Tests  
-The project has been tested using Django's built-in testing framework.  
-To run the tests, use the command: (A TESTER !!)
+The project has been an introduction to unit tests and integration tests using Django's built-in testing framework.    
+To run the tests, use the command to access app container :
 
 ```bash
 docker exec -it django-app bash
+```
+And run this commande to execute tests :
+```bash
 python manage.py test
 ```
 
