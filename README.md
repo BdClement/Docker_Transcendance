@@ -8,8 +8,8 @@ Transcendance project is our first Web project. It aims to develop a single page
 - [Technical Stack](#-technical-stack)
 - [Key Features](#-key-features)
 - [Installation Configuration](#-installation-configuration)
-- [Tests](#-tests)
 - [Architecture](#-architecture)
+- [Tests](#-tests)
 - [Contributors](#-contributors)
 
 
@@ -113,4 +113,3 @@ python manage.py test
 - [Julien Degluaire](https://github.com/Juliendeg)
 - [Ilona Selbonne](https://github.com/slbilona)
 - [Bastien Mirlicourtois](https://github.com/bmirlico)
-
