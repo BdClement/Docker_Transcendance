@@ -27,24 +27,28 @@ Django REST Framework is used to build an API REST to allow communication betwee
 
 ## 👨‍💻 Key Features  
 
-![login_gif](readme_media/login.gif)
 Authentification and user management :  
-A user can register, login and logout in a secure way. A user can update his information and upload an avatar. A friend system has been developed allowing users to follow/unfollow users.
+A user can register, login and logout in a secure way. A user can update his information and upload an avatar. A friend system has been developed allowing users to follow/unfollow users.  
+
+
+![login_gif](readme_media/login.gif)
+
+Multi-languages :  
+A language selector is available to change it anytime. A user has a favorite language (French by default) and can change it whenever they  want. The 3 languages available are French, English and Viet.  
+
 
 ![user_gif](readme_media/user.gif)
-Multi-languages :  
-A language selector is available to change it anytime. A user has a favorite language (French by default) and can change it whenever they  want. The 3 languages available are French, English and Viet.
 
-![tournament_gif](readme_media/tournament.gif)
 Tournament :  
 A user can create a tournament with a registration system with alias_names related to subscribed users.  
 A clear display shows which players will play next. 
 
 Blockchain :  
-At the end of a tournament, the score is stored on Sepolia Ethereum Testnet from the server. A display informs the user with a link to Etherscan to check the transaction when it is completed.
+At the end of a tournament, the score is stored on Sepolia Ethereum Testnet from the server. A display informs the user with a link to Etherscan to check the transaction when it is completed.  
 
 
-![game_gif](readme_media/game.gif)
+![tournament_gif](readme_media/tournament.gif)
+
 Remote player :  
 A user can create or join a distant play. It starts when all the players are connected.  
 
@@ -52,7 +56,10 @@ Multi-player :
 A user can create a remote or local 2v2 play. This play is fluid and in real-time for both players.  
 
 Back-end side game and API :  
-The game logic has been developped in Python on server side. An API has allowed the game initialization, player controls, and game state updates. 
+The game logic has been developped in Python on server side. An API has allowed the game initialization, player controls, and game state updates.  
+
+
+![game_gif](readme_media/game.gif)
 
 
 ## 🔧 Installation Configuration  
